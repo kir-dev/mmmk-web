@@ -13,7 +13,77 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  USER
+  GATEKEEPER
+  ADMIN
+}
+
 model User {
-  authSchId String @id
-  email     String @unique
+  id              Int              @id @default(autoincrement())
+  name            String
+  email           String           @unique
+  phone           String           @unique
+  isDormResident  Boolean
+  roomNumber      String
+  role            Role
+  bandMemberships BandMembership[]
+  reservations    Reservation[]    @relation("Reservations")
+  gateKeeping     Reservation[]    @relation("GateKeeping")
+}
+
+enum ReservationStatus {
+  OVERTIME
+  NORMAL
+}
+
+model Reservation {
+  id           Int               @id @default(autoincrement())
+  user         User?             @relation("Reservations", fields: [userId], references: [id])
+  userId       Int?
+  band         Band?             @relation(fields: [bandId], references: [id])
+  bandId       Int?
+  startTime    DateTime
+  endTime      DateTime
+  gateKeeper   User?             @relation("GateKeeping", fields: [gateKeeperId], references: [id])
+  gateKeeperId Int?
+  status       ReservationStatus
+}
+
+model Genre {
+  id    Int    @id @default(autoincrement())
+  name  String
+  bands Band[]
+}
+
+model Band {
+  id           Int              @id @default(autoincrement())
+  name         String
+  genres       Genre[]
+  members      BandMembership[]
+  reservations Reservation[]
+  email        String?
+  webPage      String?
+  description  String?
+}
+
+enum BandMembershipStatus {
+  PENDING
+  ACCEPTED
+}
+
+model BandMembership {
+  id     Int                  @id @default(autoincrement())
+  user   User?                @relation(fields: [userId], references: [id])
+  userId Int?
+  band   Band?                @relation(fields: [bandId], references: [id])
+  bandId Int?
+  status BandMembershipStatus
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  comment   String
+  startTime DateTime
+  endTime   DateTime
 }
