@@ -1,11 +1,11 @@
 import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
+import { PrismaService } from 'nestjs-prisma';
 
+import { PaginationDto } from '../dto/pagination.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
-import { PrismaService } from 'nestjs-prisma';
 import { Comment } from './entities/comment.entity';
-import { PaginationDto } from '../dto/pagination.dto';
-import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class CommentsService {
