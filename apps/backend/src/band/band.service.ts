@@ -10,7 +10,7 @@ export class BandService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(createBandDto: CreateBandDto): Promise<Band> {
-    return await this.prisma.band.create({ createBandDto });
+    return await this.prisma.band.create({ data: createBandDto });
   }
 
   async findAll(): Promise<Band[]> {
@@ -51,12 +51,5 @@ export class BandService {
     } catch (error) {
       throw new NotFoundException('No bands found');
     }
-  }
-
-  async findMembers(id: number) {
-    const members = await this.prisma.bandmember.findAll({
-      where: { bandId: id },
-      include: { user: true },
-    });
   }
 }
