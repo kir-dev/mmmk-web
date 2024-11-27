@@ -78,7 +78,7 @@ model BandMembership {
   userId Int?
   band   Band?                @relation(fields: [bandId], references: [id])
   bandId Int?
-  status BandMembershipStatus
+  status BandMembershipStatus @default(PENDING)
 }
 
 model Comment {

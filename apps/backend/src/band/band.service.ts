@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'nestjs-prisma';
+import { User } from 'src/users/entities/user.entity';
 
 import { CreateBandDto } from './dto/create-band.dto';
 import { UpdateBandDto } from './dto/update-band.dto';
@@ -50,6 +51,41 @@ export class BandService {
       return res;
     } catch (error) {
       throw new NotFoundException('No bands found');
+    }
+  }
+
+  async findMembers(id: number): Promise<User[]> {
+    try {
+      const bandmemberships = await this.prisma.bandMembership.findMany({ where: { bandId: id } });
+      if (!bandmemberships) throw new Error();
+      const members = await this.prisma.user.findMany({
+        where: { id: { in: bandmemberships.map((membership) => membership.userId) } },
+      });
+      return members;
+    } catch (error) {
+      throw new NotFoundException('No members found');
+    }
+  }
+
+  async addMember(bandId: number, userId: number): Promise<User> {
+    try {
+      const res = await this.prisma.bandMembership.create({
+        data: { band: { connect: { id: bandId } }, user: { connect: { id: userId } } },
+      });
+      if (!res) throw new Error();
+      return await this.prisma.user.findUnique({ where: { id: userId } });
+    } catch (error) {
+      throw new NotFoundException('No member found');
+    }
+  }
+
+  async removeMember(bandId: number, userId: number): Promise<User> {
+    try {
+      const res = await this.prisma.bandMembership.deleteMany({ where: { bandId, userId } });
+      if (!res) throw new Error();
+      return await this.prisma.user.findUnique({ where: { id: userId } });
+    } catch (error) {
+      throw new NotFoundException('No member found');
     }
   }
 }
