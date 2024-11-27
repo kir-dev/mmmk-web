@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { BandMembership } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 import { User } from 'src/users/entities/user.entity';
 
@@ -67,8 +68,8 @@ export class BandService {
     }
   }
 
-  async addMember(bandId: number, userId: number): Promise<User> {
-    if (await this.prisma.bandMembership.findUnique({ where: { data: { bandId, userId } } })) {
+  async addMember(bandId: number, userId: number): Promise<BandMembership> {
+    if (await this.prisma.bandMembership.findUnique({ where: { bandId: { bandId }, userId: { userId } } })) {
       throw new NotFoundException('User is already a member of the band');
     }
     if (!(await this.prisma.user.findUnique({ where: { id: userId } }))) {
@@ -76,25 +77,25 @@ export class BandService {
     }
     try {
       const res = await this.prisma.bandMembership.create({
-        data: { band: { connect: { id: bandId } }, user: { connect: { id: userId } } },
+        BandMembership: { band: { connect: { id: bandId } }, user: { connect: { id: userId } } },
       });
       if (!res) throw new Error();
       return res;
     } catch (error) {
-      throw new NotFoundException('No member found');
+      throw new NotFoundException('Member could not be added');
     }
   }
 
-  async removeMember(bandId: number, userId: number): Promise<User> {
-    if (!(await this.prisma.bandMembership.findUnique({ where: { data: { bandId, userId } } }))) {
+  async removeMember(bandId: number, userId: number): Promise<BandMembership> {
+    if (!(await this.prisma.bandMembership.findUnique({ where: { bandId: { bandId }, userId: { userId } } }))) {
       throw new NotFoundException('User is not a member of the band');
     }
     try {
-      const res = await this.prisma.bandMembership.deleteMany({ where: { bandId, userId } });
+      const res = await this.prisma.bandMembership.delete({ where: { bandId, userId } });
       if (!res) throw new Error();
       return res;
     } catch (error) {
-      throw new NotFoundException('No member found');
+      throw new NotFoundException('Member could not be removed');
     }
   }
 }
