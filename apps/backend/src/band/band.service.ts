@@ -84,9 +84,9 @@ export class BandService {
     try {
       const res = await this.prisma.bandMembership.deleteMany({ where: { bandId, userId } });
       if (!res) throw new Error();
-      return res;
+      return await this.prisma.bandMembership.findUnique({ where: { id: userId } });
     } catch (error) {
-      throw new NotFoundException('Member could not be removed');
+      throw new NotFoundException('No member found');
     }
   }
 }
