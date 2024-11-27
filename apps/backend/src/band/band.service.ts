@@ -68,22 +68,31 @@ export class BandService {
   }
 
   async addMember(bandId: number, userId: number): Promise<User> {
+    if (await this.prisma.bandMembership.findUnique({ where: { bandId_userId: { bandId, userId } } })) {
+      throw new NotFoundException('User is already a member of the band');
+    }
+    if (!(await this.prisma.user.findUnique({ where: { id: userId } }))) {
+      throw new NotFoundException('User does not exist');
+    }
     try {
       const res = await this.prisma.bandMembership.create({
         data: { band: { connect: { id: bandId } }, user: { connect: { id: userId } } },
       });
       if (!res) throw new Error();
-      return await this.prisma.user.findUnique({ where: { id: userId } });
+      return res;
     } catch (error) {
       throw new NotFoundException('No member found');
     }
   }
 
   async removeMember(bandId: number, userId: number): Promise<User> {
+    if (!(await this.prisma.bandMembership.findUnique({ where: { bandId_userId: { bandId, userId } } }))) {
+      throw new NotFoundException('User is not a member of the band');
+    }
     try {
       const res = await this.prisma.bandMembership.deleteMany({ where: { bandId, userId } });
       if (!res) throw new Error();
-      return await this.prisma.user.findUnique({ where: { id: userId } });
+      return res;
     } catch (error) {
       throw new NotFoundException('No member found');
     }
