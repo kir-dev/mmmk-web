@@ -82,7 +82,7 @@ export class BandService {
 
   async removeMember(bandId: number, userId: number): Promise<BandMembership> {
     try {
-      const res = await this.prisma.bandMembership.delete({ where: { bandId, userId } });
+      const res = await this.prisma.bandMembership.deleteMany({ where: { bandId, userId } });
       if (!res) throw new Error();
       return res;
     } catch (error) {
