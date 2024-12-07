@@ -30,6 +30,22 @@ model User {
   bandMemberships BandMembership[]
   reservations    Reservation[]    @relation("Reservations")
   gateKeeping     Reservation[]    @relation("GateKeeping")
+  cardRight       CardRight?
+  profilePicture  ProfilePicture?
+}
+
+model ProfilePicture {
+  id           Int    @id @default(autoincrement())
+  user         User   @relation(fields: [userId], references: [id])
+  userId       Int    @unique
+  mimeType     String
+  profileImage Bytes
+}
+
+model CardRight {
+  id     Int  @id @default(autoincrement())
+  userId Int  @unique
+  user   User @relation(fields: [userId], references: [id])
 }
 
 enum ReservationStatus {
@@ -50,16 +66,10 @@ model Reservation {
   status       ReservationStatus
 }
 
-model Genre {
-  id    Int    @id @default(autoincrement())
-  name  String
-  bands Band[]
-}
-
 model Band {
   id           Int              @id @default(autoincrement())
   name         String
-  genres       Genre[]
+  genres       String?
   members      BandMembership[]
   reservations Reservation[]
   email        String?
@@ -82,8 +92,15 @@ model BandMembership {
 }
 
 model Comment {
+  id           Int      @id @default(autoincrement())
+  comment      String
+  startTime    DateTime
+  endTime      DateTime
+  isReservable Boolean
+}
+
+model Period {
   id        Int      @id @default(autoincrement())
-  comment   String
-  startTime DateTime
-  endTime   DateTime
+  startDate DateTime
+  endDate   DateTime
 }

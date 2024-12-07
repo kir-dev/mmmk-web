@@ -13,4 +13,6 @@ export class Comment {
 
   @IsDate()
   endTime: Date;
+
+  isReservable: boolean;
 }
