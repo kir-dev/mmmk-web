@@ -26,4 +26,8 @@ export class User {
 
   @IsEnum(Role)
   role: Role;
+
+  cardRight: any;
+
+  profilePicture: any;
 }
