@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
 
 import { BandService } from './band.service';
 import { CreateBandDto } from './dto/create-band.dto';
@@ -19,17 +19,17 @@ export class BandController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.bandService.findOne(Number(id));
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.bandService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateBandDto: UpdateBandDto) {
-    return this.bandService.update(Number(id), updateBandDto);
+  update(@Param('id', ParseIntPipe) id: number, @Body() updateBandDto: UpdateBandDto) {
+    return this.bandService.update(id, updateBandDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.bandService.remove(Number(id));
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.bandService.remove(id);
   }
 }

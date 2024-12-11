@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { BandMembership } from '@prisma/client';
+import { BandMembership, BandMembershipStatus } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 import { User } from 'src/users/entities/user.entity';
 
@@ -16,19 +16,14 @@ export class BandService {
   }
 
   async findAll(): Promise<Band[]> {
-    try {
-      const res = await this.prisma.band.findMany();
-      if (!res) throw new Error();
-      return res;
-    } catch (error) {
-      throw new NotFoundException('No bands found');
-    }
+    const res = await this.prisma.band.findMany();
+    if (!res) throw new NotFoundException();
+    return res;
   }
 
   async findOne(id: number): Promise<Band> {
     try {
-      const res = await this.prisma.band.findUnique({ where: { id } });
-      if (!res) throw new Error();
+      const res = await this.prisma.band.findUniqueOrThrow({ where: { id } });
       return res;
     } catch (error) {
       throw new NotFoundException('No band found');
@@ -36,13 +31,7 @@ export class BandService {
   }
 
   async update(id: number, updateBandDto: UpdateBandDto): Promise<Band> {
-    try {
-      const res = await this.prisma.band.update({ where: { id }, data: updateBandDto });
-      if (!res) throw new Error();
-      return res;
-    } catch (error) {
-      throw new NotFoundException('No bands found');
-    }
+    return await this.prisma.band.update({ where: { id }, data: updateBandDto });
   }
 
   async remove(id: number): Promise<Band> {
@@ -57,14 +46,16 @@ export class BandService {
 
   async findMembers(id: number): Promise<User[]> {
     try {
-      const bandmemberships = await this.prisma.bandMembership.findMany({ where: { bandId: id } });
-      if (!bandmemberships) throw new Error();
+      const bandmemberships = await this.prisma.bandMembership.findMany({
+        where: { bandId: id, status: BandMembershipStatus.ACCEPTED },
+      });
       const members = await this.prisma.user.findMany({
         where: { id: { in: bandmemberships.map((membership) => membership.userId) } },
       });
       return members;
     } catch (error) {
-      throw new NotFoundException('No members found');
+      this.remove(id);
+      throw new NotFoundException('No members found, band deleted');
     }
   }
 
@@ -84,7 +75,7 @@ export class BandService {
     try {
       const res = await this.prisma.bandMembership.deleteMany({ where: { bandId, userId } });
       if (!res) throw new Error();
-      return await this.prisma.bandMembership.findUnique({ where: { id: userId } });
+      return res;
     } catch (error) {
       throw new NotFoundException('No member found');
     }
