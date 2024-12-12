@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { BandMembership } from '@prisma/client';
+import { BandMembership, BandMembershipStatus } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 import { User } from 'src/users/entities/user.entity';
 
@@ -16,7 +16,9 @@ export class BandService {
   }
 
   async findAll(): Promise<Band[]> {
-    const res = await this.prisma.band.findMany();
+    const res = await this.prisma.band.findMany({
+      include: { members: { include: { user: { select: { name: true } } } } },
+    });
     return res;
   }
 
@@ -73,6 +75,17 @@ export class BandService {
         await this.remove(bandId);
       }
       return res;
+    } catch (error) {
+      throw new NotFoundException('No member found');
+    }
+  }
+
+  async approveMember(bandId: number, userId: number) {
+    try {
+      return await this.prisma.bandMembership.updateMany({
+        where: { bandId, userId },
+        data: { status: BandMembershipStatus.ACCEPTED },
+      });
     } catch (error) {
       throw new NotFoundException('No member found');
     }

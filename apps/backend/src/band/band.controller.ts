@@ -32,4 +32,24 @@ export class BandController {
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.bandService.remove(id);
   }
+
+  @Get(':id/members')
+  findMembers(@Param('id', ParseIntPipe) id: number) {
+    return this.bandService.findMembers(id);
+  }
+
+  @Post(':id/members/:userId')
+  addMember(@Param('id', ParseIntPipe) bandId: number, @Param('userId', ParseIntPipe) userId: number) {
+    return this.bandService.addMember(bandId, userId);
+  }
+
+  @Delete(':id/members/:userId')
+  removeMember(@Param('id', ParseIntPipe) bandId: number, @Param('userId', ParseIntPipe) userId: number) {
+    return this.bandService.removeMember(bandId, userId);
+  }
+
+  @Patch(':id/members/:userId')
+  approveMember(@Param('id', ParseIntPipe) bandId: number, @Param('userId', ParseIntPipe) userId: number) {
+    return this.bandService.approveMember(bandId, userId);
+  }
 }
