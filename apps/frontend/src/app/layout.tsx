@@ -1,9 +1,7 @@
 import './globals.css';
 
+import { GeistSans } from 'geist/font/sans';
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-
-const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'MMMK',
@@ -17,7 +15,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang='hu'>
-      <body className={`${inter.className} bg-zinc-950 text-zinc-50`}>{children}</body>
+      <body className={`${GeistSans.className} bg-zinc-950 text-zinc-50`}>{children}</body>
     </html>
   );
 }
