@@ -1,6 +1,7 @@
 'use client';
 
 import BandRow from '@/components/band/bandRow';
+import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import { dummyBands } from '@/mocks/bands';
 
@@ -10,14 +11,14 @@ export default function Bands() {
   return (
     <div className='w-full'>
       <h1 className='text-2xl font-semibold p-4 text-orange-500'>Zenekarok</h1>
-      {/* <div className='flex items-center py-4'>
+      <div className='flex items-center py-4'>
         <Input
-          placeholder='Filter emails...'
+          placeholder='Keresés...'
           value={(table.getColumn('email')?.getFilterValue() as string) ?? ''}
           onChange={(event) => table.getColumn('email')?.setFilterValue(event.target.value)}
           className='max-w-sm'
         />
-      </div> */}
+      </div>
       <Table>
         <TableBody>
           {data.length ? (
