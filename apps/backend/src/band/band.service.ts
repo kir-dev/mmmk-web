@@ -48,11 +48,9 @@ export class BandService {
     try {
       const bandmemberships = await this.prisma.bandMembership.findMany({
         where: { bandId: id, status: BandMembershipStatus.ACCEPTED },
+        include: { user: true },
       });
-      const members = await this.prisma.user.findMany({
-        where: { id: { in: bandmemberships.map((membership) => membership.userId) } },
-      });
-      return members;
+      return bandmemberships.map((membership) => membership.user);
     } catch (error) {
       this.remove(id);
       throw new NotFoundException('No members found, band deleted');
@@ -71,7 +69,7 @@ export class BandService {
     }
   }
 
-  async removeMember(bandId: number, userId: number): Promise<BandMembership> {
+  async removeMember(bandId: number, userId: number) {
     try {
       const res = await this.prisma.bandMembership.deleteMany({ where: { bandId, userId } });
       if (!res) throw new Error();
