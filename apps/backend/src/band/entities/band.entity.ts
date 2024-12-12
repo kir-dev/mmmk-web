@@ -23,5 +23,5 @@ export class Band {
 
   @IsOptional()
   @IsString()
-  genres: string;
+  genres: string[];
 }
