@@ -75,7 +75,7 @@ export function Sidebar() {
         </div>
       </div>
 
-      <Button className='mt-auto' variant='default'>
+      <Button className='mt-auto' variant='outline'>
         Make new Reservation
       </Button>
     </div>
