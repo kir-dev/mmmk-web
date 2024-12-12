@@ -9,7 +9,7 @@ export default function BandRow({ band }: { band: Band }) {
   return (
     <Collapsible key={band.id} asChild>
       <>
-        <TableRow>
+        <TableRow className='border-0'>
           <TableCell colSpan={3}>
             <div>
               <strong className='text-xl'>{band.name}</strong>
@@ -23,16 +23,16 @@ export default function BandRow({ band }: { band: Band }) {
           <TableCell>{band.members?.length || 0} tag</TableCell>
           <TableCell>
             <CollapsibleTrigger asChild className='data-[state=open]:rotate-90 transition-all duration-300'>
-              <Button size='icon'>
-                <Play className='h-6 w-6' />
+              <Button size='icon' variant='ghost'>
+                <Play className='h-4 w-4' />
               </Button>
             </CollapsibleTrigger>
           </TableCell>
         </TableRow>
-        <TableRow>
+        <TableRow className='border-0 '>
           <CollapsibleContent asChild>
-            <TableCell colSpan={5}>
-              <div className='flex flex-row justify-between px-4 gap-8'>
+            <TableCell colSpan={7}>
+              <div className='flex flex-row justify-between px-4 gap-8 '>
                 <div>{band.description}</div>
                 <div>
                   <strong>Tagok: </strong>

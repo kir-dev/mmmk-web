@@ -9,6 +9,7 @@ export default function Bands() {
 
   return (
     <div className='w-full'>
+      <h1 className='text-2xl font-semibold p-4 text-orange-500'>Zenekarok</h1>
       {/* <div className='flex items-center py-4'>
         <Input
           placeholder='Filter emails...'
@@ -17,21 +18,19 @@ export default function Bands() {
           className='max-w-sm'
         />
       </div> */}
-      <div className='rounded-md border'>
-        <Table>
-          <TableBody>
-            {data.length ? (
-              data.map((band) => <BandRow band={band} key={band.id} />)
-            ) : (
-              <TableRow>
-                <TableCell colSpan={4} className='h-24 text-center'>
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      <Table>
+        <TableBody>
+          {data.length ? (
+            data.map((band) => <BandRow band={band} key={band.id} />)
+          ) : (
+            <TableRow>
+              <TableCell colSpan={4} className='h-24 text-center'>
+                No results.
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
     </div>
   );
 }
