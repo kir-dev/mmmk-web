@@ -20,4 +20,8 @@ export class Band {
   @IsOptional()
   @IsString()
   description: string;
+
+  @IsOptional()
+  @IsString()
+  genres: string;
 }

@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { BandMembership, BandMembershipStatus } from '@prisma/client';
+import { BandMembership } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 import { User } from 'src/users/entities/user.entity';
 
@@ -17,7 +17,6 @@ export class BandService {
 
   async findAll(): Promise<Band[]> {
     const res = await this.prisma.band.findMany();
-    if (!res) throw new NotFoundException();
     return res;
   }
 
@@ -37,7 +36,6 @@ export class BandService {
   async remove(id: number): Promise<Band> {
     try {
       const res = await this.prisma.band.delete({ where: { id } });
-      if (!res) throw new Error();
       return res;
     } catch (error) {
       throw new NotFoundException('No bands found');
@@ -47,13 +45,12 @@ export class BandService {
   async findMembers(id: number): Promise<User[]> {
     try {
       const bandmemberships = await this.prisma.bandMembership.findMany({
-        where: { bandId: id, status: BandMembershipStatus.ACCEPTED },
+        where: { bandId: id },
         include: { user: true },
       });
       return bandmemberships.map((membership) => membership.user);
     } catch (error) {
-      this.remove(id);
-      throw new NotFoundException('No members found, band deleted');
+      throw new NotFoundException('No members found');
     }
   }
 
@@ -62,7 +59,6 @@ export class BandService {
       const res = await this.prisma.bandMembership.create({
         data: { band: { connect: { id: bandId } }, user: { connect: { id: userId } } },
       });
-      if (!res) throw new Error();
       return res;
     } catch (error) {
       throw new NotFoundException('Member could not be added');
@@ -72,7 +68,10 @@ export class BandService {
   async removeMember(bandId: number, userId: number) {
     try {
       const res = await this.prisma.bandMembership.deleteMany({ where: { bandId, userId } });
-      if (!res) throw new Error();
+      const members = await this.findMembers(bandId);
+      if (members.length === 0) {
+        await this.remove(bandId);
+      }
       return res;
     } catch (error) {
       throw new NotFoundException('No member found');
