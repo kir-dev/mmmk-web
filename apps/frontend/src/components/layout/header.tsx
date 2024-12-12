@@ -23,7 +23,7 @@ export function Header() {
 
   return (
     <header className='px-4 py-3 flex items-center justify-between'>
-      <Link href='/' className='flex items-center space-x-2'>
+      <Link href='/apps/frontend/public' className='flex items-center space-x-2'>
         <span className={`${GeistSans.className} text-2xl font-bold tracking-tighter`}>MMMK</span>
       </Link>
 
@@ -44,7 +44,7 @@ export function Header() {
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
-              <Link href='/'>Profile</Link>
+              <Link href='/apps/frontend/public'>Profile</Link>
             </DropdownMenuItem>
             <DropdownMenuItem>Log out</DropdownMenuItem>
           </DropdownMenuContent>

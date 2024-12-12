@@ -9,13 +9,13 @@ export function Sidebar() {
       <div className='space-y-4'>
         <div className='space-y-2'>
           <Button variant='ghost' className='w-full justify-start' asChild>
-            <Link href='/'>
+            <Link href='/apps/frontend/public'>
               <Radio className='mr-2 h-4 w-4' />
               Feed
             </Link>
           </Button>
           <Button variant='ghost' className='w-full justify-start' asChild>
-            <Link href='/'>
+            <Link href='/apps/frontend/public'>
               <ListMusic className='mr-2 h-4 w-4' />
               Bands
             </Link>
@@ -26,13 +26,13 @@ export function Sidebar() {
           <h2 className='text-xs uppercase text-zinc-400 font-bold mb-2'>About Us</h2>
           <div className='space-y-2'>
             <Button variant='ghost' className='w-full justify-start' asChild>
-              <Link href='/'>
+              <Link href='/apps/frontend/public'>
                 <Heart className='mr-2 h-4 w-4' />
                 MMMK
               </Link>
             </Button>
             <Button variant='ghost' className='w-full justify-start' asChild>
-              <Link href='/'>
+              <Link href='/apps/frontend/public'>
                 <MicVocal className='mr-2 h-4 w-4' />
                 The Room
               </Link>
@@ -44,13 +44,13 @@ export function Sidebar() {
           <h2 className='text-xs uppercase text-zinc-400 font-bold mb-2'>For Members</h2>
           <div className='space-y-2'>
             <Button variant='ghost' className='w-full justify-start' asChild>
-              <Link href='/'>
+              <Link href='/apps/frontend/public'>
                 <CalendarPlus className='mr-2 h-4 w-4' />
                 New Reservations
               </Link>
             </Button>
             <Button variant='ghost' className='w-full justify-start' asChild>
-              <Link href='/'>
+              <Link href='/apps/frontend/public'>
                 <BarChart3 className='mr-2 h-4 w-4' />
                 Statistics
               </Link>
@@ -62,7 +62,7 @@ export function Sidebar() {
           <h2 className='text-xs uppercase text-zinc-400 font-bold mb-2'>Admin</h2>
           <div className='space-y-2'>
             <Button variant='ghost' className='w-full justify-start' asChild>
-              <Link href='/'>
+              <Link href='/apps/frontend/public'>
                 <KeyboardMusic className='mr-2 h-4 w-4' />
                 Super View
               </Link>
