@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,12 +5,6 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-}
-
-enum Role {
-  USER
-  GATEKEEPER
-  ADMIN
 }
 
 model User {
@@ -28,18 +16,18 @@ model User {
   roomNumber      String
   role            Role
   bandMemberships BandMembership[]
-  reservations    Reservation[]    @relation("Reservations")
-  gateKeeping     Reservation[]    @relation("GateKeeping")
   cardRight       CardRight?
   profilePicture  ProfilePicture?
+  gateKeeping     Reservation[]    @relation("GateKeeping")
+  reservations    Reservation[]    @relation("Reservations")
 }
 
 model ProfilePicture {
   id           Int    @id @default(autoincrement())
-  user         User   @relation(fields: [userId], references: [id])
   userId       Int    @unique
   mimeType     String
   profileImage Bytes
+  user         User   @relation(fields: [userId], references: [id])
 }
 
 model CardRight {
@@ -48,47 +36,37 @@ model CardRight {
   user   User @relation(fields: [userId], references: [id])
 }
 
-enum ReservationStatus {
-  OVERTIME
-  NORMAL
-}
-
 model Reservation {
   id           Int               @id @default(autoincrement())
-  user         User?             @relation("Reservations", fields: [userId], references: [id])
   userId       Int?
-  band         Band?             @relation(fields: [bandId], references: [id])
   bandId       Int?
   startTime    DateTime
   endTime      DateTime
-  gateKeeper   User?             @relation("GateKeeping", fields: [gateKeeperId], references: [id])
   gateKeeperId Int?
   status       ReservationStatus
+  band         Band?             @relation(fields: [bandId], references: [id])
+  gateKeeper   User?             @relation("GateKeeping", fields: [gateKeeperId], references: [id])
+  user         User?             @relation("Reservations", fields: [userId], references: [id])
 }
 
 model Band {
   id           Int              @id @default(autoincrement())
   name         String
-  genres       String?
-  members      BandMembership[]
-  reservations Reservation[]
   email        String?
   webPage      String?
   description  String?
-}
-
-enum BandMembershipStatus {
-  PENDING
-  ACCEPTED
+  genres       String[]
+  members      BandMembership[]
+  reservations Reservation[]
 }
 
 model BandMembership {
   id     Int                  @id @default(autoincrement())
-  user   User?                @relation(fields: [userId], references: [id])
   userId Int?
-  band   Band?                @relation(fields: [bandId], references: [id])
   bandId Int?
-  status BandMembershipStatus
+  status BandMembershipStatus @default(PENDING)
+  band   Band?                @relation(fields: [bandId], references: [id])
+  user   User?                @relation(fields: [userId], references: [id])
 }
 
 model Comment {
@@ -103,4 +81,20 @@ model Period {
   id        Int      @id @default(autoincrement())
   startDate DateTime
   endDate   DateTime
+}
+
+enum Role {
+  USER
+  GATEKEEPER
+  ADMIN
+}
+
+enum ReservationStatus {
+  OVERTIME
+  NORMAL
+}
+
+enum BandMembershipStatus {
+  PENDING
+  ACCEPTED
 }

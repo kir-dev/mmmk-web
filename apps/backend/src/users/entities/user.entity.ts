@@ -1,4 +1,4 @@
-import { Role } from '@prisma/client';
+import { CardRight, ProfilePicture, Role } from '@prisma/client';
 import { IsBoolean, IsEmail, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString } from 'class-validator';
 
 export class User {
@@ -27,7 +27,9 @@ export class User {
   @IsEnum(Role)
   role: Role;
 
-  cardRight: any;
+  @IsOptional()
+  cardRight?: CardRight;
 
-  profilePicture: any;
+  @IsOptional()
+  profilePicture?: ProfilePicture;
 }
