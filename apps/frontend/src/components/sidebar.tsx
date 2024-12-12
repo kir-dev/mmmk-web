@@ -5,11 +5,7 @@ import { Button } from '@/components/ui/button';
 
 export function Sidebar() {
   return (
-    <div className='w-64 border-r border-zinc-800 p-4 flex flex-col'>
-      <Link href='/' className='mb-8'>
-        <h1 className='text-2xl font-bold tracking-tighter'>MMMK</h1>
-      </Link>
-
+    <div className='w-64 p-4 flex flex-col'>
       <div className='space-y-4'>
         <div className='space-y-2'>
           <Button variant='ghost' className='w-full justify-start' asChild>
