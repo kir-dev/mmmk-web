@@ -1,11 +1,11 @@
 'use client';
 
-import { motion } from 'framer-motion';
 import { GeistSans } from 'geist/font/sans';
 import { ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 
 import { ThemeToggle } from '@/components/layout/theme-toggle';
+import ActionButton from '@/components/ui/action-button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -31,22 +31,12 @@ export function Header() {
       </Link>
 
       <div className='w-80 pl-8 flex items-center justify-between'>
-        <motion.div className='group transition-colors' whileHover='hover'>
-          <Button
-            variant='outline'
-            className='relative h-10 text-primary rounded-full font-light hover:text-primary hover:bg-transparent'
-          >
-            My Bands
-            <motion.div
-              variants={{
-                hover: { x: 4 },
-              }}
-              transition={{ duration: 0.2 }}
-            >
-              <ChevronRight />
-            </motion.div>
-          </Button>
-        </motion.div>
+        <ActionButton
+          text='My Bands'
+          icon={<ChevronRight />}
+          variant='outline'
+          className='h-10 rounded-full font-light hover:bg-transparent'
+        />
 
         <div className='flex gap-3 items-center'>
           <ThemeToggle />
