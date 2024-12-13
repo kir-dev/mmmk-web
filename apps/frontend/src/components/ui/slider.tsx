@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 'use client';
 
 import * as SliderPrimitive from '@radix-ui/react-slider';
