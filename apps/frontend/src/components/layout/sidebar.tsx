@@ -20,13 +20,13 @@ export function Sidebar() {
       <div className='mt-10 space-y-10'>
         <div className='space-y-2'>
           <Button variant='blastActive' className='w-full justify-start' asChild>
-            <Link href='/apps/frontend/public'>
+            <Link href='/'>
               <Radio className='mr-2 h-4 w-4' />
               Feed
             </Link>
           </Button>
           <Button variant='blast' className='w-full justify-start' asChild>
-            <Link href='/apps/frontend/public'>
+            <Link href='/'>
               <ListMusic className='mr-2 h-4 w-4' />
               Bands
             </Link>
@@ -37,19 +37,19 @@ export function Sidebar() {
           <h2 className='text-xs uppercase text-zinc-400 font-bold mb-2'>About Us</h2>
           <div className='space-y-2'>
             <Button variant='blast' className='w-full justify-start' asChild>
-              <Link href='/apps/frontend/public'>
+              <Link href='/'>
                 <Heart className='mr-2 h-4 w-4' />
                 MMMK
               </Link>
             </Button>
             <Button variant='blast' className='w-full justify-start' asChild>
-              <Link href='/apps/frontend/public'>
+              <Link href='/'>
                 <MicVocal className='mr-2 h-4 w-4' />
                 The Room
               </Link>
             </Button>
             <Button variant='blast' className='w-full justify-start' asChild>
-              <Link href='/apps/frontend/public'>
+              <Link href='/'>
                 <BookAudio className='mr-2 h-4 w-4' />
                 Rules
               </Link>
@@ -61,13 +61,13 @@ export function Sidebar() {
           <h2 className='text-xs uppercase text-zinc-400 font-bold mb-2'>For Members</h2>
           <div className='space-y-2'>
             <Button variant='blast' className='w-full justify-start' asChild>
-              <Link href='/apps/frontend/public'>
+              <Link href='/'>
                 <CalendarPlus className='mr-2 h-4 w-4' />
                 New Reservations
               </Link>
             </Button>
             <Button variant='blast' className='w-full justify-start' asChild>
-              <Link href='/apps/frontend/public'>
+              <Link href='/'>
                 <BarChart3 className='mr-2 h-4 w-4' />
                 Statistics
               </Link>
@@ -79,7 +79,7 @@ export function Sidebar() {
           <h2 className='text-xs uppercase text-zinc-400 font-bold mb-2'>Admin</h2>
           <div className='space-y-2'>
             <Button variant='blast' className='w-full justify-start' asChild>
-              <Link href='/apps/frontend/public'>
+              <Link href='/'>
                 <KeyboardMusic className='mr-2 h-4 w-4' />
                 Super View
               </Link>
