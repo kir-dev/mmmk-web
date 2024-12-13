@@ -22,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang='hu'>
       <body className={`${GeistSans.className}`}>
-        <ThemeProvider attribute='class' defaultTheme='dark' enableSystem disableTransitionOnChange>
+        <ThemeProvider attribute='class' defaultTheme='dark' enableSystem>
           <div className='h-screen flex flex-col'>
             <Header />
             <div className='flex-1 flex overflow-hidden'>
