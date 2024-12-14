@@ -3,12 +3,13 @@ import { PrismaModule } from 'nestjs-prisma';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { BandModule } from './band/band.module';
 import { CommentsModule } from './comments/comments.module';
 import { ReservationsModule } from './reservations/reservations.module';
 import { UsersModule } from './users/users.module';
 
 @Module({
-  imports: [PrismaModule.forRoot({ isGlobal: true }), UsersModule, ReservationsModule, CommentsModule],
+  imports: [PrismaModule.forRoot({ isGlobal: true }), UsersModule, ReservationsModule, CommentsModule, BandModule],
   controllers: [AppController],
   providers: [AppService],
 })
