@@ -12,19 +12,19 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@radix-ui/react-avatar": "^1.1.1",
-    "@radix-ui/react-slot": "^1.1.0",
-    "axios": "^1.7.9",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "lucide-react": "^0.372.0",
     "next": "14.2.13",
+    "next-themes": "^0.4.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "tailwind-merge": "^2.3.0",
+    "shadcn": "^2.1.7",
+    "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
+    "@shadcn/ui": "^0.0.4",
     "@types/node": "^20.12.7",
     "@types/react": "^18.2.79",
     "@types/react-dom": "^18.2.25",
