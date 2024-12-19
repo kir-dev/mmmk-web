@@ -13,7 +13,7 @@ export default function BandRow({ band }: { band: Band }) {
           <TableCell colSpan={3}>
             <div>
               <strong className='text-xl'>{band.name}</strong>
-              <h1>{band.genres}</h1>
+              <h1>{band.genres?.join(' ')}</h1>
             </div>
           </TableCell>
           <TableCell>{band.webPage}</TableCell>
