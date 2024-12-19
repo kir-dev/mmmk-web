@@ -17,7 +17,7 @@ export default function Bands() {
   return (
     <div className='w-full'>
       <div className='flex items-center justify-between flex-row p-4'>
-        <h1 className='text-2xl font-semibold text-orange-500'>Zenekarok</h1>
+        <h1 className='text-2xl font-semibold text-primary-foreground'>Zenekarok</h1>
         <Input
           placeholder='Keresés...'
           value={searchTerm}
