@@ -1,4 +1,4 @@
-import { ProfilePicture, Role } from '@prisma/client';
+import { Role } from '@prisma/client';
 import {
   IsBoolean,
   IsEmail,
@@ -41,9 +41,6 @@ export class User {
   @IsPositive()
   @IsOptional()
   dormRoomNumber?: number;
-
-  @IsOptional()
-  profilePicture?: ProfilePicture;
 
   @IsEnum(Role)
   role: Role;
