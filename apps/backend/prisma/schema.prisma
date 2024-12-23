@@ -12,29 +12,23 @@ model User {
   authSchId       String?          @unique
   name            String
   email           String           @unique
-  phone           String           @unique
-  isDormResident  Boolean
-  roomNumber      String
-  role            Role
-  bandMemberships BandMembership[]
-  cardRight       CardRight?
+  phone           String?          @unique
   profilePicture  ProfilePicture?
+  isDormResident  Boolean?
+  dormRoomNumber  Int?
+  role            Role             @default(USER)
+  roomAccess      Boolean
+  bandMemberships BandMembership[]
   gateKeeping     Reservation[]    @relation("GateKeeping")
   reservations    Reservation[]    @relation("Reservations")
 }
 
 model ProfilePicture {
-  id           Int    @id @default(autoincrement())
-  userId       Int    @unique
-  mimeType     String
-  profileImage Bytes
-  user         User   @relation(fields: [userId], references: [id])
-}
-
-model CardRight {
-  id     Int  @id @default(autoincrement())
-  userId Int  @unique
-  user   User @relation(fields: [userId], references: [id])
+  id       Int    @id @default(autoincrement())
+  userId   Int    @unique
+  mimeType String
+  image    Bytes
+  user     User   @relation(fields: [userId], references: [id])
 }
 
 model Reservation {

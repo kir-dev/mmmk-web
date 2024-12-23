@@ -1,5 +1,16 @@
-import { CardRight, ProfilePicture, Role } from '@prisma/client';
-import { IsBoolean, IsEmail, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString } from 'class-validator';
+import { ProfilePicture, Role } from '@prisma/client';
+import {
+  IsBoolean,
+  IsEmail,
+  IsEnum,
+  IsInt,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsPhoneNumber,
+  IsPositive,
+  IsString,
+} from 'class-validator';
 
 export class User {
   @IsNumber()
@@ -8,28 +19,35 @@ export class User {
 
   @IsString()
   @IsNotEmpty()
+  @IsOptional()
+  authSchId?: string;
+
+  @IsString()
+  @IsNotEmpty()
   name: string;
 
   @IsEmail()
   email: string;
 
-  @IsString()
+  @IsPhoneNumber()
   @IsOptional()
-  phone: string;
+  phone?: string;
 
   @IsBoolean()
-  isDormResident: boolean;
-
-  @IsString()
   @IsOptional()
-  roomNumber: string;
+  isDormResident?: boolean;
+
+  @IsInt()
+  @IsPositive()
+  @IsOptional()
+  dormRoomNumber?: number;
+
+  @IsOptional()
+  profilePicture?: ProfilePicture;
 
   @IsEnum(Role)
   role: Role;
 
-  @IsOptional()
-  cardRight?: CardRight;
-
-  @IsOptional()
-  profilePicture?: ProfilePicture;
+  @IsBoolean()
+  roomAccess: boolean;
 }
