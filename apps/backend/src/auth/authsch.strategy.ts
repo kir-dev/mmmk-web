@@ -15,6 +15,7 @@ export class AuthSchStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(userProfile: AuthSchProfile): Promise<any> {
-    return await this.authService.findOrCreateUser(userProfile);
+    const user = await this.authService.findOrCreateUser(userProfile);
+    return await this.authService.syncClubMembership(user, userProfile);
   }
 }
