@@ -1,5 +1,6 @@
 import { Role } from '@prisma/client';
 import {
+  IsDate,
   IsEmail,
   IsEnum,
   IsNotEmpty,
@@ -33,4 +34,8 @@ export class User {
 
   @IsEnum(Role)
   role: Role;
+
+  @IsDate()
+  @IsOptional()
+  clubMembershipUpdatedAt?: Date;
 }
