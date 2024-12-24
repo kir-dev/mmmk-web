@@ -1,9 +1,7 @@
 import { Role } from '@prisma/client';
 import {
-  IsBoolean,
   IsEmail,
   IsEnum,
-  IsInt,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -24,7 +22,7 @@ export class User {
 
   @IsString()
   @IsNotEmpty()
-  name: string;
+  fullName: string;
 
   @IsEmail()
   email: string;
@@ -33,18 +31,6 @@ export class User {
   @IsOptional()
   phone?: string;
 
-  @IsBoolean()
-  @IsOptional()
-  isDormResident?: boolean;
-
-  @IsInt()
-  @IsPositive()
-  @IsOptional()
-  dormRoomNumber?: number;
-
   @IsEnum(Role)
   role: Role;
-
-  @IsBoolean()
-  roomAccess: boolean;
 }

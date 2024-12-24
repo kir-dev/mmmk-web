@@ -27,10 +27,9 @@ export class AuthService {
     return this.prisma.user.create({
       data: {
         authSchId: userProfile.authSchId,
-        name: userProfile.fullName,
+        fullName: userProfile.fullName,
         email: userProfile.email,
         phone: userProfile.phone,
-        roomAccess: false,
       },
     });
   }
