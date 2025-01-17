@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { User } from '@/components/user-dto';
+import { User } from '@/types/user-dto';
 
 const url = 'http://localhost:3001/users/';
 
