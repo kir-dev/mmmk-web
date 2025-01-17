@@ -4,6 +4,6 @@ export type Band = {
   email: string;
   webPage: string;
   description: string;
-  genres?: string;
+  genres?: string[];
   members?: string[];
 };
