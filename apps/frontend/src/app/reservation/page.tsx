@@ -2,7 +2,7 @@ import Calendar from '@components/calendar/calendar';
 
 export default function ReservationPage() {
   return (
-    <div className='overflow-auto'>
+    <div className='overflow-auto relative'>
       <Calendar />
     </div>
   );

@@ -95,8 +95,14 @@ export default function ReservationDetails(props: EventDetailsProps) {
               )}
             </p>
             <p>Foglaló: {user?.name}</p>
-            <p>Start time: {new Date(props.clickedEvent.startTime).toLocaleTimeString()}</p>
-            <p>End time: {new Date(props.clickedEvent.endTime).toLocaleTimeString()}</p>
+            <p>
+              Start time: {new Date(props.clickedEvent.startTime).getHours() - 1}:
+              {new Date(props.clickedEvent.startTime).getMinutes()}
+            </p>
+            <p>
+              End time: {new Date(props.clickedEvent.endTime).getHours() - 1}:
+              {new Date(props.clickedEvent.endTime).getMinutes()}
+            </p>
             <p>Status: {props.clickedEvent?.status}</p>
           </div>
           <button

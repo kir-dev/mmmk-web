@@ -30,7 +30,7 @@ export default function Calendar() {
   const [comments, setComments] = useState<Comment[]>([]);
   const [isCommentDetails, setIsCommentDetails] = useState(false);
   const [clickedComment, setClickedComment] = useState<Comment>();
-  const [view, setView] = useState<View>(View.Month);
+  const [view, setView] = useState<View>(View.Week);
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
 
@@ -100,14 +100,7 @@ export default function Calendar() {
           </button>
         </div>
         <div className='ml-auto'>
-          <AddEvent
-            onGetData={onGetData}
-            currentDate={currentDate}
-            startDate={startDate}
-            endDate={endDate}
-            setStartDate={setStartDate}
-            setEndDate={setEndDate}
-          />
+          <AddEvent onGetData={onGetData} currentDate={currentDate} />
         </div>
       </div>
 

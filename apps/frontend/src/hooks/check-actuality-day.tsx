@@ -9,7 +9,7 @@ export default function ActualReservationForTheDay(
   i: number
 ) {
   if (
-    new Date(event.startTime).getHours() === i / 2 &&
+    new Date(event.startTime).getHours() - 1 === i / 2 &&
     eventStartDate.getDate() <= currentDate.getDate() &&
     eventEndDate.getDate() >= currentDate.getDate() &&
     eventStartDate.getMonth() === currentDate.getMonth() &&

@@ -26,6 +26,8 @@ export default function DailyView(props: DailyViewProps) {
       new Date(props.currentDate.getFullYear(), props.currentDate.getMonth(), props.currentDate.getDate() + 1)
     );
   };
+
+  const offset = (new Date().getHours() + new Date().getMinutes() / 60) * 40 * 2;
   return (
     <div className='flex items-center justify-center bg-transparent'>
       <div className='flex flex-col items-center justify-center bg-calendarBg rounded-lg text-white w-[1000px]'>
@@ -48,7 +50,13 @@ export default function DailyView(props: DailyViewProps) {
           </button>
         </div>
         <div className='flex items-center justify-center'>
-          <div className='shadow-lg w-[850px]'>
+          <div className='shadow-lg w-[850px] relative'>
+            <div
+              className='absolute w-full h-1 self-start border-t border-red-600'
+              style={{
+                top: `${offset}px`,
+              }}
+            />
             {Array.from({ length: 48 }, (_, i) => (
               <div key={i} className='flex flex-row w-full'>
                 <div

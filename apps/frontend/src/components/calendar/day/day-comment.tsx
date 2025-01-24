@@ -12,7 +12,7 @@ export default function DayComment(props: DayEventProps) {
   const offset = (startDate.getMinutes() / 60) * 39;
   return (
     <div
-      className='z-50 absolute'
+      className='z-40 absolute'
       style={{
         top: `${offset}px`,
       }}

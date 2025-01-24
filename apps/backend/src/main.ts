@@ -11,6 +11,10 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
+      transform: true, // DTO automatikus átalakítása
+      transformOptions: {
+        enableImplicitConversion: true, // Implicit típuskonverzió engedélyezése
+      },
     })
   );
   await app.listen(3001);
