@@ -67,7 +67,7 @@ export default function ReservationDetails(props: EventDetailsProps) {
   return (
     <div>
       {props.isEventDetails ? (
-        <div className='flex flex-col fixed top-32 right-0 bg-white dark:bg-slate-800 rounded-lg border-2 border-black dark:border-orange-500 p-6 w-full max-w-sm overflow-auto mr-5 text-gray-400 z-10'>
+        <div className='flex flex-col z-50 fixed top-32 right-0 bg-white dark:bg-slate-800 rounded-lg border-2 border-black dark:border-orange-500 p-6 w-full max-w-sm overflow-auto mr-5 text-gray-400 z-10'>
           <div className='flex flex-col items-center justify-between mb-4'>
             <button
               className='self-end border-2 border-black bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded-lg'
@@ -78,7 +78,7 @@ export default function ReservationDetails(props: EventDetailsProps) {
             >
               X
             </button>
-            <h2 className='text-lg font-semibold self-start'>Event details</h2>
+            <h2 className='text-lg font-semibold self-start'>Reservation details</h2>
           </div>
           <div className='grid gap-4 self-start'>
             <p className=''>
@@ -97,11 +97,11 @@ export default function ReservationDetails(props: EventDetailsProps) {
             <p>Foglaló: {user?.name}</p>
             <p>
               Start time: {new Date(props.clickedEvent.startTime).getHours() - 1}:
-              {new Date(props.clickedEvent.startTime).getMinutes()}
+              {new Date(props.clickedEvent.startTime).getMinutes().toString().padStart(2, '0')}
             </p>
             <p>
               End time: {new Date(props.clickedEvent.endTime).getHours() - 1}:
-              {new Date(props.clickedEvent.endTime).getMinutes()}
+              {new Date(props.clickedEvent.endTime).getMinutes().toString().padStart(2, '0')}
             </p>
             <p>Status: {props.clickedEvent?.status}</p>
           </div>

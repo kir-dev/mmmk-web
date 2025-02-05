@@ -1,6 +1,6 @@
 'use client';
 
-import { AddEvent } from '@components/calendar/add-event';
+import { AddReservation } from '@components/calendar/add-reservation';
 import CommentDetails from '@components/calendar/comment-details';
 import ReservationDetails from '@components/calendar/reservation-details';
 import axios from 'axios';
@@ -23,7 +23,6 @@ export enum View {
 
 export default function Calendar() {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [events, setEvents] = useState<(Reservation | Comment)[]>([]);
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [isReservationDetails, setIsReservationDetails] = useState(false);
   const [clickedReservation, setClickedReservation] = useState<Reservation>();
@@ -31,8 +30,6 @@ export default function Calendar() {
   const [isCommentDetails, setIsCommentDetails] = useState(false);
   const [clickedComment, setClickedComment] = useState<Comment>();
   const [view, setView] = useState<View>(View.Week);
-  const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(new Date());
 
   const onGetData = () => {
     axios
@@ -58,8 +55,6 @@ export default function Calendar() {
       .then((res) => {
         setComments(res.data.data);
       });
-    const eventArray: (Reservation | Comment)[] = reservations.concat(comments);
-    setEvents(eventArray);
   };
 
   const onEventClick = (id: number) => {
@@ -100,7 +95,7 @@ export default function Calendar() {
           </button>
         </div>
         <div className='ml-auto'>
-          <AddEvent onGetData={onGetData} currentDate={currentDate} />
+          <AddReservation onGetData={onGetData} currentDate={currentDate} />
         </div>
       </div>
 

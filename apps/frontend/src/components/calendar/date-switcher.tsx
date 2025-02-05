@@ -1,4 +1,4 @@
-import { AddEvent } from '@components/calendar/add-event';
+import { AddReservation } from '@components/calendar/add-reservation';
 import { View } from '@components/calendar/calendar';
 import IntervalSwitcher from '@components/calendar/interval-swithcer';
 import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
@@ -33,7 +33,7 @@ export default function DateSwitcher(props: DateSwitcherProps) {
       <div className='text-lg font-medium text-slate-800 dark:text-white'>
         {props.currentDate.toLocaleString('hu', { month: 'long' })} {props.currentDate.getFullYear()}{' '}
       </div>
-      <AddEvent
+      <AddReservation
         onGetData={props.onGetData}
         currentDate={props.currentDate}
         startDate={props.startDate}

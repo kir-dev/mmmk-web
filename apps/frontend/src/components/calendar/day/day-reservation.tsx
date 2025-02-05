@@ -42,7 +42,7 @@ export default function DayReservation(props: DayEventProps) {
       }}
     >
       <div
-        className='flex flex-row bg-blue-400 bg-opacity-50 justify-start max-w-[140px] overflow-auto scrollbar-webkit rounded-md'
+        className='flex flex-row bg-blue-400 justify-start max-w-[110px] overflow-auto scrollbar-webkit rounded-md'
         style={{
           height: `${(endDate.getHours() - startDate.getHours() + (endDate.getMinutes() - startDate.getMinutes()) / 60) * 78}px`,
         }}
@@ -53,8 +53,13 @@ export default function DayReservation(props: DayEventProps) {
           onClick={() => props.onEventClick(props.reservation.id)}
         >
           <div className='flex flex-col'>
-            <p className='self-start'>{band?.name}</p>
-            <p className='self-start'>{user?.name}</p>
+            <div className='self-start text-left'>
+              {`${startDate.getHours()}:${startDate.getMinutes().toString().padStart(2, '0')}-${endDate.getHours()}:${endDate.getMinutes().toString().padStart(2, '0')}`}
+            </div>
+            <div className='self-start text-left'>🎸</div>
+            <div className='self-start text-left'>{band?.name}</div>
+            <div className='self-start text-left'>🕺</div>
+            <div className='self-start text-left'>{user?.name}</div>
           </div>
         </button>
       </div>

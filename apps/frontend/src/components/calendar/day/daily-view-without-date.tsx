@@ -1,4 +1,5 @@
 import DayComment from '@components/calendar/day/day-comment';
+import Line from '@components/calendar/Line';
 
 import ActualReservationForTheDay from '@/hooks/check-actuality-day';
 import { Comment } from '@/types/comment';
@@ -20,6 +21,7 @@ export default function DailyViewWO(props: DailyViewPropsWO) {
       <div className='flex flex-col bg-transparent text-white'>
         <div className='flex items-center justify-center'>
           <div className='w-[150px]'>
+            <Line />
             {Array.from({ length: 48 }, (_, i) => (
               <div
                 key={i}
