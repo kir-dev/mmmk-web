@@ -29,6 +29,9 @@ export default function DayComment(props: DayEventProps) {
           onClick={() => props.onEventClick(props.comment.id)}
         >
           <div className='flex flex-col'>
+            <div className='self-start text-left'>
+              {`${startDate.getHours()}:${startDate.getMinutes().toString().padStart(2, '0')}-${endDate.getHours()}:${endDate.getMinutes().toString().padStart(2, '0')}`}
+            </div>
             <p className='self-start'>{props.comment.comment}</p>
           </div>
         </button>
