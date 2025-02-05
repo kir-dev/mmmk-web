@@ -74,7 +74,7 @@ model Comment {
   comment      String
   startTime    DateTime
   endTime      DateTime
-  isReservable Boolean
+  isReservable Boolean  @default(false)
 }
 
 model Period {

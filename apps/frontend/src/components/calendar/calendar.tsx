@@ -1,6 +1,6 @@
 'use client';
 
-import { AddReservation } from '@components/calendar/add-reservation';
+import { AddPanel } from '@components/calendar/add-panel';
 import CommentDetails from '@components/calendar/comment-details';
 import ReservationDetails from '@components/calendar/reservation-details';
 import axios from 'axios';
@@ -95,7 +95,7 @@ export default function Calendar() {
           </button>
         </div>
         <div className='ml-auto'>
-          <AddReservation onGetData={onGetData} currentDate={currentDate} />
+          <AddPanel onGetData={onGetData} currentDate={currentDate} />
         </div>
       </div>
 

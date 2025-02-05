@@ -18,7 +18,7 @@ export default function DayComment(props: DayEventProps) {
       }}
     >
       <div
-        className='flex flex-row bg-red-400 bg-opacity-50 justify-start max-w-[140px] overflow-auto scrollbar-webkit rounded-md'
+        className={`flex flex-row ${props.comment.isReservable ? 'bg-green-800' : 'bg-red-700'} justify-start max-w-[140px] overflow-auto scrollbar-webkit rounded-md`}
         style={{
           height: `${(endDate.getHours() - startDate.getHours() + (endDate.getMinutes() - startDate.getMinutes()) / 60) * 78}px`,
         }}

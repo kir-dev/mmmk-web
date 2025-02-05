@@ -56,9 +56,7 @@ export default function DayReservation(props: DayEventProps) {
             <div className='self-start text-left'>
               {`${startDate.getHours()}:${startDate.getMinutes().toString().padStart(2, '0')}-${endDate.getHours()}:${endDate.getMinutes().toString().padStart(2, '0')}`}
             </div>
-            <div className='self-start text-left'>🎸</div>
             <div className='self-start text-left'>{band?.name}</div>
-            <div className='self-start text-left'>🕺</div>
             <div className='self-start text-left'>{user?.name}</div>
           </div>
         </button>

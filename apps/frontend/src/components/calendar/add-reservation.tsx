@@ -1,20 +1,17 @@
-import { Button } from '@components/ui/button';
 import { Input } from '@components/ui/input';
-import { ReservationStatus } from '@prisma/client';
 import axios from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
 
 import { Band } from '@/types/band';
 import { User } from '@/types/user';
 
-const url = 'http://localhost:3001/reservations';
-
-interface AddEventProps {
+interface AddPanelProps {
   onGetData: () => void;
   currentDate: Date;
+  onAddEvent: () => void;
 }
 
-export function AddReservation(props: AddEventProps) {
+export default function AddReservation(props: AddPanelProps) {
   const [bandName, setBandName] = useState('');
   const [bands, setBands] = useState<Band[]>([]);
   const [band, setBand] = useState<Band>();
@@ -25,7 +22,6 @@ export function AddReservation(props: AddEventProps) {
 
   const [startTime, setStartTime] = useState(new Date());
   const [endTime, setEndTime] = useState(new Date());
-  const [isAdd, setIsAdd] = useState(false);
 
   const [userSuggestions, setUserSuggestions] = useState<User[]>([]);
   const [bandSuggestions, setBandSuggestions] = useState<Band[]>([]);
@@ -104,7 +100,7 @@ export function AddReservation(props: AddEventProps) {
       return;
     }
     axios
-      .post(url, {
+      .post('http://localhost:3001/reservations', {
         userId: user.id,
         bandId: band.id,
         startTime: startTime.toISOString(),
@@ -120,7 +116,7 @@ export function AddReservation(props: AddEventProps) {
         setUserName('');
         setStartTime(new Date());
         setEndTime(new Date());
-        setIsAdd(!isAdd);
+        props.onAddEvent();
       })
       .catch((error) => {
         console.error(error.response.data); // Nézd meg, mit mond a szerver
@@ -128,156 +124,94 @@ export function AddReservation(props: AddEventProps) {
       });
   };
 
-  const onAddEvent = () => {
-    setIsAdd(!isAdd);
-  };
-
-  const fetchUserAndBand = () => {
-    getBand();
-    getUser();
-  };
-
-  const getBand = () => {
-    axios.get('http://localhost:3001/band').then((res) => {
-      setBands(res.data);
-      bands.map((banda) => {
-        if (banda.name === bandName) {
-          setBand(banda);
-        }
-      });
-    });
-  };
-
-  const getUser = () => {
-    axios
-      .get('http://localhost:3001/users')
-      .then((res) => {
-        const users = Array.isArray(res.data) ? res.data : res.data.users || [];
-
-        if (!Array.isArray(users)) {
-          console.error('Invalid data format:', users);
-          return;
-        }
-
-        setUsers(users);
-
-        const foundUser = users.find((usera) => usera.name === userName);
-        if (foundUser) {
-          setUser(foundUser);
-        }
-      })
-      .catch((error) => {
-        console.error('Error fetching users:', error);
-      });
-  };
-
   return (
-    <div className='m-2 text-gray-400'>
-      {isAdd ? (
-        <div className='absolute'>
-          <div className='fixed right-1/3 top-1/4 z-50 flex flex-col bg-white dark:bg-slate-800 p-2 rounded-lg border-2 border-black'>
-            <button
-              className='self-end border-2 border-black bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded-lg'
-              onClick={onAddEvent}
-            >
-              X
-            </button>
-
-            <div className='space-y-4'>
-              <div className='relative'>
-                <label htmlFor='name' className='text-zinc-300'>
-                  Név
-                </label>
-                <Input
-                  id='name'
-                  value={userName}
-                  onChange={handleUserNameChange}
-                  required
-                  className='bg-zinc-700 border-zinc-600 text-zinc-100'
-                />
-                {showUserSuggestions && userSuggestions.length > 0 && (
-                  <div
-                    ref={suggestionRef}
-                    className='absolute z-10 w-full mt-1 bg-zinc-700 border border-zinc-600 rounded-md shadow-lg'
-                  >
-                    {userSuggestions.map((suggestion, index) => (
-                      <button
-                        key={index}
-                        className='px-4 py-2 cursor-pointer hover:bg-zinc-600 w-full rounded-md'
-                        onClick={() => handleUserSuggestionClick(suggestion)}
-                      >
-                        {suggestion.name}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-              <div className='relative'>
-                <label htmlFor='name' className='text-zinc-300'>
-                  Banda
-                </label>
-                <Input
-                  id='band'
-                  value={bandName}
-                  onChange={handleBandNameChange}
-                  required
-                  className='bg-zinc-700 border-zinc-600 text-zinc-100'
-                />
-                {showBandSuggestions && bandSuggestions.length > 0 && (
-                  <div
-                    ref={suggestionRef}
-                    className='absolute z-10 w-full mt-1 bg-zinc-700 border border-zinc-600 rounded-md shadow-lg'
-                  >
-                    {bandSuggestions.map((suggestion, index) => (
-                      <button
-                        key={index}
-                        className='px-4 py-2 cursor-pointer hover:bg-zinc-600 w-full rounded-md'
-                        onClick={() => handleBandSuggestionClick(suggestion)}
-                      >
-                        {suggestion.name}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-              <div className='flex flex-col'>
-                <label htmlFor='begin' className='text-zinc-300'>
-                  Kezdés
-                </label>
-                <input
-                  className='bg-zinc-700 rounded-lg border-zinc-600 text-zinc-100'
-                  type='datetime-local'
-                  onChange={(e) => setStartTime(new Date(e.target.value))}
-                />
-              </div>
-              <div className='flex flex-col'>
-                <label htmlFor='end' className='text-zinc-300'>
-                  Vége
-                </label>
-                <input
-                  className='bg-zinc-700 rounded-lg border-zinc-600 text-zinc-100'
-                  type='datetime-local'
-                  onChange={(e) => setEndTime(new Date(e.target.value))}
-                />
-              </div>
-              <button
-                onClick={onClick}
-                className='w-full rounded-lg bg-orange-500 hover:bg-orange-600 text-zinc-900 font-semibold'
+    <div>
+      <div>
+        <div className='space-y-4'>
+          <div className='relative'>
+            <label htmlFor='name' className='text-zinc-300'>
+              Név
+            </label>
+            <Input
+              id='name'
+              value={userName}
+              onChange={handleUserNameChange}
+              required
+              className='bg-zinc-700 border-zinc-600 text-zinc-100'
+            />
+            {showUserSuggestions && userSuggestions.length > 0 && (
+              <div
+                ref={suggestionRef}
+                className='absolute z-10 w-full mt-1 bg-zinc-700 border border-zinc-600 rounded-md shadow-lg'
               >
-                Foglalás hozzáadása
-              </button>
-            </div>
+                {userSuggestions.map((suggestion, index) => (
+                  <button
+                    key={index}
+                    className='px-4 py-2 cursor-pointer hover:bg-zinc-600 w-full rounded-md'
+                    onClick={() => handleUserSuggestionClick(suggestion)}
+                  >
+                    {suggestion.name}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
+          <div className='relative'>
+            <label htmlFor='name' className='text-zinc-300'>
+              Banda
+            </label>
+            <Input
+              id='band'
+              value={bandName}
+              onChange={handleBandNameChange}
+              required
+              className='bg-zinc-700 border-zinc-600 text-zinc-100'
+            />
+            {showBandSuggestions && bandSuggestions.length > 0 && (
+              <div
+                ref={suggestionRef}
+                className='absolute z-10 w-full mt-1 bg-zinc-700 border border-zinc-600 rounded-md shadow-lg'
+              >
+                {bandSuggestions.map((suggestion, index) => (
+                  <button
+                    key={index}
+                    className='px-4 py-2 cursor-pointer hover:bg-zinc-600 w-full rounded-md'
+                    onClick={() => handleBandSuggestionClick(suggestion)}
+                  >
+                    {suggestion.name}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          <div className='flex flex-col'>
+            <label htmlFor='begin' className='text-zinc-300'>
+              Kezdés
+            </label>
+            <input
+              className='bg-zinc-700 rounded-lg border-zinc-600 text-zinc-100'
+              type='datetime-local'
+              onChange={(e) => setStartTime(new Date(e.target.value))}
+            />
+          </div>
+          <div className='flex flex-col'>
+            <label htmlFor='end' className='text-zinc-300'>
+              Vége
+            </label>
+            <input
+              className='bg-zinc-700 rounded-lg border-zinc-600 text-zinc-100'
+              type='datetime-local'
+              onChange={(e) => setEndTime(new Date(e.target.value))}
+            />
+          </div>
+          <button
+            onClick={onClick}
+            className='w-full rounded-lg bg-orange-500 hover:bg-orange-600 text-zinc-900 font-semibold'
+          >
+            Foglalás hozzáadása
+          </button>
         </div>
-      ) : (
-        <button
-          className='border-2 border-black dark:border-orange-500 bg-calendarBg hover:bg-gray-700 font-bold py-2 px-4 rounded-lg'
-          onClick={onAddEvent}
-        >
-          {' '}
-          +{' '}
-        </button>
-      )}
+      </div>
     </div>
   );
 }
