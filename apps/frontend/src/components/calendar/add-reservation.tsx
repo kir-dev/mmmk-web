@@ -1,3 +1,4 @@
+import { Button } from '@components/ui/button';
 import { Input } from '@components/ui/input';
 import axios from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
@@ -105,7 +106,6 @@ export default function AddReservation(props: AddPanelProps) {
         bandId: band.id,
         startTime: startTime.toISOString(),
         endTime: endTime.toISOString(),
-        gateKeeperId: 2,
         status: 'NORMAL',
       })
       .then(() => {

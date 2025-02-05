@@ -20,6 +20,22 @@ export default function ReservationDetails(props: EventDetailsProps) {
   const [editValue, setEditValue] = useState('');
   const [user, setUser] = useState<User>();
   const [band, setBand] = useState<Band>();
+  const [me, setMe] = useState<User>();
+  const [gateKeeper, setGateKeeper] = useState<User>();
+
+  const getMe = () => {
+    axios.get('http://localhost:3001/users/me').then((res) => {
+      setMe(res.data);
+      console.log(res.data);
+      console.log(me);
+    });
+  };
+
+  const getGateKeeper = (id: number) => {
+    axios.get(`http://localhost:3001/users/${id}`).then((res) => {
+      setGateKeeper(res.data);
+    });
+  };
 
   const getUser = (id: number) => {
     axios.get(`http://localhost:3001/users/${id}`).then((res) => {
@@ -62,6 +78,7 @@ export default function ReservationDetails(props: EventDetailsProps) {
   useEffect(() => {
     if (props.clickedEvent?.userId) getUser(props.clickedEvent.userId);
     if (props.clickedEvent?.bandId) getBand(props.clickedEvent.bandId);
+    if (props.clickedEvent?.gateKeeperId) getGateKeeper(props.clickedEvent.gateKeeperId);
   }, [props.clickedEvent]);
 
   return (
@@ -95,6 +112,7 @@ export default function ReservationDetails(props: EventDetailsProps) {
               )}
             </p>
             <p>Foglaló: {user?.name}</p>
+            <p>Beengedő: {gateKeeper?.name}</p>
             <p>
               Start time: {new Date(props.clickedEvent.startTime).getHours() - 1}:
               {new Date(props.clickedEvent.startTime).getMinutes().toString().padStart(2, '0')}
@@ -105,18 +123,37 @@ export default function ReservationDetails(props: EventDetailsProps) {
             </p>
             <p>Status: {props.clickedEvent?.status}</p>
           </div>
-          <button
-            className='self-end border-2 border-black bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded-lg'
-            onClick={() => onDelete()}
-          >
-            Delete
-          </button>
-          <button
-            className='mt-2 self-end border-2 border-black bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-2 rounded-lg'
-            onClick={onEdit}
-          >
-            {isEditing ? 'Save' : 'Edit'}
-          </button>
+          <div className='flex flex-row justify-between mt-4'>
+            <div className='self-end'>
+              <button
+                className='border-2 border-black bg-orange-500 hover:bg-orange-400 text-white font-bold py-1 px-2 rounded-lg'
+                onClick={() => {
+                  axios.patch(`${url}/${props.clickedEvent?.id}`, { gateKeeperId: `${me?.id}` }).then((res) => {
+                    props.onGetData();
+                    onGetName(props.clickedEvent?.id);
+                    console.log(res.data);
+                    console.log(props.clickedEvent.gateKeeperId);
+                  });
+                }}
+              >
+                Assign yourself
+              </button>
+            </div>
+            <div className='flex flex-col'>
+              <button
+                className='border-2 border-black bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded-lg'
+                onClick={onDelete}
+              >
+                Delete
+              </button>
+              <button
+                className='border-2 border-black bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-2 rounded-lg'
+                onClick={onEdit}
+              >
+                {isEditing ? 'Save' : 'Edit'}
+              </button>
+            </div>
+          </div>
         </div>
       ) : (
         ''
