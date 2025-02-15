@@ -17,7 +17,7 @@ export class BandService {
 
   async findAll(): Promise<Band[]> {
     const res = await this.prisma.band.findMany({
-      include: { members: { include: { user: { select: { name: true } } } } },
+      include: { members: { include: { user: { select: { fullName: true } } } } },
     });
     return res;
   }
