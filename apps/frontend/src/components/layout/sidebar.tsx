@@ -8,6 +8,7 @@ import {
   MicVocal,
   Plus,
   Radio,
+  Users2,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -26,9 +27,15 @@ export function Sidebar() {
             </Link>
           </Button>
           <Button variant='blast' className='w-full justify-start' asChild>
-            <Link href='/'>
+            <Link href='/bands'>
               <ListMusic className='mr-2 h-4 w-4' />
               Bands
+            </Link>
+          </Button>
+          <Button variant='blast' className='w-full justify-start' asChild>
+            <Link href='/members'>
+              <Users2 className='mr-2 h-4 w-4' />
+              Members
             </Link>
           </Button>
         </div>
