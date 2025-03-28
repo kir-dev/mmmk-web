@@ -14,6 +14,12 @@ interface DWViewProps {
 }
 
 export default function DWView(props: DWViewProps) {
+  const dayOfWeek = new Date(
+    props.currentDate.getFullYear(),
+    props.currentDate.getMonth(),
+    props.currentDate.getDate()
+  ).getDay();
+
   const [firstDayOfWeek, setFirstDayOfWeek] = useState(
     new Date(props.currentDate.getFullYear(), props.currentDate.getMonth(), props.currentDate.getDay()).getDay()
   );
@@ -25,19 +31,34 @@ export default function DWView(props: DWViewProps) {
     setFirstDayOfWeek((firstDayOfWeek + 7) % 7);
   };
   const handleNextWeek = () => {
-    props.setCurrentDate(
-      new Date(props.currentDate.getFullYear(), props.currentDate.getMonth(), props.currentDate.getDate() + 7)
-    );
-    setFirstDayOfWeek((firstDayOfWeek + 7) % 7);
+    if (dayOfWeek === 7 && props.currentDate.getHours() >= 20) {
+      props.setCurrentDate(
+        new Date(props.currentDate.getFullYear(), props.currentDate.getMonth(), props.currentDate.getDate() + 7)
+      );
+      setFirstDayOfWeek((firstDayOfWeek + 7) % 7);
+    }
   };
 
   const daysInMonth = new Date(props.currentDate.getFullYear(), props.currentDate.getMonth() + 1, 0).getDate();
   const daysInLastMonth = new Date(props.currentDate.getFullYear(), props.currentDate.getMonth(), 0).getDate();
-  const dayOfWeek = new Date(
-    props.currentDate.getFullYear(),
-    props.currentDate.getMonth(),
-    props.currentDate.getDate()
-  ).getDay();
+
+  const getDay = (index: number) => {
+    if (index === 0) {
+      return '';
+    }
+    let res = 0;
+    if (dayOfWeek >= index) {
+      res = props.currentDate.getDate() - (dayOfWeek - index);
+    } else {
+      res = props.currentDate.getDate() + (index - dayOfWeek);
+    }
+    if (res > daysInMonth) {
+      res = res - daysInMonth;
+    } else if (res <= 0) {
+      res = daysInLastMonth + res;
+    }
+    return res;
+  };
 
   return (
     <div className='flex items-center justify-center'>
@@ -61,9 +82,9 @@ export default function DWView(props: DWViewProps) {
         </div>
 
         <div className='grid grid-cols-8'>
-          {['', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => (
+          {['', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, i) => (
             <div key={day} className='flex items-center justify-center h-16 font-medium text-muted-foreground'>
-              {day}
+              {day} {getDay(i)}
             </div>
           ))}
           <div className='grid grid-cols-subgrid'>

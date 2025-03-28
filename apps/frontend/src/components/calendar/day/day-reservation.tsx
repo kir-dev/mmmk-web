@@ -19,13 +19,13 @@ export default function DayReservation(props: DayEventProps) {
   const offset = (startDate.getMinutes() / 60) * 39;
 
   const getUser = (id: number) => {
-    axios.get(`http://localhost:3001/users/${id}`).then((res) => {
+    axios.get(`http://localhost:3030/users/${id}`).then((res) => {
       setUser(res.data);
     });
   };
 
   const getBand = (id: number) => {
-    axios.get(`http://localhost:3001/band/${id}`).then((res) => {
+    axios.get(`http://localhost:3030/band/${id}`).then((res) => {
       setBand(res.data);
     });
   };
@@ -54,7 +54,7 @@ export default function DayReservation(props: DayEventProps) {
         >
           <div className='flex flex-col'>
             <div className='self-start text-left'>
-              {`${startDate.getHours()}:${startDate.getMinutes().toString().padStart(2, '0')}-${endDate.getHours()}:${endDate.getMinutes().toString().padStart(2, '0')}`}
+              {`${startDate.getHours() - 1}:${startDate.getMinutes().toString().padStart(2, '0')}-${endDate.getHours() - 1}:${endDate.getMinutes().toString().padStart(2, '0')}`}
             </div>
             <div className='self-start text-left'>{band?.name}</div>
           </div>

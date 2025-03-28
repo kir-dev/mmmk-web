@@ -3,6 +3,7 @@
 import { GeistSans } from 'geist/font/sans';
 import { ChevronRight } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 import { ThemeToggle } from '@/components/layout/theme-toggle';
 import ActionButton from '@/components/ui/action-button';
@@ -17,11 +18,17 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 export function Header() {
-  const isLoggedIn = true;
+  const router = useRouter();
+
+  const isLoggedIn = false;
   const user = {
     name: 'John Doe',
     email: 'john@example.com',
     image: '/placeholder.svg',
+  };
+
+  const handleLogin = () => {
+    router.push('http://localhost:3030/auth/login');
   };
 
   return (
@@ -58,13 +65,15 @@ export function Header() {
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <Link href='/'>Profile</Link>
+                  <Link href='/profile'>Profile</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem>Log out</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Button variant='outline'>Log in</Button>
+            <Button variant='outline' onClick={handleLogin}>
+              Log in
+            </Button>
           )}
         </div>
       </div>

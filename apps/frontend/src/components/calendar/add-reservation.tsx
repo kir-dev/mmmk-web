@@ -13,6 +13,8 @@ interface AddPanelProps {
 }
 
 export default function AddReservation(props: AddPanelProps) {
+  const [myUser, setMyUser] = useState<User>();
+
   const [bandName, setBandName] = useState('');
   const [bands, setBands] = useState<Band[]>([]);
   const [band, setBand] = useState<Band>();
@@ -45,12 +47,13 @@ export default function AddReservation(props: AddPanelProps) {
   }, []);
 
   useEffect(() => {
-    axios.get('http://localhost:3001/band').then((res) => {
+    axios.get('http://localhost:3030/band').then((res) => {
       setBands(res.data);
     });
-    axios.get('http://localhost:3001/users').then((res) => {
+    axios.get('http://localhost:3030/users').then((res) => {
       setUsers(res.data.users);
     });
+    getMe();
   }, []);
 
   const handleBandNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -74,7 +77,7 @@ export default function AddReservation(props: AddPanelProps) {
     const value = e.target.value;
     setUserName(value);
     if (value.length > 0) {
-      const filteredSuggestions = users.filter((user) => user.name.toLowerCase().includes(value.toLowerCase()));
+      const filteredSuggestions = users.filter((user) => user.fullName.toLowerCase().includes(value.toLowerCase()));
       setUserSuggestions(filteredSuggestions);
       setShowUserSuggestions(true);
     } else {
@@ -85,7 +88,7 @@ export default function AddReservation(props: AddPanelProps) {
 
   const handleUserSuggestionClick = (suggestion: User) => {
     setUser(suggestion);
-    setUserName(suggestion.name);
+    setUserName(suggestion.fullName);
     setShowUserSuggestions(false);
   };
 
@@ -101,7 +104,7 @@ export default function AddReservation(props: AddPanelProps) {
       return;
     }
     axios
-      .post('http://localhost:3001/reservations', {
+      .post('http://localhost:3030/reservations', {
         userId: user.id,
         bandId: band.id,
         startTime: startTime.toISOString(),
@@ -119,10 +122,33 @@ export default function AddReservation(props: AddPanelProps) {
         props.onAddEvent();
       })
       .catch((error) => {
+        console.error(error.response.data);
+        console.error(error.response.status);
+      });
+  };
+
+  const getMe = () => {
+    axios
+      .get('http://localhost:3030/users/me')
+      .then((res) => {
+        setMyUser(res.data);
+        console.log(res.data);
+      })
+      .catch((error) => {
         console.error(error.response.data); // Nézd meg, mit mond a szerver
         console.error(error.response.status); // Pl. 400
       });
   };
+
+  function shiftStart(date: Date) {
+    date.setHours(date.getHours() + 1);
+    setStartTime(date);
+  }
+
+  function shiftEnd(date: Date) {
+    date.setHours(date.getHours() + 1);
+    setEndTime(date);
+  }
 
   return (
     <div>
@@ -150,7 +176,7 @@ export default function AddReservation(props: AddPanelProps) {
                     className='px-4 py-2 cursor-pointer hover:bg-zinc-600 w-full rounded-md'
                     onClick={() => handleUserSuggestionClick(suggestion)}
                   >
-                    {suggestion.name}
+                    {suggestion.fullName}
                   </button>
                 ))}
               </div>
@@ -191,7 +217,7 @@ export default function AddReservation(props: AddPanelProps) {
             <input
               className='bg-zinc-700 rounded-lg border-zinc-600 text-zinc-100'
               type='datetime-local'
-              onChange={(e) => setStartTime(new Date(e.target.value))}
+              onChange={(e) => shiftStart(new Date(e.target.value))}
             />
           </div>
           <div className='flex flex-col'>
@@ -201,7 +227,7 @@ export default function AddReservation(props: AddPanelProps) {
             <input
               className='bg-zinc-700 rounded-lg border-zinc-600 text-zinc-100'
               type='datetime-local'
-              onChange={(e) => setEndTime(new Date(e.target.value))}
+              onChange={(e) => shiftEnd(new Date(e.target.value))}
             />
           </div>
           <button

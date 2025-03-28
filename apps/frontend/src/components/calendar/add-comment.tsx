@@ -20,7 +20,7 @@ export default function AddComment(props: AddCommentProps) {
     }
     console.log(comment, isReservable, startTime, endTime);
     axios
-      .post('http://localhost:3001/comments', {
+      .post('http://localhost:3030/comments', {
         comment: comment,
         startTime: startTime,
         endTime: endTime,

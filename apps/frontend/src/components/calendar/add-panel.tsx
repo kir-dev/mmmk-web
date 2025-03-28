@@ -9,7 +9,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Band } from '@/types/band';
 import { User } from '@/types/user';
 
-const url = 'http://localhost:3001/reservations';
+const url = 'http://localhost:3030/reservations';
 
 interface AddEventProps {
   onGetData: () => void;

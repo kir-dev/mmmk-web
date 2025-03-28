@@ -5,7 +5,7 @@ import { Band } from '@/types/band';
 import { Reservation } from '@/types/reservation';
 import { User } from '@/types/user';
 
-const url = 'http://localhost:3001/reservations';
+const url = 'http://localhost:3030/reservations';
 
 interface EventDetailsProps {
   isEventDetails: boolean;
@@ -24,7 +24,7 @@ export default function ReservationDetails(props: EventDetailsProps) {
   const [gateKeeper, setGateKeeper] = useState<User>();
 
   const getMe = () => {
-    axios.get('http://localhost:3001/users/me').then((res) => {
+    axios.get('http://localhost:3030/users/me').then((res) => {
       setMe(res.data);
       console.log(res.data);
       console.log(me);
@@ -32,19 +32,19 @@ export default function ReservationDetails(props: EventDetailsProps) {
   };
 
   const getGateKeeper = (id: number) => {
-    axios.get(`http://localhost:3001/users/${id}`).then((res) => {
+    axios.get(`http://localhost:3030/users/${id}`).then((res) => {
       setGateKeeper(res.data);
     });
   };
 
   const getUser = (id: number) => {
-    axios.get(`http://localhost:3001/users/${id}`).then((res) => {
+    axios.get(`http://localhost:3030/users/${id}`).then((res) => {
       setUser(res.data);
     });
   };
 
   const getBand = (id: number) => {
-    axios.get(`http://localhost:3001/band/${id}`).then((res) => {
+    axios.get(`http://localhost:3030/band/${id}`).then((res) => {
       setBand(res.data);
     });
   };

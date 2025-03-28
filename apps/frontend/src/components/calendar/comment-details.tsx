@@ -3,7 +3,7 @@ import { useState } from 'react';
 
 import { Comment } from '@/types/comment';
 
-const url = 'http://localhost:3001/comments';
+const url = 'http://localhost:3030/comments';
 
 interface EventDetailsProps {
   isCommentDetails: boolean;
