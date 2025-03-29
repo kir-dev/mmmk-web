@@ -1,15 +1,18 @@
+import validDate from '@components/calendar/validDate';
 import { Button } from '@components/ui/button';
 import { Input } from '@components/ui/input';
 import axios from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
 
 import { Band } from '@/types/band';
+import { Reservation } from '@/types/reservation';
 import { User } from '@/types/user';
 
 interface AddPanelProps {
   onGetData: () => void;
   currentDate: Date;
   onAddEvent: () => void;
+  reservations: Reservation[];
 }
 
 export default function AddReservation(props: AddPanelProps) {
@@ -31,6 +34,8 @@ export default function AddReservation(props: AddPanelProps) {
   const [showUserSuggestions, setShowUserSuggestions] = useState(false);
   const [showBandSuggestions, setShowBandSuggestions] = useState(false);
   const suggestionRef = useRef<HTMLDivElement>(null);
+
+  const [valid, setValid] = useState(true);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -103,28 +108,36 @@ export default function AddReservation(props: AddPanelProps) {
       console.error('All fields must be filled.');
       return;
     }
-    axios
-      .post('http://localhost:3030/reservations', {
-        userId: user.id,
-        bandId: band.id,
-        startTime: startTime.toISOString(),
-        endTime: endTime.toISOString(),
-        status: 'NORMAL',
-      })
-      .then(() => {
-        props.onGetData();
-        setUser(undefined);
-        setBand(undefined);
-        setBandName('');
-        setUserName('');
-        setStartTime(new Date());
-        setEndTime(new Date());
-        props.onAddEvent();
-      })
-      .catch((error) => {
-        console.error(error.response.data);
-        console.error(error.response.status);
-      });
+    //startTime.setHours(startTime.getHours() - 1);
+    //endTime.setHours(endTime.getHours() - 1);
+    if (validDate(startTime, endTime, null, props.reservations)) {
+      axios
+        .post('http://localhost:3030/reservations', {
+          userId: user.id,
+          bandId: band.id,
+          startTime: startTime.toISOString(),
+          endTime: endTime.toISOString(),
+          status: 'NORMAL',
+        })
+        .then(() => {
+          props.onGetData();
+          setUser(undefined);
+          setBand(undefined);
+          setBandName('');
+          setUserName('');
+          setStartTime(new Date());
+          setEndTime(new Date());
+          props.onAddEvent();
+          setValid(true);
+        })
+        .catch((error) => {
+          console.error(error.response.data);
+          console.error(error.response.status);
+        });
+      setValid(true);
+    } else {
+      setValid(false);
+    }
   };
 
   const getMe = () => {
@@ -238,6 +251,7 @@ export default function AddReservation(props: AddPanelProps) {
           </button>
         </div>
       </div>
+      {valid ? null : <div className='text-red-500'>Hibás időpont</div>}
     </div>
   );
 }

@@ -7,6 +7,7 @@ import axios from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
 
 import { Band } from '@/types/band';
+import { Reservation } from '@/types/reservation';
 import { User } from '@/types/user';
 
 const url = 'http://localhost:3030/reservations';
@@ -14,6 +15,7 @@ const url = 'http://localhost:3030/reservations';
 interface AddEventProps {
   onGetData: () => void;
   currentDate: Date;
+  reservations: Reservation[];
 }
 
 export function AddPanel(props: AddEventProps) {
@@ -47,7 +49,12 @@ export function AddPanel(props: AddEventProps) {
               </Button>
             </div>
             {selected === 'reservation' ? (
-              <AddReservation onGetData={props.onGetData} currentDate={props.currentDate} onAddEvent={onAddEvent} />
+              <AddReservation
+                onGetData={props.onGetData}
+                currentDate={props.currentDate}
+                onAddEvent={onAddEvent}
+                reservations={props.reservations}
+              />
             ) : (
               <AddComment onGetData={props.onGetData} onAddEvent={onAddEvent} />
             )}

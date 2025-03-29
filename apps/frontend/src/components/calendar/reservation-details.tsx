@@ -1,5 +1,6 @@
+import validDate from '@components/calendar/validDate';
 import axios from 'axios';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { Band } from '@/types/band';
 import { Reservation } from '@/types/reservation';
@@ -13,11 +14,14 @@ interface EventDetailsProps {
   clickedEvent: Reservation;
   setClickedEvent: (reservation: Reservation) => void;
   onGetData: () => void;
+  reservations: Reservation[];
 }
 
 export default function ReservationDetails(props: EventDetailsProps) {
   const [isEditing, setIsEditing] = useState(false);
-  const [editValue, setEditValue] = useState('');
+  const [editNameValue, setEditNameValue] = useState('');
+  const [editStartTimeValue, setEditStartTimeValue] = useState(new Date());
+  const [editEndTimeValue, setEditEndTimeValue] = useState(new Date());
   const [user, setUser] = useState<User>();
   const [band, setBand] = useState<Band>();
   const [me, setMe] = useState<User>();
@@ -40,6 +44,7 @@ export default function ReservationDetails(props: EventDetailsProps) {
   const getUser = (id: number) => {
     axios.get(`http://localhost:3030/users/${id}`).then((res) => {
       setUser(res.data);
+      setEditNameValue(res.data.name);
     });
   };
 
@@ -57,15 +62,21 @@ export default function ReservationDetails(props: EventDetailsProps) {
   };
 
   const onEdit = () => {
-    if (editValue !== '') {
+    if (validDate(editStartTimeValue, editEndTimeValue, props.clickedEvent, props.reservations)) {
       if (isEditing) {
-        axios.patch(`${url}/${props.clickedEvent?.id}`, { name: editValue }).then(() => {
-          props.onGetData();
-          onGetName(props.clickedEvent?.id);
-        });
+        axios
+          .patch(`${url}/${props.clickedEvent?.id}`, {
+            name: editNameValue,
+            startTime: editStartTimeValue,
+            endTime: editEndTimeValue,
+          })
+          .then(() => {
+            props.onGetData();
+            onGetName(props.clickedEvent?.id);
+          });
       }
     }
-    setEditValue(props.clickedEvent?.name);
+    setEditNameValue(props.clickedEvent?.name);
     setIsEditing(!isEditing);
   };
 
@@ -104,8 +115,8 @@ export default function ReservationDetails(props: EventDetailsProps) {
                 <input
                   className='self-start mt-10 border-2 border-black rounded-lg p-2 max-w-fit'
                   type='text'
-                  value={editValue}
-                  onChange={(e) => setEditValue(e.target.value)}
+                  value={editNameValue}
+                  onChange={(e) => setEditNameValue(e.target.value)}
                 />
               ) : (
                 <span>{band?.name}</span>
@@ -114,12 +125,34 @@ export default function ReservationDetails(props: EventDetailsProps) {
             <p>Foglaló: {user?.name}</p>
             <p>Beengedő: {gateKeeper?.name}</p>
             <p>
-              Start time: {new Date(props.clickedEvent.startTime).getHours() - 1}:
-              {new Date(props.clickedEvent.startTime).getMinutes().toString().padStart(2, '0')}
+              Start time:{' '}
+              {isEditing ? (
+                <input
+                  className='bg-zinc-700 rounded-lg border-zinc-600 text-zinc-100'
+                  type='datetime-local'
+                  onChange={(e) => setEditStartTimeValue(new Date(e.target.value))}
+                />
+              ) : (
+                <span>
+                  {new Date(props.clickedEvent.startTime).getHours() - 1}:
+                  {new Date(props.clickedEvent.startTime).getMinutes().toString().padStart(2, '0')}
+                </span>
+              )}
             </p>
             <p>
-              End time: {new Date(props.clickedEvent.endTime).getHours() - 1}:
-              {new Date(props.clickedEvent.endTime).getMinutes().toString().padStart(2, '0')}
+              End time:{' '}
+              {isEditing ? (
+                <input
+                  className='bg-zinc-700 rounded-lg border-zinc-600 text-zinc-100'
+                  type='datetime-local'
+                  onChange={(e) => setEditEndTimeValue(new Date(e.target.value))}
+                />
+              ) : (
+                <span>
+                  {new Date(props.clickedEvent.endTime).getHours() - 1}:
+                  {new Date(props.clickedEvent.endTime).getMinutes().toString().padStart(2, '0')}
+                </span>
+              )}
             </p>
             <p>Status: {props.clickedEvent?.status}</p>
           </div>

@@ -89,7 +89,7 @@ export default function Calendar() {
           </button>
         </div>
         <div className='ml-auto'>
-          <AddPanel onGetData={onGetData} currentDate={currentDate} />
+          <AddPanel onGetData={onGetData} currentDate={currentDate} reservations={reservations} />
         </div>
       </div>
 
@@ -117,6 +117,7 @@ export default function Calendar() {
         clickedEvent={clickedReservation}
         setClickedEvent={setClickedReservation}
         onGetData={onGetData}
+        reservations={reservations}
       />
 
       <CommentDetails
