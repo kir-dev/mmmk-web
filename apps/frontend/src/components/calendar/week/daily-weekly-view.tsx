@@ -31,12 +31,12 @@ export default function DWView(props: DWViewProps) {
     setFirstDayOfWeek((firstDayOfWeek + 7) % 7);
   };
   const handleNextWeek = () => {
-    if (dayOfWeek === 7 && props.currentDate.getHours() >= 20) {
-      props.setCurrentDate(
-        new Date(props.currentDate.getFullYear(), props.currentDate.getMonth(), props.currentDate.getDate() + 7)
-      );
-      setFirstDayOfWeek((firstDayOfWeek + 7) % 7);
-    }
+    //if (dayOfWeek === 7 && props.currentDate.getHours() >= 20) {
+    props.setCurrentDate(
+      new Date(props.currentDate.getFullYear(), props.currentDate.getMonth(), props.currentDate.getDate() + 7)
+    );
+    setFirstDayOfWeek((firstDayOfWeek + 7) % 7);
+    //}
   };
 
   const daysInMonth = new Date(props.currentDate.getFullYear(), props.currentDate.getMonth() + 1, 0).getDate();
@@ -154,11 +154,7 @@ export default function DWView(props: DWViewProps) {
               {props.currentDate.getDate() + _ > daysInMonth ? (
                 <DailyViewWO
                   currentDate={
-                    new Date(
-                      props.currentDate.getFullYear(),
-                      props.currentDate.getMonth() + 1,
-                      props.currentDate.getDate() - dayOfWeek + _ + 1
-                    )
+                    new Date(props.currentDate.getFullYear(), props.currentDate.getMonth() + 1, dayOfWeek + _ - 1)
                   }
                   setCurrentDate={props.setCurrentDate}
                   reservations={props.reservations}

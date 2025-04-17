@@ -4,6 +4,7 @@ import { Input } from '@components/ui/input';
 import axios from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
 
+import axiosApi from '@/lib/apiSetup';
 import { Band } from '@/types/band';
 import { Reservation } from '@/types/reservation';
 import { User } from '@/types/user';
@@ -105,16 +106,20 @@ export default function AddReservation(props: AddPanelProps) {
 
   const onClick = () => {
     if (!user?.id || !band?.id || !startTime || !endTime) {
-      console.error('All fields must be filled.');
-      return;
+      if (myUser?.role === 'USER') {
+        setUser(myUser);
+      } else {
+        console.error('All fields must be filled.');
+        return;
+      }
     }
-    //startTime.setHours(startTime.getHours() - 1);
-    //endTime.setHours(endTime.getHours() - 1);
+    startTime.setHours(startTime.getHours() - 1);
+    endTime.setHours(endTime.getHours() - 1);
     if (validDate(startTime, endTime, null, props.reservations)) {
-      axios
+      axiosApi
         .post('http://localhost:3030/reservations', {
-          userId: user.id,
-          bandId: band.id,
+          userId: user?.id,
+          bandId: band?.id,
           startTime: startTime.toISOString(),
           endTime: endTime.toISOString(),
           status: 'NORMAL',
@@ -141,15 +146,14 @@ export default function AddReservation(props: AddPanelProps) {
   };
 
   const getMe = () => {
-    axios
+    axiosApi
       .get('http://localhost:3030/users/me')
       .then((res) => {
         setMyUser(res.data);
-        console.log(res.data);
       })
       .catch((error) => {
-        console.error(error.response.data); // Nézd meg, mit mond a szerver
-        console.error(error.response.status); // Pl. 400
+        console.error(error.response.data);
+        console.error(error.response.status);
       });
   };
 
@@ -167,34 +171,36 @@ export default function AddReservation(props: AddPanelProps) {
     <div>
       <div>
         <div className='space-y-4'>
-          <div className='relative'>
-            <label htmlFor='name' className='text-zinc-300'>
-              Név
-            </label>
-            <Input
-              id='name'
-              value={userName}
-              onChange={handleUserNameChange}
-              required
-              className='bg-zinc-700 border-zinc-600 text-zinc-100'
-            />
-            {showUserSuggestions && userSuggestions.length > 0 && (
-              <div
-                ref={suggestionRef}
-                className='absolute z-10 w-full mt-1 bg-zinc-700 border border-zinc-600 rounded-md shadow-lg'
-              >
-                {userSuggestions.map((suggestion, index) => (
-                  <button
-                    key={index}
-                    className='px-4 py-2 cursor-pointer hover:bg-zinc-600 w-full rounded-md'
-                    onClick={() => handleUserSuggestionClick(suggestion)}
-                  >
-                    {suggestion.fullName}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+          {myUser?.role === 'ADMIN' ? (
+            <div className='relative'>
+              <label htmlFor='name' className='text-zinc-300'>
+                Név
+              </label>
+              <Input
+                id='name'
+                value={userName}
+                onChange={handleUserNameChange}
+                required
+                className='bg-zinc-700 border-zinc-600 text-zinc-100'
+              />
+              {showUserSuggestions && userSuggestions.length > 0 && (
+                <div
+                  ref={suggestionRef}
+                  className='absolute z-10 w-full mt-1 bg-zinc-700 border border-zinc-600 rounded-md shadow-lg'
+                >
+                  {userSuggestions.map((suggestion, index) => (
+                    <button
+                      key={index}
+                      className='px-4 py-2 cursor-pointer hover:bg-zinc-600 w-full rounded-md'
+                      onClick={() => handleUserSuggestionClick(suggestion)}
+                    >
+                      {suggestion.fullName}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : null}
           <div className='relative'>
             <label htmlFor='name' className='text-zinc-300'>
               Banda

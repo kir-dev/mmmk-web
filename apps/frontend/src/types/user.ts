@@ -1,15 +1,17 @@
-import { CardRight, ProfilePicture } from '@prisma/client';
+import { BandMembership, ClubMembership, ProfilePicture, Reservation, Role } from '@prisma/client';
 
 export type User = {
   id: number;
+  authSchId: string;
   fullName: string;
   email: string;
   phone?: string;
   isDormResident: boolean;
   roomNumber?: string;
-  role: string;
-  cardRight?: CardRight;
+  role: Role;
+  clubMembership: ClubMembership;
+  clubMembershipUpdatedAt: Date;
   profilePicture?: ProfilePicture;
-  created_at: string;
-  updated_at: string;
+  bandMemberShips?: BandMembership[];
+  reservations?: Reservation[];
 };

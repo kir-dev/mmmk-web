@@ -1,8 +1,11 @@
 import validDate from '@components/calendar/validDate';
+import { Role } from '@prisma/client';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 
+import axiosApi from '@/lib/apiSetup';
 import { Band } from '@/types/band';
+import { ClubMembership } from '@/types/member';
 import { Reservation } from '@/types/reservation';
 import { User } from '@/types/user';
 
@@ -22,23 +25,38 @@ export default function ReservationDetails(props: EventDetailsProps) {
   const [editNameValue, setEditNameValue] = useState('');
   const [editStartTimeValue, setEditStartTimeValue] = useState(new Date());
   const [editEndTimeValue, setEditEndTimeValue] = useState(new Date());
+
   const [user, setUser] = useState<User>();
   const [band, setBand] = useState<Band>();
+
   const [me, setMe] = useState<User>();
-  const [gateKeeper, setGateKeeper] = useState<User>();
+  const [role, setRole] = useState<Role>('USER');
+  const [gateKeeper, setGateKeeper] = useState<User | null>();
+
+  const [gateKeepers, setGateKeepers] = useState<ClubMembership[]>([]);
+  const [valid, setValid] = useState(true);
 
   const getMe = () => {
-    axios.get('http://localhost:3030/users/me').then((res) => {
+    axiosApi.get('http://localhost:3030/users/me').then((res) => {
       setMe(res.data);
-      console.log(res.data);
-      console.log(me);
     });
   };
 
-  const getGateKeeper = (id: number) => {
-    axios.get(`http://localhost:3030/users/${id}`).then((res) => {
-      setGateKeeper(res.data);
-    });
+  const getGateKeeper = (id: number | null) => {
+    if (id) {
+      axios
+        .get(`http://localhost:3030/memberships/${id}`)
+        .then((res) => {
+          axios.get(`http://localhost:3030/users/${res.data.userId}`).then((result) => {
+            setGateKeeper(result.data);
+          });
+        })
+        .catch(() => {
+          setGateKeeper(null);
+        });
+    } else {
+      setGateKeeper(null);
+    }
   };
 
   const getUser = (id: number) => {
@@ -62,8 +80,8 @@ export default function ReservationDetails(props: EventDetailsProps) {
   };
 
   const onEdit = () => {
-    if (validDate(editStartTimeValue, editEndTimeValue, props.clickedEvent, props.reservations)) {
-      if (isEditing) {
+    if (isEditing) {
+      if (validDate(editStartTimeValue, editEndTimeValue, props.clickedEvent, props.reservations)) {
         axios
           .patch(`${url}/${props.clickedEvent?.id}`, {
             name: editNameValue,
@@ -74,9 +92,12 @@ export default function ReservationDetails(props: EventDetailsProps) {
             props.onGetData();
             onGetName(props.clickedEvent?.id);
           });
+        setValid(true);
+      } else {
+        setValid(false);
       }
     }
-    setEditNameValue(props.clickedEvent?.name);
+    //setEditNameValue(props.clickedEvent?.name);
     setIsEditing(!isEditing);
   };
 
@@ -89,8 +110,44 @@ export default function ReservationDetails(props: EventDetailsProps) {
   useEffect(() => {
     if (props.clickedEvent?.userId) getUser(props.clickedEvent.userId);
     if (props.clickedEvent?.bandId) getBand(props.clickedEvent.bandId);
-    if (props.clickedEvent?.gateKeeperId) getGateKeeper(props.clickedEvent.gateKeeperId);
+    getGateKeeper(props.clickedEvent?.gateKeeperId || null);
+    getMe();
+    getGKs();
+    setRole(me?.role || 'USER');
   }, [props.clickedEvent]);
+
+  const getGKs = () => {
+    axiosApi.get('http://localhost:3030/memberships').then((res) => {
+      setGateKeepers(res.data);
+    });
+  };
+
+  function CurrentUserIsGK() {
+    let isUserGK: ClubMembership | null = null;
+    for (let i = 0; i < gateKeepers.length; i++) {
+      if (gateKeepers[i].userId === me?.id) {
+        isUserGK = gateKeepers[i];
+        return isUserGK;
+      }
+    }
+  }
+
+  const onSetGK = () => {
+    const isUserGK = CurrentUserIsGK();
+
+    if (isUserGK) {
+      axiosApi
+        .patch(`${url}/${props.clickedEvent?.id}`, {
+          gateKeeperId: isUserGK.id,
+        })
+        .then(() => {
+          axiosApi.get(`http://localhost:3030/users/${isUserGK.userId}`).then((resp) => {
+            setGateKeeper(resp.data);
+          });
+          props.onGetData();
+        });
+    }
+  };
 
   return (
     <div>
@@ -122,19 +179,26 @@ export default function ReservationDetails(props: EventDetailsProps) {
                 <span>{band?.name}</span>
               )}
             </p>
-            <p>Foglaló: {user?.name}</p>
-            <p>Beengedő: {gateKeeper?.name}</p>
+            <p>Foglaló: {user?.fullName}</p>
+            <p>Beengedő: {gateKeeper?.fullName}</p>
             <p>
               Start time:{' '}
               {isEditing ? (
                 <input
                   className='bg-zinc-700 rounded-lg border-zinc-600 text-zinc-100'
                   type='datetime-local'
+                  defaultValue={new Date(
+                    new Date(props.clickedEvent.startTime).setHours(
+                      new Date(props.clickedEvent.startTime).getHours() + 2
+                    )
+                  )
+                    .toISOString()
+                    .slice(0, 16)}
                   onChange={(e) => setEditStartTimeValue(new Date(e.target.value))}
                 />
               ) : (
                 <span>
-                  {new Date(props.clickedEvent.startTime).getHours() - 1}:
+                  {new Date(props.clickedEvent.startTime).getHours()}:
                   {new Date(props.clickedEvent.startTime).getMinutes().toString().padStart(2, '0')}
                 </span>
               )}
@@ -145,11 +209,16 @@ export default function ReservationDetails(props: EventDetailsProps) {
                 <input
                   className='bg-zinc-700 rounded-lg border-zinc-600 text-zinc-100'
                   type='datetime-local'
+                  defaultValue={new Date(
+                    new Date(props.clickedEvent.endTime).setHours(new Date(props.clickedEvent.endTime).getHours() + 2)
+                  )
+                    .toISOString()
+                    .slice(0, 16)}
                   onChange={(e) => setEditEndTimeValue(new Date(e.target.value))}
                 />
               ) : (
                 <span>
-                  {new Date(props.clickedEvent.endTime).getHours() - 1}:
+                  {new Date(props.clickedEvent.endTime).getHours()}:
                   {new Date(props.clickedEvent.endTime).getMinutes().toString().padStart(2, '0')}
                 </span>
               )}
@@ -157,24 +226,19 @@ export default function ReservationDetails(props: EventDetailsProps) {
             <p>Status: {props.clickedEvent?.status}</p>
           </div>
           <div className='flex flex-row justify-between mt-4'>
-            <div className='self-end'>
-              <button
-                className='border-2 border-black bg-orange-500 hover:bg-orange-400 text-white font-bold py-1 px-2 rounded-lg'
-                onClick={() => {
-                  axios.patch(`${url}/${props.clickedEvent?.id}`, { gateKeeperId: `${me?.id}` }).then((res) => {
-                    props.onGetData();
-                    onGetName(props.clickedEvent?.id);
-                    console.log(res.data);
-                    console.log(props.clickedEvent.gateKeeperId);
-                  });
-                }}
-              >
-                Assign yourself
-              </button>
-            </div>
+            {CurrentUserIsGK() && props.clickedEvent.gateKeeperId === null ? (
+              <div className='self-end'>
+                <button
+                  className='border-2 border-black bg-orange-500 hover:bg-orange-400 text-white font-bold py-1 px-2 rounded-lg'
+                  onClick={onSetGK}
+                >
+                  Assign yourself
+                </button>
+              </div>
+            ) : null}
             <div className='flex flex-col'>
               <button
-                className='border-2 border-black bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded-lg'
+                className='border-2 border-black bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded-lg mb-1'
                 onClick={onDelete}
               >
                 Delete
@@ -185,6 +249,7 @@ export default function ReservationDetails(props: EventDetailsProps) {
               >
                 {isEditing ? 'Save' : 'Edit'}
               </button>
+              {valid ? null : <div className='text-red-500'>Hibás időpont</div>}
             </div>
           </div>
         </div>

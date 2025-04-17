@@ -6,6 +6,10 @@ export class ClubMembership {
   @IsPositive()
   id: number;
 
+  @IsNumber()
+  @IsPositive()
+  userId: number;
+
   @IsEnum(ClubMembershipStatus)
   status: ClubMembershipStatus;
 

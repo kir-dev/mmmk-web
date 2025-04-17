@@ -1,4 +1,4 @@
-import { ReservationStatus } from '@prisma/client';
+import { Band, ClubMembership, ReservationStatus, User } from '@prisma/client';
 
 export type Reservation = {
   id: number;
@@ -8,4 +8,7 @@ export type Reservation = {
   endTime: Date;
   gateKeeperId: number;
   status: ReservationStatus;
+  band: Band;
+  gateKeeper: ClubMembership;
+  user: User;
 };

@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 
 import axiosApi from '@/lib/apiSetup';
@@ -22,9 +23,18 @@ export function useProfile() {
     }
   };
 
+  const logout = async () => {
+    try {
+      await axios.get('/logout');
+      setProfile(null);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
     fetchProfile();
   }, []);
 
-  return { profile, loading, fetchProfile };
+  return { profile, loading, fetchProfile, logout };
 }

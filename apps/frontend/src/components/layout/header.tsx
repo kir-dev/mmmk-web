@@ -64,9 +64,7 @@ export function Header() {
                   <Link href='/profile'>Profile</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
-                  <Link onClick={userData.fetchProfile} href='/logout'>
-                    Log out
-                  </Link>
+                  <Button onClick={userData.logout}>Log out</Button>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

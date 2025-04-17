@@ -16,7 +16,7 @@ export default function DayReservation(props: DayEventProps) {
   const [user, setUser] = useState<User>();
   const [band, setBand] = useState<Band>();
 
-  const offset = (startDate.getMinutes() / 60) * 39;
+  const offset = (startDate.getMinutes() / 60) * 80;
 
   const getUser = (id: number) => {
     axios.get(`http://localhost:3030/users/${id}`).then((res) => {
@@ -54,7 +54,7 @@ export default function DayReservation(props: DayEventProps) {
         >
           <div className='flex flex-col'>
             <div className='self-start text-left'>
-              {`${startDate.getHours() - 1}:${startDate.getMinutes().toString().padStart(2, '0')}-${endDate.getHours() - 1}:${endDate.getMinutes().toString().padStart(2, '0')}`}
+              {`${startDate.getHours()}:${startDate.getMinutes().toString().padStart(2, '0')}-${endDate.getHours()}:${endDate.getMinutes().toString().padStart(2, '0')}`}
             </div>
             <div className='self-start text-left'>{band?.name}</div>
           </div>
