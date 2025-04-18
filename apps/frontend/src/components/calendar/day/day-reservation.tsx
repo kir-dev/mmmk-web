@@ -42,7 +42,7 @@ export default function DayReservation(props: DayEventProps) {
       }}
     >
       <div
-        className='flex flex-row bg-blue-400 justify-start max-w-[110px] overflow-auto scrollbar-webkit rounded-md border-2 border-white'
+        className={`flex flex-row ${props.reservation.status === 'OVERTIME' ? 'bg-blue-400' : 'bg-green-500'} justify-start max-w-[110px] overflow-auto scrollbar-webkit rounded-md border-2 border-white`}
         style={{
           height: `${(endDate.getHours() - startDate.getHours() + (endDate.getMinutes() - startDate.getMinutes()) / 60) * 78}px`,
         }}
