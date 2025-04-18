@@ -1,5 +1,5 @@
+import IsOvertime, { getFirstDayOfWeek, getLastDayOfWeek } from '@components/calendar/isReservationOvertime';
 import validDate from '@components/calendar/validDate';
-import { Button } from '@components/ui/button';
 import { Input } from '@components/ui/input';
 import axios from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
@@ -115,14 +115,26 @@ export default function AddReservation(props: AddPanelProps) {
     }
     startTime.setHours(startTime.getHours() - 1);
     endTime.setHours(endTime.getHours() - 1);
+
+    const now = new Date();
+    const startOfWeek = getFirstDayOfWeek(now);
+    const endOfWeek = getLastDayOfWeek(now);
+
+    const filteredReservations = props.reservations.filter((reservation) => {
+      const reservationStart = new Date(reservation.startTime);
+      return reservationStart.getTime() >= startOfWeek.getTime() && reservationStart.getTime() <= endOfWeek.getTime();
+    });
+
     if (validDate(startTime, endTime, null, props.reservations)) {
+      let statusString = 'NORMAL';
+      if (IsOvertime(startTime, endTime, filteredReservations)) statusString = 'OVERTIME';
       axiosApi
         .post('http://localhost:3030/reservations', {
           userId: user?.id,
           bandId: band?.id,
           startTime: startTime.toISOString(),
           endTime: endTime.toISOString(),
-          status: 'NORMAL',
+          status: statusString,
         })
         .then(() => {
           props.onGetData();

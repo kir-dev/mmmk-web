@@ -7,7 +7,6 @@ export default function validDate(
   reservations: Reservation[]
 ): boolean {
   if (start > end || end.getHours() - start.getHours() > 3) {
-    console.log('Csak simán szar vagy túl hosszú');
     return false;
   }
   if (reservation) {
