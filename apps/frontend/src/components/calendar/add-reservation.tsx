@@ -120,20 +120,43 @@ export default function AddReservation(props: AddPanelProps) {
     const startOfWeek = getFirstDayOfWeek(now);
     const endOfWeek = getLastDayOfWeek(now);
 
-    const filteredReservations = props.reservations.filter((reservation) => {
+    const reservationsOfWeek = props.reservations.filter((reservation) => {
       const reservationStart = new Date(reservation.startTime);
-      return reservationStart.getTime() >= startOfWeek.getTime() && reservationStart.getTime() <= endOfWeek.getTime();
+      return (
+        reservationStart.getTime() >= startOfWeek.getTime() &&
+        reservationStart.getTime() <= endOfWeek.getTime() &&
+        reservation.bandId === band?.id
+      );
+    });
+
+    const reservationsOfDay = props.reservations.filter((reservation) => {
+      const reservationStart = new Date(reservation.startTime);
+      return (
+        reservationStart.getDate() === startTime.getDate() &&
+        reservationStart.getMonth() === startTime.getMonth() &&
+        reservationStart.getFullYear() === startTime.getFullYear() &&
+        reservation.bandId === band?.id
+      );
     });
 
     if (validDate(startTime, endTime, null, props.reservations)) {
-      let statusString = 'NORMAL';
-      if (IsOvertime(startTime, endTime, filteredReservations)) statusString = 'OVERTIME';
+      const statusString = 'NORMAL';
+      const reservationTimes = IsOvertime(startTime, endTime, reservationsOfWeek, reservationsOfDay);
+      if (reservationTimes[2] && reservationTimes[3]) {
+        axiosApi.post('http://localhost:3030/reservations', {
+          userId: user?.id,
+          bandId: band?.id,
+          startTime: reservationTimes[2].toISOString(),
+          endTime: reservationTimes[3].toISOString(),
+          status: 'OVERTIME',
+        });
+      }
       axiosApi
         .post('http://localhost:3030/reservations', {
           userId: user?.id,
           bandId: band?.id,
-          startTime: startTime.toISOString(),
-          endTime: endTime.toISOString(),
+          startTime: reservationTimes[0].toISOString(),
+          endTime: reservationTimes[1].toISOString(),
           status: statusString,
         })
         .then(() => {
