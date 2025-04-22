@@ -4,6 +4,7 @@ import { Input } from '@components/ui/input';
 import axios from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
 
+import collisionWithAdminRes from '@/hooks/collisionWithAdminRes';
 import axiosApi from '@/lib/apiSetup';
 import { Band } from '@/types/band';
 import { Reservation } from '@/types/reservation';
@@ -139,25 +140,14 @@ export default function AddReservation(props: AddPanelProps) {
       );
     });
 
-    if (validDate(startTime, endTime, null, props.reservations)) {
-      const statusString = 'NORMAL';
-      const reservationTimes = IsOvertime(startTime, endTime, reservationsOfWeek, reservationsOfDay);
-      if (reservationTimes[2] && reservationTimes[3]) {
-        axiosApi.post('http://localhost:3030/reservations', {
-          userId: user?.id,
-          bandId: band?.id,
-          startTime: reservationTimes[2].toISOString(),
-          endTime: reservationTimes[3].toISOString(),
-          status: 'OVERTIME',
-        });
-      }
+    if (myUser?.role === 'ADMIN' && !collisionWithAdminRes(startTime, endTime, reservationsOfDay)) {
       axiosApi
         .post('http://localhost:3030/reservations', {
           userId: user?.id,
           bandId: band?.id,
-          startTime: reservationTimes[0].toISOString(),
-          endTime: reservationTimes[1].toISOString(),
-          status: statusString,
+          startTime: startTime.toISOString(),
+          endTime: endTime.toISOString(),
+          status: 'NORMAL',
         })
         .then(() => {
           props.onGetData();
@@ -169,11 +159,44 @@ export default function AddReservation(props: AddPanelProps) {
           setEndTime(new Date());
           props.onAddEvent();
           setValid(true);
-        })
-        .catch((error) => {
-          console.error(error.response.data);
-          console.error(error.response.status);
         });
+      return;
+    }
+
+    if (validDate(startTime, endTime, null, props.reservations)) {
+      const reservationTimes = IsOvertime(startTime, endTime, reservationsOfWeek, reservationsOfDay);
+
+      if (reservationTimes[2] && reservationTimes[3]) {
+        axiosApi.post('http://localhost:3030/reservations', {
+          userId: user?.id,
+          bandId: band?.id,
+          startTime: reservationTimes[2].toISOString(),
+          endTime: reservationTimes[3].toISOString(),
+          status: 'OVERTIME',
+        });
+      }
+      const minimumReservationTime = 0.25 * 60 * 1000; // 15 minutes in milliseconds
+      if (reservationTimes[1].getTime() - reservationTimes[0].getTime() > minimumReservationTime) {
+        axiosApi
+          .post('http://localhost:3030/reservations', {
+            userId: user?.id,
+            bandId: band?.id,
+            startTime: reservationTimes[0].toISOString(),
+            endTime: reservationTimes[1].toISOString(),
+            status: 'NORMAL',
+          })
+          .then(() => {
+            props.onGetData();
+            setUser(undefined);
+            setBand(undefined);
+            setBandName('');
+            setUserName('');
+            setStartTime(new Date());
+            setEndTime(new Date());
+            props.onAddEvent();
+            setValid(true);
+          });
+      }
       setValid(true);
     } else {
       setValid(false);

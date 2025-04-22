@@ -1,3 +1,4 @@
+import deleteReservation from '@/hooks/deleteReservation';
 import { Reservation } from '@/types/reservation';
 
 export default function validDate(
@@ -14,34 +15,33 @@ export default function validDate(
       start.getDate() < new Date(reservation.startTime).getDate() - new Date(reservation.startTime).getDay() ||
       end.getDate() > new Date(reservation.endTime).getDate() + (7 - new Date(reservation.endTime).getDay())
     ) {
-      console.log('Szerkesztési hiba');
       return false;
     }
   }
 
-  reservations = reservations.filter((res) => res.startTime.getDate === start.getDate);
+  reservations = reservations.filter((res) => {
+    const date = new Date(res.startTime);
+    return date.getDate() === start.getDate();
+  });
 
   for (const res of reservations) {
-    const startHour = start.getHours();
-    const endHour = end.getHours();
-    const resStartHour = new Date(res.startTime).getHours();
-    const resEndHour = new Date(res.endTime).getHours();
-
-    const startMin = start.getMinutes();
-    const endMin = end.getMinutes();
-    const resStartMin = new Date(res.startTime).getMinutes();
-    const resEndMin = new Date(res.endTime).getMinutes();
+    const startTime = start.getTime();
+    const endTime = end.getTime();
+    const resStartTime = new Date(res.startTime).getTime();
+    const resEndTime = new Date(res.endTime).getTime();
 
     if (
-      (startHour > resStartHour && startHour < resEndHour) ||
-      (startHour === resStartHour && startMin >= resStartMin) ||
-      (endHour > resStartHour && endHour < resEndHour) ||
-      (endHour === resEndHour && endMin <= resEndMin) ||
-      (startHour <= resStartHour && endHour >= resEndHour) ||
-      (startHour >= resStartHour && endHour <= resEndHour)
+      (startTime >= resStartTime && startTime < resEndTime) ||
+      (endTime > resStartTime && endTime <= resEndTime) ||
+      (startTime <= resStartTime && endTime >= resEndTime)
     ) {
-      console.log('Ütközés');
-      return false;
+      if (res.status === 'OVERTIME') {
+        deleteReservation(res.id).then(() => {
+          return true;
+        });
+      } else {
+        return false;
+      }
     }
   }
   return true;
