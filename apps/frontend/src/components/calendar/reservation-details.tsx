@@ -36,9 +36,14 @@ export default function ReservationDetails(props: EventDetailsProps) {
   const [gateKeepers, setGateKeepers] = useState<ClubMembership[]>([]);
   const [valid, setValid] = useState(true);
 
+  const [hasEditRights, setHasEditRights] = useState(false);
+
   const getMe = () => {
     axiosApi.get('http://localhost:3030/users/me').then((res) => {
       setMe(res.data);
+      if (res.data.role === 'ADMIN' || props.clickedEvent?.userId === res.data.id) {
+        setHasEditRights(true);
+      }
     });
   };
 
@@ -84,11 +89,11 @@ export default function ReservationDetails(props: EventDetailsProps) {
       if (validDate(editStartTimeValue, editEndTimeValue, props.clickedEvent, props.reservations)) {
         axios
           .patch(`${url}/${props.clickedEvent?.id}`, {
-            name: editNameValue,
-            startTime: editStartTimeValue,
-            endTime: editEndTimeValue,
+            startTime: editStartTimeValue.toISOString(),
+            endTime: editEndTimeValue.toISOString(),
           })
           .then(() => {
+            console.log('Sikeres módosítás');
             props.onGetData();
             onGetName(props.clickedEvent?.id);
           });
@@ -108,6 +113,8 @@ export default function ReservationDetails(props: EventDetailsProps) {
   };
 
   useEffect(() => {
+    setEditStartTimeValue(new Date(props.clickedEvent?.startTime));
+    setEditEndTimeValue(new Date(props.clickedEvent?.endTime));
     if (props.clickedEvent?.userId) getUser(props.clickedEvent.userId);
     if (props.clickedEvent?.bandId) getBand(props.clickedEvent.bandId);
     getGateKeeper(props.clickedEvent?.gateKeeperId || null);
@@ -135,7 +142,18 @@ export default function ReservationDetails(props: EventDetailsProps) {
   const onSetGK = () => {
     const isUserGK = CurrentUserIsGK();
 
-    if (isUserGK) {
+    if (gateKeeper) {
+      axiosApi
+        .patch(`${url}/${props.clickedEvent?.id}`, {
+          gateKeeperId: null,
+        })
+        .then(() => {
+          setGateKeeper(null);
+          props.onGetData();
+        });
+    }
+
+    if (isUserGK && gateKeeper === null) {
       axiosApi
         .patch(`${url}/${props.clickedEvent?.id}`, {
           gateKeeperId: isUserGK.id,
@@ -181,6 +199,7 @@ export default function ReservationDetails(props: EventDetailsProps) {
             </p>
             <p>Foglaló: {user?.fullName}</p>
             <p>Beengedő: {gateKeeper?.fullName}</p>
+            <p>Beengedő telefonszáma: {gateKeeper?.phone}</p>
             <p>
               Start time:{' '}
               {isEditing ? (
@@ -226,31 +245,33 @@ export default function ReservationDetails(props: EventDetailsProps) {
             <p>Status: {props.clickedEvent?.status}</p>
           </div>
           <div className='flex flex-row justify-between mt-4'>
-            {CurrentUserIsGK() && props.clickedEvent.gateKeeperId === null ? (
+            {CurrentUserIsGK() ? (
               <div className='self-end'>
                 <button
                   className='border-2 border-black bg-orange-500 hover:bg-orange-400 text-white font-bold py-1 px-2 rounded-lg'
                   onClick={onSetGK}
                 >
-                  Assign yourself
+                  {gateKeeper === null ? 'Set me as gatekeeper' : 'Unset me as gatekeeper'}
                 </button>
               </div>
             ) : null}
-            <div className='flex flex-col'>
-              <button
-                className='border-2 border-black bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded-lg mb-1'
-                onClick={onDelete}
-              >
-                Delete
-              </button>
-              <button
-                className='border-2 border-black bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-2 rounded-lg'
-                onClick={onEdit}
-              >
-                {isEditing ? 'Save' : 'Edit'}
-              </button>
-              {valid ? null : <div className='text-red-500'>Hibás időpont</div>}
-            </div>
+            {hasEditRights ? (
+              <div className='flex flex-col'>
+                <button
+                  className='border-2 border-black bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded-lg mb-1'
+                  onClick={onDelete}
+                >
+                  Delete
+                </button>
+                <button
+                  className='border-2 border-black bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-2 rounded-lg'
+                  onClick={onEdit}
+                >
+                  {isEditing ? 'Save' : 'Edit'}
+                </button>
+                {valid ? null : <div className='text-red-500'>Hibás időpont</div>}
+              </div>
+            ) : null}
           </div>
         </div>
       ) : (

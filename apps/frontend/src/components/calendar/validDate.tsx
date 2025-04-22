@@ -18,6 +18,7 @@ export default function validDate(
       return false;
     }
   }
+  console.log('validDate', start, end);
 
   reservations = reservations.filter((res) => {
     const date = new Date(res.startTime);
@@ -39,10 +40,15 @@ export default function validDate(
         deleteReservation(res.id).then(() => {
           return true;
         });
+      } else if (res.id === reservation?.id) {
+        console.log('Same reservation');
+        return true;
       } else {
+        console.log('Gatya');
         return false;
       }
     }
   }
+  console.log('Valid date');
   return true;
 }
