@@ -1,10 +1,9 @@
 'use client';
 
-import MemberRow from '@components/member/memberRow';
 import { Input } from '@components/ui/input';
-import { Table, TableBody, TableCell, TableRow } from '@components/ui/table';
 import { useEffect, useState } from 'react';
 
+import MemberTile from '@/components/member/memberTile';
 import { mockUsers } from '@/mocks/users';
 
 export default function Members() {
@@ -27,19 +26,15 @@ export default function Members() {
           className='max-w-sm target:ring-0'
         />
       </div>
-      <Table>
-        <TableBody>
-          {filteredData.length ? (
-            filteredData.map((user) => <MemberRow user={user} key={user.id} />)
-          ) : (
-            <TableRow>
-              <TableCell colSpan={4} className='h-24 text-center'>
-                Nincs találat.
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
+      {filteredData.length ? (
+        <div className='grid gap-4 py-4 auto-rows-fr grid-cols-[repeat(auto-fit,minmax(240px,1fr))]'>
+          {filteredData.map((user) => (
+            <MemberTile user={user} key={user.id} />
+          ))}
+        </div>
+      ) : (
+        <div className='h-24 flex items-center justify-center text-center'>Nincs találat.</div>
+      )}
     </div>
   );
 }
