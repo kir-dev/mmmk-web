@@ -74,7 +74,7 @@ export function Sidebar() {
               </Link>
             </Button>
             <Button variant='blast' className='w-full justify-start' asChild>
-              <Link href='/'>
+              <Link href='/stats'>
                 <BarChart3 className='mr-2 h-4 w-4' />
                 Statistics
               </Link>

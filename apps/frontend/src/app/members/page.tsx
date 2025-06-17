@@ -7,7 +7,7 @@ import MemberTile from '@/components/member/memberTile';
 import { mockUsers } from '@/mocks/users';
 
 export default function Members() {
-  const data = mockUsers;
+  const data = mockUsers; //TODO: replace with real data
   const [filteredData, setFilteredData] = useState(data);
   const [searchTerm, setSearchTerm] = useState('');
 
