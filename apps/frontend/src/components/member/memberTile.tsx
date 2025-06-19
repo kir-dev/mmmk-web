@@ -28,7 +28,7 @@ function getRoleVariant(role: string) {
 export default function MemberTile({ user }: { user: User }) {
   return (
     <div className='flex flex-col items-center'>
-      <Card className='w-full max-w-60 h-64 flex flex-col items-center justify-between p-4 relative'>
+      <Card className='w-full max-w-60 h-64 flex flex-col items-center justify-between p-4 relative shadow-lg'>
         <div className='flex justify-end w-full'>
           <Badge className='py-1 text-xs' variant={getRoleVariant(user.role)}>
             {getRoleLabel(user.role)}

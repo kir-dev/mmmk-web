@@ -46,4 +46,15 @@ export const mockUsers: User[] = [
     created_at: '2021-08-01T00:00:00.000Z',
     updated_at: '2021-08-01T00:00:00.000Z',
   },
+  {
+    id: 5,
+    name: 'Eve Davis',
+    email: 'eve@email.com',
+    phone: '1239874748',
+    isDormResident: false,
+    role: 'USER',
+    profilePicture: '/placeholder.svg',
+    created_at: '2021-08-01T00:00:00.000Z',
+    updated_at: '2021-08-01T00:00:00.000Z',
+  },
 ];

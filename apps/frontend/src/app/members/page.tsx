@@ -16,7 +16,7 @@ export default function Members() {
   }, [searchTerm]);
 
   return (
-    <div className='w-full'>
+    <div className='w-full overflow-y-auto'>
       <div className='flex items-center justify-between flex-row p-4'>
         <h1 className='text-2xl font-semibold text-primary'>Felhasználók</h1>
         <Input
