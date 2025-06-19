@@ -1,6 +1,6 @@
 'use client';
 
-import { Pencil, Trash } from 'lucide-react';
+import { ChevronFirst, ChevronLast, ChevronLeft, ChevronRight, Pencil, Trash } from 'lucide-react';
 import { useState } from 'react';
 
 import { TextArea } from '@/components/ui/textarea';
@@ -124,14 +124,27 @@ export default function NewsPage() {
           ))}
         </div>
         <div className='flex justify-center gap-2 mt-8'>
-          <Button variant='secondary' disabled={page === 1} onClick={() => setPage(page - 1)}>
-            Previous
+          <Button className='pr-5' variant='secondary' disabled={page === 1} onClick={() => setPage(1)}>
+            <ChevronFirst />
+            Első
+          </Button>
+          <Button className='pr-5' variant='secondary' disabled={page === 1} onClick={() => setPage(page - 1)}>
+            <ChevronLeft />
+            Előző
           </Button>
           <span className='px-2 py-1'>
-            Page {page} of {totalPages}
+            {page}. oldal / {totalPages}
           </span>
-          <Button variant='secondary' disabled={page === totalPages} onClick={() => setPage(page + 1)}>
-            Next
+          <Button className='pl-5' variant='secondary' disabled={page === totalPages} onClick={() => setPage(page + 1)}>
+            Következő <ChevronRight />
+          </Button>
+          <Button
+            className='pl-5'
+            variant='secondary'
+            disabled={page === totalPages}
+            onClick={() => setPage(totalPages)}
+          >
+            Utolsó <ChevronLast />
           </Button>
         </div>
       </div>
