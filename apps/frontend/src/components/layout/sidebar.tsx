@@ -23,8 +23,8 @@ export function Sidebar() {
     <div className='w-64 p-4 flex flex-col'>
       <div className='mt-10 space-y-10'>
         <div className='space-y-2'>
-          <Button variant={pathname === '/' ? 'blastActive' : 'blast'} className='w-full justify-start' asChild>
-            <Link href='/'>
+          <Button variant={pathname === '/news' ? 'blastActive' : 'blast'} className='w-full justify-start' asChild>
+            <Link href='/news'>
               <Radio className='mr-2 h-4 w-4' />
               Hírek
             </Link>
@@ -46,7 +46,7 @@ export function Sidebar() {
           >
             <Link href='/members'>
               <Users2 className='mr-2 h-4 w-4' />
-              Tagok
+              Felhasználók
             </Link>
           </Button>
         </div>
@@ -70,7 +70,8 @@ export function Sidebar() {
               asChild
             >
               <Link href='/room'>
-                <MicVocal className='mr-2 h-4 w-4' />A Próbaterem
+                <MicVocal className='mr-2 h-4 w-4' />
+                Próbaterem
               </Link>
             </Button>
             <Button
