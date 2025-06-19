@@ -26,7 +26,7 @@ export function Sidebar() {
           <Button variant={pathname === '/' ? 'blastActive' : 'blast'} className='w-full justify-start' asChild>
             <Link href='/'>
               <Radio className='mr-2 h-4 w-4' />
-              Feed
+              Hírek
             </Link>
           </Button>
           <Button
@@ -36,7 +36,7 @@ export function Sidebar() {
           >
             <Link href='/bands'>
               <ListMusic className='mr-2 h-4 w-4' />
-              Bands
+              Zenekarok
             </Link>
           </Button>
           <Button
@@ -46,13 +46,13 @@ export function Sidebar() {
           >
             <Link href='/members'>
               <Users2 className='mr-2 h-4 w-4' />
-              Members
+              Tagok
             </Link>
           </Button>
         </div>
 
         <div className='pt-4'>
-          <h2 className='text-xs uppercase text-zinc-400 font-bold mb-2'>About Us</h2>
+          <h2 className='text-xs uppercase text-zinc-400 font-bold mb-2'>Rólunk</h2>
           <div className='space-y-2'>
             <Button
               variant={pathname.startsWith('/about') ? 'blastActive' : 'blast'}
@@ -70,8 +70,7 @@ export function Sidebar() {
               asChild
             >
               <Link href='/room'>
-                <MicVocal className='mr-2 h-4 w-4' />
-                The Room
+                <MicVocal className='mr-2 h-4 w-4' />A Próbaterem
               </Link>
             </Button>
             <Button
@@ -81,14 +80,14 @@ export function Sidebar() {
             >
               <Link href='/rules'>
                 <BookAudio className='mr-2 h-4 w-4' />
-                Rules
+                Szabályzat
               </Link>
             </Button>
           </div>
         </div>
 
         <div className='pt-4'>
-          <h2 className='text-xs uppercase text-zinc-400 font-bold mb-2'>For Members</h2>
+          <h2 className='text-xs uppercase text-zinc-400 font-bold mb-2'>Tagoknak</h2>
           <div className='space-y-2'>
             <Button
               variant={pathname.startsWith('/reservations') ? 'blastActive' : 'blast'}
@@ -97,7 +96,7 @@ export function Sidebar() {
             >
               <Link href='/reservations'>
                 <CalendarPlus className='mr-2 h-4 w-4' />
-                New Reservations
+                Foglalás
               </Link>
             </Button>
             <Button
@@ -107,7 +106,7 @@ export function Sidebar() {
             >
               <Link href='/stats'>
                 <BarChart3 className='mr-2 h-4 w-4' />
-                Statistics
+                Statisztika
               </Link>
             </Button>
           </div>
@@ -123,14 +122,14 @@ export function Sidebar() {
             >
               <Link href='/super'>
                 <KeyboardMusic className='mr-2 h-4 w-4' />
-                Super View
+                Admin Nézet
               </Link>
             </Button>
           </div>
         </div>
 
         <div className='pt-4'>
-          <ActionButton text='Make new Reservation' icon={<Plus />} variant='ghostPrimary' />
+          <ActionButton text='Új foglalás' icon={<Plus />} variant='ghostPrimary' />
         </div>
       </div>
     </div>

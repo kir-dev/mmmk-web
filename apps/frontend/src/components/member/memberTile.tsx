@@ -29,13 +29,11 @@ export default function MemberTile({ user }: { user: User }) {
   return (
     <div className='flex flex-col items-center'>
       <Card className='w-full max-w-60 h-64 flex flex-col items-center justify-between p-4 relative'>
-        {/* Role badge at the top */}
         <div className='flex justify-end w-full'>
           <Badge className='py-1 text-xs' variant={getRoleVariant(user.role)}>
             {getRoleLabel(user.role)}
           </Badge>
         </div>
-        {/* Profile picture */}
         <div className='flex-1 flex flex-col justify-center items-center mt-2 mb-2'>
           <Avatar className='w-32 h-32'>
             <AvatarImage src={typeof user.profilePicture === 'string' ? user.profilePicture : ''} alt={user.name} />
@@ -47,10 +45,8 @@ export default function MemberTile({ user }: { user: User }) {
             </AvatarFallback>
           </Avatar>
         </div>
-        {/* Name */}
         <div className='text-left font-semibold text-lg truncate w-full'>{user.name}</div>
       </Card>
-      {/* Details below the tile */}
       <div className='flex flex-row justify-between mt-2 text-sm w-full max-w-60'>
         <div className='flex flex-col items-start ml-4'>
           <span>{user.email}</span>
