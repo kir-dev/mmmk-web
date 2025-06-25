@@ -20,6 +20,7 @@ model User {
   profilePicture  ProfilePicture?
   gateKeeping     Reservation[]    @relation("GateKeeping")
   reservations    Reservation[]    @relation("Reservations")
+  posts           Post[]
 }
 
 model ProfilePicture {
@@ -81,6 +82,15 @@ model Period {
   id        Int      @id @default(autoincrement())
   startDate DateTime
   endDate   DateTime
+}
+
+model Post {
+  id        Int      @id @default(autoincrement())
+  title     String
+  body      String
+  createdAt DateTime @default(now())
+  authorId  Int
+  author    User     @relation(fields: [authorId], references: [id])
 }
 
 enum Role {
