@@ -4,7 +4,7 @@ import { Reservation } from '@/types/reservation';
 export default function validDate(
   start: Date,
   end: Date,
-  reservation: Reservation | null,
+  reservation: Reservation | undefined,
   reservations: Reservation[]
 ): boolean {
   if (start > end || end.getHours() - start.getHours() > 3) {

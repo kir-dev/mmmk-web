@@ -8,7 +8,7 @@ const url = 'http://localhost:3030/comments';
 interface EventDetailsProps {
   isCommentDetails: boolean;
   setIsCommentDetails: (value: boolean) => void;
-  clickedComment: Comment;
+  clickedComment: Comment | undefined;
   setClickedComment: (comment: Comment) => void;
   onGetData: () => void;
 }
@@ -33,11 +33,12 @@ export default function CommentDetails(props: EventDetailsProps) {
         });
       }
     }
-    setEditValue(props.clickedComment?.name);
+    setEditValue(props.clickedComment?.comment || '');
     setIsEditing(!isEditing);
   };
 
-  const onGetName = (id: number) => {
+  const onGetName = (id: number | undefined) => {
+    if (!id) return;
     axios.get(`${url}/${id}`).then((res) => {
       props.setClickedComment(res.data);
     });
@@ -73,8 +74,8 @@ export default function CommentDetails(props: EventDetailsProps) {
                 <span>{props.clickedComment?.comment}</span>
               )}
             </p>
-            <p>Start time: {new Date(props.clickedComment.startTime).toLocaleTimeString()}</p>
-            <p>End time: {new Date(props.clickedComment.endTime).toLocaleTimeString()}</p>
+            <p>Start time: {new Date(props.clickedComment?.startTime ?? new Date()).toLocaleTimeString()}</p>
+            <p>End time: {new Date(props.clickedComment?.endTime ?? new Date()).toLocaleTimeString()}</p>
             <p>Status: {props.clickedComment?.isReservable}</p>
           </div>
           <button

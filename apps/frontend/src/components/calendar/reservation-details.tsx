@@ -1,5 +1,4 @@
 import validDate from '@components/calendar/validDate';
-import { Role } from '@prisma/client';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 
@@ -14,13 +13,15 @@ const url = 'http://localhost:3030/reservations';
 interface EventDetailsProps {
   isEventDetails: boolean;
   setIsEventDetails: (value: boolean) => void;
-  clickedEvent: Reservation;
+  clickedEvent: Reservation | undefined;
   setClickedEvent: (reservation: Reservation) => void;
   onGetData: () => void;
   reservations: Reservation[];
 }
 
 export default function ReservationDetails(props: EventDetailsProps) {
+  if (!props.clickedEvent) return null;
+
   const [isEditing, setIsEditing] = useState(false);
   const [editNameValue, setEditNameValue] = useState('');
   const [editStartTimeValue, setEditStartTimeValue] = useState(new Date());
@@ -30,7 +31,7 @@ export default function ReservationDetails(props: EventDetailsProps) {
   const [band, setBand] = useState<Band>();
 
   const [me, setMe] = useState<User>();
-  const [role, setRole] = useState<Role>('USER');
+  //const [role, setRole] = useState<Role>('USER');
   const [gateKeeper, setGateKeeper] = useState<User | null>();
 
   const [gateKeepers, setGateKeepers] = useState<ClubMembership[]>([]);
@@ -93,7 +94,6 @@ export default function ReservationDetails(props: EventDetailsProps) {
             endTime: editEndTimeValue.toISOString(),
           })
           .then(() => {
-            console.log('Sikeres módosítás');
             props.onGetData();
             onGetName(props.clickedEvent?.id);
           });
@@ -106,21 +106,24 @@ export default function ReservationDetails(props: EventDetailsProps) {
     setIsEditing(!isEditing);
   };
 
-  const onGetName = (id: number) => {
+  const onGetName = (id: number | undefined) => {
+    if (!id) return;
     axios.get(`${url}/${id}`).then((res) => {
       props.setClickedEvent(res.data);
     });
   };
 
   useEffect(() => {
-    setEditStartTimeValue(new Date(props.clickedEvent?.startTime));
-    setEditEndTimeValue(new Date(props.clickedEvent?.endTime));
+    if (props.clickedEvent) {
+      setEditStartTimeValue(new Date(props.clickedEvent.startTime) || new Date());
+      setEditEndTimeValue(new Date(props.clickedEvent.endTime) || new Date());
+    }
     if (props.clickedEvent?.userId) getUser(props.clickedEvent.userId);
     if (props.clickedEvent?.bandId) getBand(props.clickedEvent.bandId);
     getGateKeeper(props.clickedEvent?.gateKeeperId || null);
     getMe();
     getGKs();
-    setRole(me?.role || 'USER');
+    //setRole(me?.role || 'USER');
   }, [props.clickedEvent]);
 
   const getGKs = () => {
@@ -169,113 +172,170 @@ export default function ReservationDetails(props: EventDetailsProps) {
 
   return (
     <div>
-      {props.isEventDetails ? (
-        <div className='flex flex-col z-50 fixed top-32 right-0 bg-white dark:bg-slate-800 rounded-lg border-2 border-black dark:border-orange-500 p-6 w-full max-w-sm overflow-auto mr-5 text-gray-400'>
-          <div className='flex flex-col items-center justify-between mb-4'>
-            <button
-              className='self-end border-2 border-black bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded-lg'
-              onClick={() => {
-                props.setIsEventDetails(!props.isEventDetails);
-                setIsEditing(false);
-              }}
-            >
-              X
-            </button>
-            <h2 className='text-lg font-semibold self-start'>Reservation details</h2>
-          </div>
-          <div className='grid gap-4 self-start'>
-            <p className=''>
-              Name:{' '}
-              {isEditing ? (
-                <input
-                  className='self-start mt-10 border-2 border-black rounded-lg p-2 max-w-fit'
-                  type='text'
-                  value={editNameValue}
-                  onChange={(e) => setEditNameValue(e.target.value)}
-                />
-              ) : (
-                <span>{band?.name}</span>
-              )}
-            </p>
-            <p>Foglaló: {user?.fullName}</p>
-            <p>Beengedő: {gateKeeper?.fullName}</p>
-            <p>Beengedő telefonszáma: {gateKeeper?.phone}</p>
-            <p>
-              Start time:{' '}
-              {isEditing ? (
-                <input
-                  className='bg-zinc-700 rounded-lg border-zinc-600 text-zinc-100'
-                  type='datetime-local'
-                  defaultValue={new Date(
-                    new Date(props.clickedEvent.startTime).setHours(
-                      new Date(props.clickedEvent.startTime).getHours() + 2
-                    )
-                  )
-                    .toISOString()
-                    .slice(0, 16)}
-                  onChange={(e) => setEditStartTimeValue(new Date(e.target.value))}
-                />
-              ) : (
-                <span>
-                  {new Date(props.clickedEvent.startTime).getHours()}:
-                  {new Date(props.clickedEvent.startTime).getMinutes().toString().padStart(2, '0')}
-                </span>
-              )}
-            </p>
-            <p>
-              End time:{' '}
-              {isEditing ? (
-                <input
-                  className='bg-zinc-700 rounded-lg border-zinc-600 text-zinc-100'
-                  type='datetime-local'
-                  defaultValue={new Date(
-                    new Date(props.clickedEvent.endTime).setHours(new Date(props.clickedEvent.endTime).getHours() + 2)
-                  )
-                    .toISOString()
-                    .slice(0, 16)}
-                  onChange={(e) => setEditEndTimeValue(new Date(e.target.value))}
-                />
-              ) : (
-                <span>
-                  {new Date(props.clickedEvent.endTime).getHours()}:
-                  {new Date(props.clickedEvent.endTime).getMinutes().toString().padStart(2, '0')}
-                </span>
-              )}
-            </p>
-            <p>Status: {props.clickedEvent?.status}</p>
-          </div>
-          <div className='flex flex-row justify-between mt-4'>
-            {CurrentUserIsGK() ? (
-              <div className='self-end'>
-                <button
-                  className='border-2 border-black bg-orange-500 hover:bg-orange-400 text-white font-bold py-1 px-2 rounded-lg'
-                  onClick={onSetGK}
-                >
-                  {gateKeeper === null ? 'Set me as gatekeeper' : 'Unset me as gatekeeper'}
-                </button>
+      {props.isEventDetails && (
+        <div className='fixed inset-0 z-50 flex items-start justify-end p-4 bg-black/20 backdrop-blur-sm'>
+          <div className='w-full max-w-md overflow-hidden bg-white dark:bg-slate-800 rounded-xl shadow-xl animate-in slide-in-from-right'>
+            {/* Header */}
+            <div className='flex items-center justify-between p-4 border-b dark:border-slate-700'>
+              <h2 className='text-xl font-bold text-slate-800 dark:text-white'>Reservation Details</h2>
+              <button
+                className='p-1.5 rounded-full text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors'
+                onClick={() => {
+                  props.setIsEventDetails(!props.isEventDetails);
+                  setIsEditing(false);
+                }}
+              >
+                <span className='sr-only'>Close</span>
+                <svg className='w-5 h-5' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
+                  <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M6 18L18 6M6 6l12 12' />
+                </svg>
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className='p-4 space-y-4 text-slate-700 dark:text-slate-300'>
+              {/* Band/Name */}
+              <div className='space-y-1'>
+                <label className='text-xs font-medium text-slate-500 dark:text-slate-400'>Band Name</label>
+                {isEditing ? (
+                  <input
+                    className='w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md'
+                    type='text'
+                    value={editNameValue}
+                    onChange={(e) => setEditNameValue(e.target.value)}
+                  />
+                ) : (
+                  <p className='font-medium'>{band?.name || '-'}</p>
+                )}
               </div>
-            ) : null}
-            {hasEditRights ? (
-              <div className='flex flex-col'>
-                <button
-                  className='border-2 border-black bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded-lg mb-1'
-                  onClick={onDelete}
-                >
-                  Delete
-                </button>
-                <button
-                  className='border-2 border-black bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-2 rounded-lg'
-                  onClick={onEdit}
-                >
-                  {isEditing ? 'Save' : 'Edit'}
-                </button>
-                {valid ? null : <div className='text-red-500'>Hibás időpont</div>}
+
+              {/* User Info */}
+              <div className='space-y-1'>
+                <label className='text-xs font-medium text-slate-500 dark:text-slate-400'>Booked By</label>
+                <p className='font-medium'>{user?.fullName || '-'}</p>
               </div>
-            ) : null}
+
+              {/* Gatekeeper */}
+              <div className='space-y-1'>
+                <label className='text-xs font-medium text-slate-500 dark:text-slate-400'>Gatekeeper</label>
+                <p className='font-medium'>{gateKeeper?.fullName || 'Not assigned'}</p>
+              </div>
+
+              {/* Gatekeeper Phone */}
+              {gateKeeper && (
+                <div className='space-y-1'>
+                  <label className='text-xs font-medium text-slate-500 dark:text-slate-400'>Gatekeeper Phone</label>
+                  <p className='font-medium'>{gateKeeper?.phone || '-'}</p>
+                </div>
+              )}
+
+              {/* Time Range */}
+              <div className='grid grid-cols-2 gap-4'>
+                <div className='space-y-1'>
+                  <label className='text-xs font-medium text-slate-500 dark:text-slate-400'>Start Time</label>
+                  {isEditing ? (
+                    <input
+                      className='w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md'
+                      type='datetime-local'
+                      defaultValue={new Date(
+                        new Date(props.clickedEvent.startTime).setHours(
+                          new Date(props.clickedEvent.startTime).getHours() + 2
+                        )
+                      )
+                        .toISOString()
+                        .slice(0, 16)}
+                      onChange={(e) => setEditStartTimeValue(new Date(e.target.value))}
+                    />
+                  ) : (
+                    <p className='font-medium'>
+                      {new Date(props.clickedEvent.startTime).getHours()}:
+                      {new Date(props.clickedEvent.startTime).getMinutes().toString().padStart(2, '0')}
+                    </p>
+                  )}
+                </div>
+
+                <div className='space-y-1'>
+                  <label className='text-xs font-medium text-slate-500 dark:text-slate-400'>End Time</label>
+                  {isEditing ? (
+                    <input
+                      className='w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md'
+                      type='datetime-local'
+                      defaultValue={new Date(
+                        new Date(props.clickedEvent.endTime).setHours(
+                          new Date(props.clickedEvent.endTime).getHours() + 2
+                        )
+                      )
+                        .toISOString()
+                        .slice(0, 16)}
+                      onChange={(e) => setEditEndTimeValue(new Date(e.target.value))}
+                    />
+                  ) : (
+                    <p className='font-medium'>
+                      {new Date(props.clickedEvent.endTime).getHours()}:
+                      {new Date(props.clickedEvent.endTime).getMinutes().toString().padStart(2, '0')}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Status */}
+              <div className='space-y-1'>
+                <label className='text-xs font-medium text-slate-500 dark:text-slate-400'>Status</label>
+                <div className='flex items-center'>
+                  <span
+                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                    ${props.clickedEvent?.status === 'OVERTIME' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300' : ''}
+                    ${props.clickedEvent?.status === 'NORMAL' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300' : ''}
+                  `}
+                  >
+                    {props.clickedEvent?.status}
+                  </span>
+                </div>
+              </div>
+
+              {/* Validation Error */}
+              {!valid && (
+                <div className='p-2 text-sm text-red-600 bg-red-100 dark:bg-red-900 dark:text-red-300 rounded-md'>
+                  Invalid time range selected
+                </div>
+              )}
+            </div>
+
+            {/* Footer with Actions */}
+            <div className='p-4 border-t dark:border-slate-700 bg-slate-50 dark:bg-slate-900'>
+              <div className='flex flex-wrap items-center justify-between gap-2'>
+                {CurrentUserIsGK() && (
+                  <button
+                    className={`px-4 py-2 text-sm font-medium text-white rounded-md transition-colors
+                      ${gateKeeper === null ? 'bg-orange-500 hover:bg-orange-600' : 'bg-amber-600 hover:bg-amber-700'}`}
+                    onClick={onSetGK}
+                  >
+                    {gateKeeper === null ? 'Set me as gatekeeper' : 'Unset me as gatekeeper'}
+                  </button>
+                )}
+
+                {hasEditRights && (
+                  <div className='flex gap-2'>
+                    {!isEditing && (
+                      <button
+                        className='px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-md hover:bg-red-600 transition-colors'
+                        onClick={onDelete}
+                      >
+                        Delete
+                      </button>
+                    )}
+                    <button
+                      className='px-4 py-2 text-sm font-medium text-white bg-green-500 rounded-md hover:bg-green-600 transition-colors'
+                      onClick={onEdit}
+                    >
+                      {isEditing ? 'Save' : 'Edit'}
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
-      ) : (
-        ''
       )}
     </div>
   );

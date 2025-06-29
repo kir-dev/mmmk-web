@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 
 export function RightSidebar() {
   return (
-    <div className='w-80 p-4 overflow-y-auto'>
+    <div className='w-80 p-4 ml-auto overflow-y-auto'>
       <div className='mb-8'>
         <div className='flex items-center justify-between mb-4'>
           <h2 className='text-lg font-bold'>NEW RELEASES</h2>

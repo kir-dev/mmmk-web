@@ -105,6 +105,18 @@ export default function AddReservation(props: AddPanelProps) {
     setShowBandSuggestions(false);
   };
 
+  const getMe = () => {
+    axiosApi
+      .get('http://localhost:3030/users/me')
+      .then((res) => {
+        setMyUser(res.data);
+      })
+      .catch((error) => {
+        console.error(error.response.data);
+        console.error(error.response.status);
+      });
+  };
+
   const onClick = () => {
     if (!user?.id || !band?.id || !startTime || !endTime) {
       if (myUser?.role === 'USER') {
@@ -163,7 +175,7 @@ export default function AddReservation(props: AddPanelProps) {
       return;
     }
 
-    if (validDate(startTime, endTime, null, props.reservations)) {
+    if (validDate(startTime, endTime, undefined, props.reservations)) {
       const reservationTimes = IsOvertime(startTime, endTime, reservationsOfWeek, reservationsOfDay);
 
       if (reservationTimes[2] && reservationTimes[3]) {
@@ -203,18 +215,6 @@ export default function AddReservation(props: AddPanelProps) {
     }
   };
 
-  const getMe = () => {
-    axiosApi
-      .get('http://localhost:3030/users/me')
-      .then((res) => {
-        setMyUser(res.data);
-      })
-      .catch((error) => {
-        console.error(error.response.data);
-        console.error(error.response.status);
-      });
-  };
-
   function shiftStart(date: Date) {
     date.setHours(date.getHours() + 1);
     setStartTime(date);
@@ -225,97 +225,122 @@ export default function AddReservation(props: AddPanelProps) {
     setEndTime(date);
   }
 
+  // For add-reservation.tsx - replace the return part with:
   return (
-    <div>
-      <div>
-        <div className='space-y-4'>
-          {myUser?.role === 'ADMIN' ? (
-            <div className='relative'>
-              <label htmlFor='name' className='text-zinc-300'>
-                Név
-              </label>
-              <Input
-                id='name'
-                value={userName}
-                onChange={handleUserNameChange}
-                required
-                className='bg-zinc-700 border-zinc-600 text-zinc-100'
-              />
-              {showUserSuggestions && userSuggestions.length > 0 && (
-                <div
-                  ref={suggestionRef}
-                  className='absolute z-10 w-full mt-1 bg-zinc-700 border border-zinc-600 rounded-md shadow-lg'
-                >
-                  {userSuggestions.map((suggestion, index) => (
-                    <button
-                      key={index}
-                      className='px-4 py-2 cursor-pointer hover:bg-zinc-600 w-full rounded-md'
-                      onClick={() => handleUserSuggestionClick(suggestion)}
-                    >
-                      {suggestion.fullName}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          ) : null}
+    <div className='space-y-5'>
+      {myUser?.role === 'ADMIN' ? (
+        <div className='relative'>
+          <label htmlFor='name' className='block text-sm font-medium text-zinc-300 mb-1'>
+            Név
+          </label>
           <div className='relative'>
-            <label htmlFor='name' className='text-zinc-300'>
-              Banda
-            </label>
             <Input
-              id='band'
-              value={bandName}
-              onChange={handleBandNameChange}
+              id='name'
+              value={userName}
+              onChange={handleUserNameChange}
               required
-              className='bg-zinc-700 border-zinc-600 text-zinc-100'
+              className='bg-zinc-700 border-zinc-600 text-zinc-100 w-full px-3 py-2 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent'
+              placeholder='Válasszon felhasználót...'
             />
-            {showBandSuggestions && bandSuggestions.length > 0 && (
+            {showUserSuggestions && userSuggestions.length > 0 && (
               <div
                 ref={suggestionRef}
-                className='absolute z-10 w-full mt-1 bg-zinc-700 border border-zinc-600 rounded-md shadow-lg'
+                className='absolute z-10 w-full mt-1 bg-zinc-700 border border-zinc-600 rounded-md shadow-lg max-h-60 overflow-auto'
               >
-                {bandSuggestions.map((suggestion, index) => (
+                {userSuggestions.map((suggestion) => (
                   <button
-                    key={index}
-                    className='px-4 py-2 cursor-pointer hover:bg-zinc-600 w-full rounded-md'
-                    onClick={() => handleBandSuggestionClick(suggestion)}
+                    key={suggestion.id}
+                    className='px-4 py-2 cursor-pointer hover:bg-zinc-600 w-full text-left text-zinc-200 transition-colors'
+                    onClick={() => handleUserSuggestionClick(suggestion)}
                   >
-                    {suggestion.name}
+                    {suggestion.fullName}
                   </button>
                 ))}
               </div>
             )}
           </div>
-          <div className='flex flex-col'>
-            <label htmlFor='begin' className='text-zinc-300'>
-              Kezdés
-            </label>
-            <input
-              className='bg-zinc-700 rounded-lg border-zinc-600 text-zinc-100'
-              type='datetime-local'
-              onChange={(e) => shiftStart(new Date(e.target.value))}
-            />
-          </div>
-          <div className='flex flex-col'>
-            <label htmlFor='end' className='text-zinc-300'>
-              Vége
-            </label>
-            <input
-              className='bg-zinc-700 rounded-lg border-zinc-600 text-zinc-100'
-              type='datetime-local'
-              onChange={(e) => shiftEnd(new Date(e.target.value))}
-            />
-          </div>
-          <button
-            onClick={onClick}
-            className='w-full rounded-lg bg-orange-500 hover:bg-orange-600 text-zinc-900 font-semibold'
-          >
-            Foglalás hozzáadása
-          </button>
+        </div>
+      ) : null}
+
+      <div className='relative'>
+        <label htmlFor='band' className='block text-sm font-medium text-zinc-300 mb-1'>
+          Banda
+        </label>
+        <div className='relative'>
+          <Input
+            id='band'
+            value={bandName}
+            onChange={handleBandNameChange}
+            required
+            className='bg-zinc-700 border-zinc-600 text-zinc-100 w-full px-3 py-2 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent'
+            placeholder='Válasszon bandát...'
+          />
+          {showBandSuggestions && bandSuggestions.length > 0 && (
+            <div
+              ref={suggestionRef}
+              className='absolute z-10 w-full mt-1 bg-zinc-700 border border-zinc-600 rounded-md shadow-lg max-h-60 overflow-auto'
+            >
+              {bandSuggestions.map((suggestion) => (
+                <button
+                  key={suggestion.id}
+                  className='px-4 py-2 cursor-pointer hover:bg-zinc-600 w-full text-left text-zinc-200 transition-colors'
+                  onClick={() => handleBandSuggestionClick(suggestion)}
+                >
+                  {suggestion.name}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
-      {valid ? null : <div className='text-red-500'>Hibás időpont</div>}
+
+      <div className='grid grid-cols-2 gap-4'>
+        <div className='flex flex-col'>
+          <label htmlFor='begin' className='block text-sm font-medium text-zinc-300 mb-1'>
+            Kezdés
+          </label>
+          <input
+            id='begin'
+            className='bg-zinc-700 rounded-md border border-zinc-600 text-zinc-100 px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-transparent'
+            type='datetime-local'
+            onChange={(e) => shiftStart(new Date(e.target.value))}
+          />
+        </div>
+
+        <div className='flex flex-col'>
+          <label htmlFor='end' className='block text-sm font-medium text-zinc-300 mb-1'>
+            Vége
+          </label>
+          <input
+            id='end'
+            className='bg-zinc-700 rounded-md border border-zinc-600 text-zinc-100 px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-transparent'
+            type='datetime-local'
+            onChange={(e) => shiftEnd(new Date(e.target.value))}
+          />
+        </div>
+      </div>
+
+      {!valid && (
+        <div className='text-red-500 bg-red-900/20 p-3 rounded-md text-sm flex items-center'>
+          <svg className='w-5 h-5 mr-2' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
+            <path
+              d='M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
+              stroke='currentColor'
+              strokeWidth='2'
+              strokeLinecap='round'
+              strokeLinejoin='round'
+            />
+          </svg>
+          Hibás időpont - kérjük válasszon másik időpontot
+        </div>
+      )}
+
+      <button
+        onClick={onClick}
+        className='w-full rounded-md bg-orange-500 hover:bg-orange-600 text-zinc-900 font-semibold py-3 mt-4 transition-colors shadow-lg'
+      >
+        Foglalás hozzáadása
+      </button>
     </div>
   );
 }

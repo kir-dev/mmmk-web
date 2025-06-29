@@ -1,5 +1,3 @@
-import { useState } from 'react';
-
 import { Reservation } from '@/types/reservation';
 
 export function getFirstDayOfWeek(date: Date = new Date()): Date {
@@ -40,8 +38,6 @@ export default function IsOvertime(
     }
   }
   const remainingMinutes = 360 - minutesReserved;
-  console.log(remainingMinutes);
-  console.log(reservationMinutes);
 
   let minutesReservedThatDay = 0;
   for (const reservation of reservationsOfDay) {
@@ -55,25 +51,21 @@ export default function IsOvertime(
     normalEnd = new Date(startTime.getTime() + remainingMinutes * 60 * 1000);
     overtimeStart = new Date(normalEnd.getTime() + 60 * 1000);
     overtimeEnd = endTime;
-    console.log('A');
   } else if (reservationMinutes > 180) {
     normalStart = startTime;
     normalEnd = new Date(startTime.getTime() + 180 * 60 * 1000);
     overtimeStart = new Date(normalEnd.getTime() + 60 * 1000);
     overtimeEnd = endTime;
-    console.log('B');
   } else if (reservationMinutes + minutesReservedThatDay > 180) {
     normalStart = startTime;
     normalEnd = new Date(startTime.getTime() + (180 - minutesReservedThatDay) * 60 * 1000);
     overtimeStart = new Date(normalEnd.getTime() + 60 * 1000);
     overtimeEnd = endTime;
-    console.log('C');
   } else {
     normalStart = startTime;
     normalEnd = endTime;
     overtimeStart = new Date(0);
     overtimeEnd = new Date(0);
-    console.log('D');
   }
 
   const result = [];
@@ -81,9 +73,5 @@ export default function IsOvertime(
   if (overtimeStart.getFullYear() !== 1970 && overtimeEnd.getFullYear() !== 1970) {
     result.push(overtimeStart, overtimeEnd);
   }
-  console.log('Normal Start:', normalStart);
-  console.log('Normal End:', normalEnd);
-  console.log('Overtime Start:', overtimeStart);
-  console.log('Overtime End:', overtimeEnd);
   return result;
 }

@@ -9,7 +9,6 @@ export function useProfile() {
   const [loading, setLoading] = useState(true);
 
   const fetchProfile = async () => {
-    console.log('fetchProfile');
     try {
       const response = await axiosApi.get('/users/me', {
         headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate', Expires: '0' },

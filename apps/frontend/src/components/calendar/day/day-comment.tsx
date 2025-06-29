@@ -1,3 +1,4 @@
+// apps/frontend/src/components/calendar/day/day-comment.tsx
 import { Comment } from '@/types/comment';
 
 interface DayEventProps {
@@ -10,29 +11,54 @@ export default function DayComment(props: DayEventProps) {
   const endDate = new Date(props.comment.endTime);
 
   const offset = (startDate.getMinutes() / 60) * 39;
+
+  // Format time to always show with leading zeros
+  const formatTime = (date: Date) => {
+    return `${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
+  };
+
+  const height =
+    (endDate.getHours() - startDate.getHours() + (endDate.getMinutes() - startDate.getMinutes()) / 60) * 78;
+
   return (
     <div
-      className='z-40 absolute'
+      className='z-40 absolute inset-x-1'
       style={{
         top: `${offset}px`,
       }}
     >
       <div
-        className={`flex flex-row ${props.comment.isReservable ? 'bg-green-800' : 'bg-red-700'} justify-start max-w-[140px] overflow-auto scrollbar-webkit rounded-md`}
+        className={`
+          flex flex-row 
+          ${
+            props.comment.isReservable
+              ? 'bg-gradient-to-r from-teal-700 to-teal-600'
+              : 'bg-gradient-to-r from-rose-700 to-rose-600'
+          } 
+          justify-start 
+          overflow-hidden 
+          rounded-md 
+          shadow-md 
+          border-l-4 
+          ${props.comment.isReservable ? 'border-teal-800' : 'border-rose-800'}
+          transition-all
+          duration-200
+          hover:shadow-lg
+          w-full
+        `}
         style={{
-          height: `${(endDate.getHours() - startDate.getHours() + (endDate.getMinutes() - startDate.getMinutes()) / 60) * 78}px`,
+          height: `${Math.max(height, 25)}px`, // Ensure minimum height
         }}
       >
-        <div className='bg-white w-[3px]' />
         <button
-          className='flex bg-transparent rounded px-1 max-w-max hover:bg-eventHover'
+          className='flex w-full bg-transparent px-2 py-1 hover:bg-black/10 transition-colors duration-200'
           onClick={() => props.onEventClick(props.comment.id)}
         >
-          <div className='flex flex-col'>
-            <div className='self-start text-left'>
-              {`${startDate.getHours()}:${startDate.getMinutes().toString().padStart(2, '0')}-${endDate.getHours()}:${endDate.getMinutes().toString().padStart(2, '0')}`}
+          <div className='flex flex-col w-full'>
+            <div className='text-left font-medium text-white text-xs'>
+              {`${formatTime(startDate)}-${formatTime(endDate)}`}
             </div>
-            <p className='self-start'>{props.comment.comment}</p>
+            <p className='text-left font-bold text-white text-sm truncate mt-0.5'>{props.comment.comment}</p>
           </div>
         </button>
       </div>

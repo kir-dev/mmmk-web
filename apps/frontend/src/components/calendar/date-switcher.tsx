@@ -33,14 +33,7 @@ export default function DateSwitcher(props: DateSwitcherProps) {
       <div className='text-lg font-medium text-slate-800 dark:text-white'>
         {props.currentDate.toLocaleString('hu', { month: 'long' })} {props.currentDate.getFullYear()}{' '}
       </div>
-      <AddPanel
-        onGetData={props.onGetData}
-        currentDate={props.currentDate}
-        startDate={props.startDate}
-        endDate={props.endDate}
-        setStartDate={props.setStartDate}
-        setEndDate={props.setEndDate}
-      />
+      <AddPanel onGetData={props.onGetData} currentDate={props.currentDate} reservations={[]} />
       <IntervalSwitcher setView={props.setView} />
     </div>
   );

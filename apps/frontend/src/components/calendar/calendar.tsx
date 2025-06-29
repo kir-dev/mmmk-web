@@ -10,7 +10,7 @@ import { Comment } from '@/types/comment';
 import { Reservation } from '@/types/reservation';
 
 import DailyView from './day/daily-view';
-import MonthlyView from './month/monthly-view';
+//import MonthlyView from './month/monthly-view';
 import DWView from './week/daily-weekly-view';
 
 const url = 'http://localhost:3030/reservations';
@@ -62,17 +62,17 @@ export default function Calendar() {
     setClickedReservation(reservations.find((event) => event.id === id));
   };
 
-  const onCommentClick = (id: number) => {
+  /*const onCommentClick = (id: number) => {
     setIsCommentDetails(!isCommentDetails);
     setClickedComment(comments.find((comment) => comment.id === id));
-  };
+  };*/
 
   useEffect(() => {
     onGetData();
   }, []);
 
   return (
-    <div className='bg-hero-pattern'>
+    <div className='w-full container mx-auto'>
       <div className='flex flex-row'>
         <div className='self-center'>
           <button

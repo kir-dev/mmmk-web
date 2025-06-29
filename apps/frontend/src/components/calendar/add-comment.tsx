@@ -14,11 +14,8 @@ export default function AddComment(props: AddCommentProps) {
 
   const addComment = () => {
     if (!comment || !startTime || !endTime) {
-      console.error('All fields must be filled.');
-      console.log(comment, isReservable, startTime, endTime);
       return;
     }
-    console.log(comment, isReservable, startTime, endTime);
     axios
       .post('http://localhost:3030/comments', {
         comment: comment,
@@ -40,50 +37,67 @@ export default function AddComment(props: AddCommentProps) {
       });
   };
 
+  // For add-comment.tsx - replace the return part with:
   return (
-    <div className='flex flex-col gap-2 p-2 bg-transparent rounded-lg'>
-      <input
-        type='text'
-        placeholder='Komment'
-        className='p-2 rounded-lg w-full bg-zinc-700'
-        onChange={(e) => setComment(e.target.value)}
-        value={comment}
-      />
-      <div className='flex flex-col'>
-        <label htmlFor='begin' className='text-zinc-300'>
-          Kezdés
+    <div className='space-y-5'>
+      <div>
+        <label htmlFor='comment' className='block text-sm font-medium text-zinc-300 mb-1'>
+          Komment
         </label>
         <input
-          className='bg-zinc-700 rounded-lg border-zinc-600 text-zinc-100'
-          type='datetime-local'
-          onChange={(e) => setStartTime(new Date(e.target.value))}
+          id='comment'
+          type='text'
+          placeholder='Írja be a kommentet...'
+          className='bg-zinc-700 border border-zinc-600 text-zinc-100 w-full px-3 py-2 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent'
+          onChange={(e) => setComment(e.target.value)}
+          value={comment}
         />
       </div>
-      <div className='flex flex-col'>
-        <label htmlFor='end' className='text-zinc-300'>
-          Vége
-        </label>
+
+      <div className='grid grid-cols-2 gap-4'>
+        <div className='flex flex-col'>
+          <label htmlFor='begin' className='block text-sm font-medium text-zinc-300 mb-1'>
+            Kezdés
+          </label>
+          <input
+            id='begin'
+            className='bg-zinc-700 rounded-md border border-zinc-600 text-zinc-100 px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-transparent'
+            type='datetime-local'
+            onChange={(e) => setStartTime(new Date(e.target.value))}
+          />
+        </div>
+
+        <div className='flex flex-col'>
+          <label htmlFor='end' className='block text-sm font-medium text-zinc-300 mb-1'>
+            Vége
+          </label>
+          <input
+            id='end'
+            className='bg-zinc-700 rounded-md border border-zinc-600 text-zinc-100 px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-transparent'
+            type='datetime-local'
+            onChange={(e) => setEndTime(new Date(e.target.value))}
+          />
+        </div>
+      </div>
+
+      <div className='flex items-center'>
         <input
-          className='bg-zinc-700 rounded-lg border-zinc-600 text-zinc-100'
-          type='datetime-local'
-          onChange={(e) => setEndTime(new Date(e.target.value))}
+          id='reservable'
+          className='h-5 w-5 text-orange-500 border-zinc-600 rounded focus:ring-orange-500 bg-zinc-700'
+          type='checkbox'
+          onChange={(e) => setIsReservable(e.target.checked)}
+          checked={isReservable}
         />
-      </div>
-      <div className='flex flex-col'>
-        <label htmlFor='reservable' className='text-zinc-300'>
+        <label htmlFor='reservable' className='ml-2 block text-sm font-medium text-zinc-300'>
           Foglalható
         </label>
-        <input
-          className='bg-zinc-700 rounded-lg border-zinc-600 text-zinc-100'
-          type='checkbox'
-          onChange={(e) => {
-            console.log('Checkbox változás:', e.target.checked); // Logoljuk ki, biztosan működik-e
-            setIsReservable(e.target.checked);
-          }}
-        />
       </div>
-      <button className='p-2 bg-orange-500 text-white rounded-lg' onClick={addComment}>
-        Hozzáadás
+
+      <button
+        className='w-full rounded-md bg-orange-500 hover:bg-orange-600 text-zinc-900 font-semibold py-3 mt-4 transition-colors shadow-lg'
+        onClick={addComment}
+      >
+        Komment hozzáadása
       </button>
     </div>
   );

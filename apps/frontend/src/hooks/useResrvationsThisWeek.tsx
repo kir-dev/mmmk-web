@@ -7,7 +7,7 @@ export function useReservationsThisWeek(start: Date) {
   const [reservationsThisWeek, setReservationsThisWeek] = useState<Reservation[]>([]);
 
   useEffect(() => {
-    const startOfWeek = new Date(start.getFullYear(), start.getMonth(), start.getDate()).getDate();
+    //const startOfWeek = new Date(start.getFullYear(), start.getMonth(), start.getDate()).getDate();
 
     axios
       .get('http://localhost:3030/reservations', {

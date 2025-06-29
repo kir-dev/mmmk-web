@@ -1,11 +1,6 @@
 import { Reservation } from '@/types/reservation';
 
-export default function MakeReservation(
-  startTime: Date,
-  endTime: Date,
-  reservationsOfWeek: Reservation[],
-  reservationsOfDay: Reservation[]
-) {
+export default function MakeReservation(startTime: Date, endTime: Date, reservationsOfWeek: Reservation[]) {
   if (!reservationsOfWeek) return;
 
   let hoursReserved = 0;
