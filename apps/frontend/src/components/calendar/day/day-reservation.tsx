@@ -24,7 +24,7 @@ export default function DayReservation(props: DayEventProps) {
   };
 
   const getBand = (id: number) => {
-    axios.get(`http://localhost:3030/band/${id}`).then((res) => {
+    axios.get(`http://localhost:3030/bands/${id}`).then((res) => {
       setBand(res.data);
     });
   };

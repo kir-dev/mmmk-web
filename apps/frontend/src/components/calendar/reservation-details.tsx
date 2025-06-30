@@ -1,14 +1,8 @@
-import validDate from '@components/calendar/validDate';
-import axios from 'axios';
-import React, { useEffect, useState } from 'react';
+// components/calendar/reservation-details.tsx
+import React from 'react';
 
-import axiosApi from '@/lib/apiSetup';
-import { Band } from '@/types/band';
-import { ClubMembership } from '@/types/member';
+import { useReservationDetails } from '@/hooks/useReservationDetails';
 import { Reservation } from '@/types/reservation';
-import { User } from '@/types/user';
-
-const url = 'http://localhost:3030/reservations';
 
 interface EventDetailsProps {
   isEventDetails: boolean;
@@ -22,153 +16,23 @@ interface EventDetailsProps {
 export default function ReservationDetails(props: EventDetailsProps) {
   if (!props.clickedEvent) return null;
 
-  const [isEditing, setIsEditing] = useState(false);
-  const [editNameValue, setEditNameValue] = useState('');
-  const [editStartTimeValue, setEditStartTimeValue] = useState(new Date());
-  const [editEndTimeValue, setEditEndTimeValue] = useState(new Date());
-
-  const [user, setUser] = useState<User>();
-  const [band, setBand] = useState<Band>();
-
-  const [me, setMe] = useState<User>();
-  //const [role, setRole] = useState<Role>('USER');
-  const [gateKeeper, setGateKeeper] = useState<User | null>();
-
-  const [gateKeepers, setGateKeepers] = useState<ClubMembership[]>([]);
-  const [valid, setValid] = useState(true);
-
-  const [hasEditRights, setHasEditRights] = useState(false);
-
-  const getMe = () => {
-    axiosApi.get('http://localhost:3030/users/me').then((res) => {
-      setMe(res.data);
-      if (res.data.role === 'ADMIN' || props.clickedEvent?.userId === res.data.id) {
-        setHasEditRights(true);
-      }
-    });
-  };
-
-  const getGateKeeper = (id: number | null) => {
-    if (id) {
-      axios
-        .get(`http://localhost:3030/memberships/${id}`)
-        .then((res) => {
-          axios.get(`http://localhost:3030/users/${res.data.userId}`).then((result) => {
-            setGateKeeper(result.data);
-          });
-        })
-        .catch(() => {
-          setGateKeeper(null);
-        });
-    } else {
-      setGateKeeper(null);
-    }
-  };
-
-  const getUser = (id: number) => {
-    axios.get(`http://localhost:3030/users/${id}`).then((res) => {
-      setUser(res.data);
-      setEditNameValue(res.data.name);
-    });
-  };
-
-  const getBand = (id: number) => {
-    axios.get(`http://localhost:3030/band/${id}`).then((res) => {
-      setBand(res.data);
-    });
-  };
-
-  const onDelete = () => {
-    axios.delete(`${url}/${props.clickedEvent?.id}`).then(() => {
-      props.onGetData();
-      props.setIsEventDetails(!props.isEventDetails);
-    });
-  };
-
-  const onEdit = () => {
-    if (isEditing) {
-      if (validDate(editStartTimeValue, editEndTimeValue, props.clickedEvent, props.reservations)) {
-        axios
-          .patch(`${url}/${props.clickedEvent?.id}`, {
-            startTime: editStartTimeValue.toISOString(),
-            endTime: editEndTimeValue.toISOString(),
-          })
-          .then(() => {
-            props.onGetData();
-            onGetName(props.clickedEvent?.id);
-          });
-        setValid(true);
-      } else {
-        setValid(false);
-      }
-    }
-    //setEditNameValue(props.clickedEvent?.name);
-    setIsEditing(!isEditing);
-  };
-
-  const onGetName = (id: number | undefined) => {
-    if (!id) return;
-    axios.get(`${url}/${id}`).then((res) => {
-      props.setClickedEvent(res.data);
-    });
-  };
-
-  useEffect(() => {
-    if (props.clickedEvent) {
-      setEditStartTimeValue(new Date(props.clickedEvent.startTime) || new Date());
-      setEditEndTimeValue(new Date(props.clickedEvent.endTime) || new Date());
-    }
-    if (props.clickedEvent?.userId) getUser(props.clickedEvent.userId);
-    if (props.clickedEvent?.bandId) getBand(props.clickedEvent.bandId);
-    getGateKeeper(props.clickedEvent?.gateKeeperId || null);
-    getMe();
-    getGKs();
-    //setRole(me?.role || 'USER');
-  }, [props.clickedEvent]);
-
-  const getGKs = () => {
-    axiosApi.get('http://localhost:3030/memberships').then((res) => {
-      setGateKeepers(res.data);
-    });
-  };
-
-  function CurrentUserIsGK() {
-    let isUserGK: ClubMembership | null = null;
-    for (let i = 0; i < gateKeepers.length; i++) {
-      if (gateKeepers[i].userId === me?.id) {
-        isUserGK = gateKeepers[i];
-        return isUserGK;
-      }
-    }
-  }
-
-  const onSetGK = () => {
-    const isUserGK = CurrentUserIsGK();
-
-    if (gateKeeper) {
-      axiosApi
-        .patch(`${url}/${props.clickedEvent?.id}`, {
-          gateKeeperId: null,
-        })
-        .then(() => {
-          setGateKeeper(null);
-          props.onGetData();
-        });
-    }
-
-    if (isUserGK && gateKeeper === null) {
-      axiosApi
-        .patch(`${url}/${props.clickedEvent?.id}`, {
-          gateKeeperId: isUserGK.id,
-        })
-        .then(() => {
-          axiosApi.get(`http://localhost:3030/users/${isUserGK.userId}`).then((resp) => {
-            setGateKeeper(resp.data);
-          });
-          props.onGetData();
-        });
-    }
-  };
+  const {
+    isEditing,
+    editNameValue,
+    setEditNameValue,
+    setEditStartTimeValue,
+    setEditEndTimeValue,
+    user,
+    band,
+    gateKeeper,
+    valid,
+    hasEditRights,
+    CurrentUserIsGK,
+    onSetGK,
+    onDelete,
+    onEdit,
+    handleCloseModal,
+  } = useReservationDetails(props);
 
   return (
     <div>
@@ -180,10 +44,7 @@ export default function ReservationDetails(props: EventDetailsProps) {
               <h2 className='text-xl font-bold text-slate-800 dark:text-white'>Reservation Details</h2>
               <button
                 className='p-1.5 rounded-full text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors'
-                onClick={() => {
-                  props.setIsEventDetails(!props.isEventDetails);
-                  setIsEditing(false);
-                }}
+                onClick={handleCloseModal}
               >
                 <span className='sr-only'>Close</span>
                 <svg className='w-5 h-5' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
