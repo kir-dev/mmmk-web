@@ -3,8 +3,8 @@ import './globals.css';
 import { GeistSans } from 'geist/font/sans';
 import type { Metadata } from 'next';
 
+import { Footer } from '@/components/layout/footer';
 import { Header } from '@/components/layout/header';
-import { Player } from '@/components/layout/player';
 import { RightSidebar } from '@/components/layout/right-sidebar';
 import { Sidebar } from '@/components/layout/sidebar';
 import { ThemeProvider } from '@/components/theme-provider';
@@ -30,7 +30,7 @@ export default function RootLayout({
               {children}
               <RightSidebar />
             </div>
-            <Player />
+            <Footer />
           </div>
         </ThemeProvider>
       </body>

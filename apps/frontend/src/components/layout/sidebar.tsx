@@ -7,14 +7,12 @@ import {
   KeyboardMusic,
   ListMusic,
   MicVocal,
-  Plus,
   Radio,
   Users2,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-import ActionButton from '@/components/ui/action-button';
 import { Button } from '@/components/ui/button';
 
 export function Sidebar() {
@@ -37,16 +35,6 @@ export function Sidebar() {
             <Link href='/bands'>
               <ListMusic className='mr-2 h-4 w-4' />
               Zenekarok
-            </Link>
-          </Button>
-          <Button
-            variant={pathname.startsWith('/members') ? 'blastActive' : 'blast'}
-            className='w-full justify-start'
-            asChild
-          >
-            <Link href='/members'>
-              <Users2 className='mr-2 h-4 w-4' />
-              Felhasználók
             </Link>
           </Button>
         </div>
@@ -101,6 +89,16 @@ export function Sidebar() {
               </Link>
             </Button>
             <Button
+              variant={pathname.startsWith('/members') ? 'blastActive' : 'blast'}
+              className='w-full justify-start'
+              asChild
+            >
+              <Link href='/members'>
+                <Users2 className='mr-2 h-4 w-4' />
+                Felhasználók
+              </Link>
+            </Button>
+            <Button
               variant={pathname.startsWith('/stats') ? 'blastActive' : 'blast'}
               className='w-full justify-start'
               asChild
@@ -127,10 +125,6 @@ export function Sidebar() {
               </Link>
             </Button>
           </div>
-        </div>
-
-        <div className='pt-4'>
-          <ActionButton text='Új foglalás' icon={<Plus />} variant='ghostPrimary' />
         </div>
       </div>
     </div>

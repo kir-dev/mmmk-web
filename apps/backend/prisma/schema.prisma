@@ -89,8 +89,8 @@ model Post {
   title     String
   body      String
   createdAt DateTime @default(now())
-  authorId  Int
   author    User     @relation(fields: [authorId], references: [id])
+  authorId  Int
 }
 
 enum Role {
