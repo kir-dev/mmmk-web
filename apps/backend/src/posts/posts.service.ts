@@ -1,27 +1,99 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
+import { PrismaService } from 'nestjs-prisma';
+import { PaginationDto } from 'src/dto/pagination.dto';
 
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { Post } from './entities/post.entity';
 
 @Injectable()
 export class PostsService {
+  constructor(private readonly prisma: PrismaService) {}
+
   create(createPostDto: CreatePostDto) {
-    return 'This action adds a new post';
+    return this.prisma.post.create({
+      data: {
+        ...createPostDto,
+      },
+    });
   }
 
-  findAll() {
-    return `This action returns all posts`;
+  findAll(page?: number, pageSize?: number): Promise<PaginationDto<Post>> {
+    const hasPagination = page !== -1 && pageSize !== -1;
+    const posts = this.prisma.post.findMany({
+      skip: hasPagination ? (page - 1) * pageSize : undefined,
+      take: hasPagination ? pageSize : undefined,
+    });
+
+    const count = this.prisma.post.count();
+
+    return Promise.all([posts, count])
+      .then(([posts, count]) => {
+        const limit = hasPagination ? Math.floor(count / pageSize) : 0;
+        return {
+          data: posts,
+          count,
+          page,
+          limit,
+        };
+      })
+      .catch(() => {
+        throw new InternalServerErrorException('An error occurred.');
+      });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} post`;
+  async findOne(id: number) {
+    try {
+      return await this.prisma.post.findUniqueOrThrow({
+        where: {
+          id,
+        },
+      });
+    } catch (e) {
+      if (e instanceof Prisma.PrismaClientKnownRequestError) {
+        if (e.code === 'P2025') {
+          throw new NotFoundException(`This post doesn't exist.`);
+        }
+        throw new InternalServerErrorException('An error occurred.');
+      }
+    }
   }
 
-  update(id: number, updatePostDto: UpdatePostDto) {
-    return `This action updates a #${id} post`;
+  async update(id: number, updatePostDto: UpdatePostDto) {
+    try {
+      return await this.prisma.post.update({
+        where: {
+          id,
+        },
+        data: {
+          ...updatePostDto,
+        },
+      });
+    } catch (e) {
+      if (e instanceof Prisma.PrismaClientKnownRequestError) {
+        if (e.code === 'P2025') {
+          throw new NotFoundException(`This post doesn't exist.`);
+        }
+        throw new InternalServerErrorException('An error occurred.');
+      }
+    }
   }
 
   remove(id: number) {
-    return `This action removes a #${id} post`;
+    try {
+      return this.prisma.post.delete({
+        where: {
+          id,
+        },
+      });
+    } catch (e) {
+      if (e instanceof Prisma.PrismaClientKnownRequestError) {
+        if (e.code === 'P2025') {
+          throw new NotFoundException(`This post doesn't exist.`);
+        }
+        throw new InternalServerErrorException('An error occurred.');
+      }
+    }
   }
 }
