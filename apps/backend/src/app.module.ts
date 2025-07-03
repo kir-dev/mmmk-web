@@ -7,9 +7,10 @@ import { BandModule } from './band/band.module';
 import { CommentsModule } from './comments/comments.module';
 import { ReservationsModule } from './reservations/reservations.module';
 import { UsersModule } from './users/users.module';
+import { PostsModule } from './posts/posts.module';
 
 @Module({
-  imports: [PrismaModule.forRoot({ isGlobal: true }), UsersModule, ReservationsModule, CommentsModule, BandModule],
+  imports: [PrismaModule.forRoot({ isGlobal: true }), UsersModule, ReservationsModule, CommentsModule, BandModule, PostsModule],
   controllers: [AppController],
   providers: [AppService],
 })
