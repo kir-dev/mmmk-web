@@ -79,15 +79,16 @@ function NewsForm({
 export default function NewsPage() {
   const currentUser: User = mockUsers[1]; //TODO: replace with real user
   const isAdmin = currentUser.role === 'ADMIN';
+  const { data, isLoading } = useSWR<Post[]>(`/posts?page=${-1}&page_size=${-1}`, axiosGetFetcher);
   const [posts, setPosts] = useState<Post[]>(mockNewsPosts);
-  const { data, isLoading } = useSWR<Post[]>(`/posts?page=${0}&pageSize=${10}`, axiosGetFetcher, {});
   const [page, setPage] = useState(1);
   const [editing, setEditing] = useState<Post | null>(null);
   const [creating, setCreating] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const totalPages = Math.ceil(posts.length / POSTS_PER_PAGE);
-  const paginated = posts.slice((page - 1) * POSTS_PER_PAGE, page * POSTS_PER_PAGE);
+  //const paginated = posts.slice((page - 1) * POSTS_PER_PAGE, page * POSTS_PER_PAGE);
+  const paginated = 1;
 
   useEffect(() => {
     if (data) {
@@ -110,6 +111,7 @@ export default function NewsPage() {
     api.post('/posts', {
       title: post.title,
       body: post.body,
+      authorId: 1,
     });
   }
 
@@ -148,25 +150,31 @@ export default function NewsPage() {
       <div className='m-4'>
         <div className='space-y-4'>
           {isLoading && <p>skibidi sigma</p>}
-          {paginated.map((post) => (
-            <Card key={post.id} className='relative border-0 border-l-4'>
-              <CardTitle className='p-4'>{post.title}</CardTitle>
-              {isAdmin && (
-                <div className='absolute top-4 right-4 flex gap-2'>
-                  <Button size='sm' variant='secondary' onClick={() => openEditDialog(post)}>
-                    <Pencil className='w-4 h-4' />
-                  </Button>
-                  <Button className='bg-red-500' size='sm' variant='destructive' onClick={() => handleDelete(post.id)}>
-                    <Trash className='w-4 h-4' />
-                  </Button>
-                </div>
-              )}
-              <CardContent className='p-4'>{post.body}</CardContent>
-              <CardFooter className='py-2 px-4 text-sm text-gray-500 dark:text-gray-400'>
-                {new Date(post.createdAt).toLocaleDateString('hu-HU')}
-              </CardFooter>
-            </Card>
-          ))}
+          {Array.isArray(posts) &&
+            posts.map((post) => (
+              <Card key={post.id} className='relative border-0 border-l-4'>
+                <CardTitle className='p-4'>{post.title}</CardTitle>
+                {isAdmin && (
+                  <div className='absolute top-4 right-4 flex gap-2'>
+                    <Button size='sm' variant='secondary' onClick={() => openEditDialog(post)}>
+                      <Pencil className='w-4 h-4' />
+                    </Button>
+                    <Button
+                      className='bg-red-500'
+                      size='sm'
+                      variant='destructive'
+                      onClick={() => handleDelete(post.id)}
+                    >
+                      <Trash className='w-4 h-4' />
+                    </Button>
+                  </div>
+                )}
+                <CardContent className='p-4'>{post.body}</CardContent>
+                <CardFooter className='py-2 px-4 text-sm text-gray-500 dark:text-gray-400'>
+                  {new Date(post.createdAt).toLocaleDateString('hu-HU')}
+                </CardFooter>
+              </Card>
+            ))}
         </div>
         <div className='flex justify-center gap-2 mt-8'>
           <Button className='pr-5' variant='secondary' disabled={page === 1} onClick={() => setPage(1)}>

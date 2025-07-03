@@ -19,7 +19,7 @@ export class PostsService {
     });
   }
 
-  findAll(page?: number, pageSize?: number): Promise<PaginationDto<Post>> {
+  async findAll(page?: number, pageSize?: number): Promise<PaginationDto<Post>> {
     const hasPagination = page !== -1 && pageSize !== -1;
     const posts = this.prisma.post.findMany({
       skip: hasPagination ? (page - 1) * pageSize : undefined,
@@ -28,19 +28,18 @@ export class PostsService {
 
     const count = this.prisma.post.count();
 
-    return Promise.all([posts, count])
-      .then(([posts, count]) => {
-        const limit = hasPagination ? Math.floor(count / pageSize) : 0;
-        return {
-          data: posts,
-          count,
-          page,
-          limit,
-        };
-      })
-      .catch(() => {
-        throw new InternalServerErrorException('An error occurred.');
-      });
+    try {
+      const [postsa, counta] = await Promise.all([posts, count]);
+      const limit = hasPagination ? Math.floor(counta / pageSize) : 0;
+      return {
+        data: postsa,
+        count: counta,
+        page,
+        limit,
+      };
+    } catch {
+      throw new InternalServerErrorException('An error occurred.');
+    }
   }
 
   async findOne(id: number) {
