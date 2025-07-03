@@ -6,7 +6,7 @@ export class Post {
   id: number;
 
   @IsNotEmpty()
-  @IsNumber()
+  @IsString()
   title: string;
 
   @IsString()
