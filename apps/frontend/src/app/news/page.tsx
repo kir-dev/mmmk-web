@@ -2,11 +2,14 @@
 
 import { ChevronFirst, ChevronLast, ChevronLeft, ChevronRight, Pencil, Plus, Trash } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import useSWR from 'swr';
 
 import { TextArea } from '@/components/ui/textarea';
 import { mockPosts as mockNewsPosts } from '@/mocks/posts';
 import { mockUsers } from '@/mocks/users';
 import { User } from '@/types/user';
+import api from '@/utils/apiSetup';
+import { axiosGetFetcher } from '@/utils/fetchers';
 
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardFooter, CardTitle } from '../../components/ui/card';
@@ -77,6 +80,7 @@ export default function NewsPage() {
   const currentUser: User = mockUsers[1]; //TODO: replace with real user
   const isAdmin = currentUser.role === 'ADMIN';
   const [posts, setPosts] = useState<Post[]>(mockNewsPosts);
+  const { data, isLoading } = useSWR<Post[]>(`/posts?page=${0}&pageSize=${10}`, axiosGetFetcher, {});
   const [page, setPage] = useState(1);
   const [editing, setEditing] = useState<Post | null>(null);
   const [creating, setCreating] = useState(false);
@@ -85,8 +89,14 @@ export default function NewsPage() {
   const totalPages = Math.ceil(posts.length / POSTS_PER_PAGE);
   const paginated = posts.slice((page - 1) * POSTS_PER_PAGE, page * POSTS_PER_PAGE);
 
+  useEffect(() => {
+    if (data) {
+      setPosts(data);
+    }
+  }, [data]);
+
   function handleCreate(post: Omit<Post, 'id' | 'createdAt'>) {
-    setPosts([
+    /*    setPosts([
       {
         id: (Math.random() * 100000).toFixed(0),
         title: post.title,
@@ -96,7 +106,11 @@ export default function NewsPage() {
       ...posts,
     ]);
     setCreating(false);
-    setPage(1);
+    setPage(1);*/
+    api.post('/posts', {
+      title: post.title,
+      body: post.body,
+    });
   }
 
   function handleEdit(post: Omit<Post, 'id' | 'createdAt'>) {
@@ -133,6 +147,7 @@ export default function NewsPage() {
       </div>
       <div className='m-4'>
         <div className='space-y-4'>
+          {isLoading && <p>skibidi sigma</p>}
           {paginated.map((post) => (
             <Card key={post.id} className='relative border-0 border-l-4'>
               <CardTitle className='p-4'>{post.title}</CardTitle>

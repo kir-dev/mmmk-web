@@ -10,6 +10,12 @@ async function bootstrap() {
       whitelist: true,
     })
   );
+  app.enableCors({
+    origin: [process.env.FRONTEND_URL, 'http://localhost:3000', RegExp('([a-zA-Z0-9-]+)*kir-dev.vercel.app/')],
+    methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'],
+    credentials: true,
+  });
   await app.listen(3001);
 }
+
 bootstrap();
