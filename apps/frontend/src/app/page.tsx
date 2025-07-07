@@ -1,5 +1,5 @@
-import { MainContent } from '@/components/main-content';
+import News from '../components/news/news';
 
 export default function Home() {
-  return <MainContent />;
+  return <News />;
 }

@@ -21,8 +21,8 @@ export function Sidebar() {
     <div className='w-64 p-4 flex flex-col'>
       <div className='mt-10 space-y-10'>
         <div className='space-y-2'>
-          <Button variant={pathname === '/news' ? 'blastActive' : 'blast'} className='w-full justify-start' asChild>
-            <Link href='/news'>
+          <Button variant={pathname === '/' ? 'blastActive' : 'blast'} className='w-full justify-start' asChild>
+            <Link href='/'>
               <Radio className='mr-2 h-4 w-4' />
               Hírek
             </Link>
