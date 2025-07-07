@@ -8,7 +8,7 @@ import { UpdateBandDto } from './dto/update-band.dto';
 import { Band } from './entities/band.entity';
 
 @Injectable()
-export class BandService {
+export class BandsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(createBandDto: CreateBandDto): Promise<Band> {

@@ -3,7 +3,7 @@ import { PrismaModule } from 'nestjs-prisma';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { BandModule } from './band/band.module';
+import { BandsModule } from './bands/bandsModule';
 import { CommentsModule } from './comments/comments.module';
 import { PostsModule } from './posts/posts.module';
 import { ReservationsModule } from './reservations/reservations.module';
