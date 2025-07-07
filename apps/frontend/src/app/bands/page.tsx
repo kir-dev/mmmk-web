@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 
-import BandRow from '@/components/band/bandRow';
+import BandRow from '@/components/band/band-row';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import { dummyBands } from '@/mocks/bands';

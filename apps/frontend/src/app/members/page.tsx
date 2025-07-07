@@ -3,7 +3,7 @@
 import { Input } from '@components/ui/input';
 import { useEffect, useState } from 'react';
 
-import MemberTile from '@/components/member/memberTile';
+import MemberTile from '@/components/member/member-tile';
 import { mockUsers } from '@/mocks/users';
 
 export default function Members() {

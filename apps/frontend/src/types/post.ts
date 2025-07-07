@@ -3,4 +3,12 @@ export interface Post {
   title: string;
   body: string;
   createdAt: string;
+  authorId: string;
+}
+
+export interface PaginatedPosts {
+  data: Post[];
+  count: number;
+  page: number;
+  limit: number;
 }

@@ -1,4 +1,4 @@
-import api from '@/utils/apiSetup';
+import api from '@/utils/api-setup';
 
 export async function axiosGetFetcher<T>(url: string): Promise<T> {
   const response = await api.get(url);
