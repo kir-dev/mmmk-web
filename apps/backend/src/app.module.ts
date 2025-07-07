@@ -15,7 +15,7 @@ import { UsersModule } from './users/users.module';
     UsersModule,
     ReservationsModule,
     CommentsModule,
-    BandModule,
+    BandsModule,
     PostsModule,
   ],
   controllers: [AppController],
