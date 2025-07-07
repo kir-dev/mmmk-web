@@ -15,8 +15,8 @@ import api from '@/utils/api-setup';
 export default function NewsPage() {
   const currentUser: User = mockUsers[1]; //TODO: replace with real user
   const isAdmin = currentUser.role === 'ADMIN';
-  const { data: posts, isLoading, mutate } = usePosts(1, 10);
   const [page, setPage] = useState(1);
+  const { data: posts, isLoading, mutate } = usePosts(page, 10);
   const [editing, setEditing] = useState<Post | null>(null);
   const [creating, setCreating] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
