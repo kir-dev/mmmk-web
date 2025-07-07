@@ -29,7 +29,7 @@ export function NewsForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave({ title, body });
+    onSave({ title, body, authorId: '1' }); //TODO: replace with real authorId
     onOpenChange(false);
     setTitle('');
     setBody('');
