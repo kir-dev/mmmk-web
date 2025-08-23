@@ -1,0 +1,32 @@
+name: mmmk-backend
+
+services:
+  app:
+    build:
+      context: .
+    ports:
+      - '${BACKEND_PORT}:${BACKEND_PORT}'
+    env_file:
+      - .env
+    restart: always
+    networks:
+      - mmmk-network
+    depends_on:
+      - db
+
+  db:
+    image: postgres:13.10
+    env_file:
+      - .env
+    restart: always
+    volumes:
+      - mmmk_db_folder:/var/lib/postgresql/data
+    networks:
+      - mmmk-network
+
+volumes:
+  mmmk_db_folder:
+    external: true
+
+networks:
+  mmmk-network:
