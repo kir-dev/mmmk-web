@@ -1,9 +1,7 @@
-import axios from 'axios';
 import { useState } from 'react';
 
+import axiosApi from '@/lib/apiSetup';
 import { Comment } from '@/types/comment';
-
-const url = 'http://localhost:3030/comments';
 
 interface EventDetailsProps {
   isCommentDetails: boolean;
@@ -18,7 +16,7 @@ export default function CommentDetails(props: EventDetailsProps) {
   const [editValue, setEditValue] = useState('');
 
   const onDelete = () => {
-    axios.delete(`${url}/${props.clickedComment?.id}`).then(() => {
+    axiosApi.delete(`/comments/${props.clickedComment?.id}`).then(() => {
       props.onGetData();
       props.setIsCommentDetails(!props.isCommentDetails);
     });
@@ -27,7 +25,7 @@ export default function CommentDetails(props: EventDetailsProps) {
   const onEdit = () => {
     if (editValue !== '') {
       if (isEditing) {
-        axios.patch(`${url}/${props.clickedComment?.id}`, { name: editValue }).then(() => {
+        axiosApi.patch(`/comments/${props.clickedComment?.id}`, { name: editValue }).then(() => {
           props.onGetData();
           onGetName(props.clickedComment?.id);
         });
@@ -39,7 +37,7 @@ export default function CommentDetails(props: EventDetailsProps) {
 
   const onGetName = (id: number | undefined) => {
     if (!id) return;
-    axios.get(`${url}/${id}`).then((res) => {
+    axiosApi.get(`/comments/${id}`).then((res) => {
       props.setClickedComment(res.data);
     });
   };

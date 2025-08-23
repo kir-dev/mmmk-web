@@ -22,7 +22,7 @@ export function Header() {
   const router = useRouter();
 
   const handleLogin = () => {
-    router.push('http://localhost:3030/auth/login');
+    router.push(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`);
   };
 
   const userData = useProfile();

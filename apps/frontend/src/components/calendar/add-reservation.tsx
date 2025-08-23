@@ -1,7 +1,7 @@
 import { Input } from '@components/ui/input';
-import axios from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
 
+import { useUser } from '@/hooks/useUser';
 import axiosApi from '@/lib/apiSetup';
 import { submitReservation } from '@/lib/reservationSubmitter';
 import { Band } from '@/types/band';
@@ -16,7 +16,7 @@ interface AddPanelProps {
 }
 
 export default function AddReservation(props: AddPanelProps) {
-  const [myUser, setMyUser] = useState<User>();
+  const { user: myUser, refetch: refetchUser } = useUser();
 
   const [bandName, setBandName] = useState('');
   const [bands, setBands] = useState<Band[]>([]);
@@ -52,13 +52,13 @@ export default function AddReservation(props: AddPanelProps) {
   }, []);
 
   useEffect(() => {
-    axios.get('http://localhost:3030/band').then((res) => {
+    axiosApi.get('/band').then((res) => {
       setBands(res.data);
     });
-    axios.get('http://localhost:3030/users').then((res) => {
+    axiosApi.get('/users').then((res) => {
       setUsers(res.data.users);
     });
-    getMe();
+    refetchUser();
   }, []);
 
   const handleBandNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -101,18 +101,6 @@ export default function AddReservation(props: AddPanelProps) {
     setBand(suggestion);
     setBandName(suggestion.name);
     setShowBandSuggestions(false);
-  };
-
-  const getMe = () => {
-    axiosApi
-      .get('http://localhost:3030/users/me')
-      .then((res) => {
-        setMyUser(res.data);
-      })
-      .catch((error) => {
-        console.error(error.response.data);
-        console.error(error.response.status);
-      });
   };
 
   const handleSubmit = async () => {

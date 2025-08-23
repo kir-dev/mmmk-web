@@ -68,7 +68,7 @@ export async function submitReservation(params: {
   // Admin can override collision checks
   if (myUser?.role === 'ADMIN' && !collisionWithAdminRes(start, end, reservationsOfDay)) {
     try {
-      await axiosApi.post('http://localhost:3030/reservations', {
+      await axiosApi.post('/reservations', {
         userId: user?.id,
         bandId: band?.id,
         startTime: start.toISOString(),
@@ -90,7 +90,7 @@ export async function submitReservation(params: {
     // Handle overtime reservation if needed
     if (reservationTimes[2] && reservationTimes[3]) {
       try {
-        await axiosApi.post('http://localhost:3030/reservations', {
+        await axiosApi.post('/reservations', {
           userId: user?.id,
           bandId: band?.id,
           startTime: reservationTimes[2].toISOString(),
@@ -106,7 +106,7 @@ export async function submitReservation(params: {
     const minimumReservationTime = 0.25 * 60 * 1000; // 15 minutes in milliseconds
     if (reservationTimes[1].getTime() - reservationTimes[0].getTime() > minimumReservationTime) {
       try {
-        await axiosApi.post('http://localhost:3030/reservations', {
+        await axiosApi.post('/reservations', {
           userId: user?.id,
           bandId: band?.id,
           startTime: reservationTimes[0].toISOString(),

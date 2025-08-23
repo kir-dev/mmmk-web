@@ -1,5 +1,6 @@
-import axios from 'axios';
-import React, { useState } from 'react';
+import { useState } from 'react';
+
+import axiosApi from '@/lib/apiSetup';
 
 interface AddCommentProps {
   onGetData: () => void;
@@ -16,8 +17,8 @@ export default function AddComment(props: AddCommentProps) {
     if (!comment || !startTime || !endTime) {
       return;
     }
-    axios
-      .post('http://localhost:3030/comments', {
+    axiosApi
+      .post('/comments', {
         comment: comment,
         startTime: startTime,
         endTime: endTime,
