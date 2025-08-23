@@ -8,7 +8,7 @@ import { UpdateBandDto } from './dto/update-band.dto';
 import { Band } from './entities/band.entity';
 
 @Injectable()
-export class BandService {
+export class BandsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(createBandDto: CreateBandDto): Promise<Band> {
@@ -17,7 +17,7 @@ export class BandService {
 
   async findAll(): Promise<Band[]> {
     const res = await this.prisma.band.findMany({
-      include: { members: { include: { user: { select: { name: true } } } } },
+      include: { members: { include: { user: { select: { fullName: true } } } } },
     });
     return res;
   }
