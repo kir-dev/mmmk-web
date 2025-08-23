@@ -1,5 +1,5 @@
 export type Band = {
-  id: string;
+  id: number;
   name: string;
   email: string;
   webPage: string;

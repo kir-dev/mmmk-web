@@ -1,4 +1,4 @@
-import { IsDate, IsNumber, IsPositive, IsString } from 'class-validator';
+import { IsBoolean, IsDate, IsNumber, IsPositive, IsString } from 'class-validator';
 
 export class Comment {
   @IsNumber()
@@ -14,5 +14,6 @@ export class Comment {
   @IsDate()
   endTime: Date;
 
+  @IsBoolean()
   isReservable: boolean;
 }

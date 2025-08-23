@@ -7,46 +7,67 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  USER
+  ADMIN
+}
+
+enum ClubMembershipStatus {
+  NEWBIE
+  ACTIVE
+  SENIOR
+}
+
+enum ReservationStatus {
+  NORMAL
+  OVERTIME
+}
+
+enum BandMembershipStatus {
+  PENDING
+  ACCEPTED
+}
+
 model User {
-  id              Int              @id @default(autoincrement())
-  name            String
-  email           String           @unique
-  phone           String           @unique
-  isDormResident  Boolean
-  roomNumber      String
-  role            Role
-  bandMemberships BandMembership[]
-  cardRight       CardRight?
-  profilePicture  ProfilePicture?
-  gateKeeping     Reservation[]    @relation("GateKeeping")
-  reservations    Reservation[]    @relation("Reservations")
+  id                      Int              @id @default(autoincrement())
+  authSchId               String?          @unique
+  fullName                String
+  email                   String           @unique
+  phone                   String?          @unique
+  profilePicture          ProfilePicture?
+  DormResidency           DormResidency?
+  role                    Role             @default(USER)
+  clubMembership          ClubMembership?
+  clubMembershipUpdatedAt DateTime?
+  bandMemberships         BandMembership[]
+  reservations            Reservation[]    @relation("Reservations")
 }
 
 model ProfilePicture {
-  id           Int    @id @default(autoincrement())
-  userId       Int    @unique
-  mimeType     String
-  profileImage Bytes
-  user         User   @relation(fields: [userId], references: [id])
+  id       Int    @id @default(autoincrement())
+  userId   Int    @unique
+  mimeType String
+  image    Bytes
+  user     User   @relation(fields: [userId], references: [id])
 }
 
-model CardRight {
-  id     Int  @id @default(autoincrement())
-  userId Int  @unique
-  user   User @relation(fields: [userId], references: [id])
+model DormResidency {
+  id         Int  @id @default(autoincrement())
+  userId     Int  @unique
+  user       User @relation(fields: [userId], references: [id])
+  roomNumber Int
 }
 
-model Reservation {
-  id           Int               @id @default(autoincrement())
-  userId       Int?
-  bandId       Int?
-  startTime    DateTime
-  endTime      DateTime
-  gateKeeperId Int?
-  status       ReservationStatus
-  band         Band?             @relation(fields: [bandId], references: [id])
-  gateKeeper   User?             @relation("GateKeeping", fields: [gateKeeperId], references: [id])
-  user         User?             @relation("Reservations", fields: [userId], references: [id])
+model ClubMembership {
+  id                 Int                  @id @default(autoincrement())
+  userId             Int                  @unique
+  user               User                 @relation(fields: [userId], references: [id])
+  status             ClubMembershipStatus
+  titles             String[]
+  hasRoomAccess      Boolean
+  isLeadershipMember Boolean
+  isGateKeeper       Boolean
+  gateKeepingRecords Reservation[]        @relation("GateKeeping")
 }
 
 model Band {
@@ -69,32 +90,29 @@ model BandMembership {
   user   User?                @relation(fields: [userId], references: [id])
 }
 
+model Reservation {
+  id           Int               @id @default(autoincrement())
+  userId       Int?
+  bandId       Int?
+  startTime    DateTime
+  endTime      DateTime
+  gateKeeperId Int?
+  status       ReservationStatus
+  band         Band?             @relation(fields: [bandId], references: [id])
+  gateKeeper   ClubMembership?   @relation("GateKeeping", fields: [gateKeeperId], references: [id])
+  user         User?             @relation("Reservations", fields: [userId], references: [id])
+}
+
 model Comment {
   id           Int      @id @default(autoincrement())
   comment      String
   startTime    DateTime
   endTime      DateTime
-  isReservable Boolean
+  isReservable Boolean  @default(false)
 }
 
 model Period {
   id        Int      @id @default(autoincrement())
   startDate DateTime
   endDate   DateTime
-}
-
-enum Role {
-  USER
-  GATEKEEPER
-  ADMIN
-}
-
-enum ReservationStatus {
-  OVERTIME
-  NORMAL
-}
-
-enum BandMembershipStatus {
-  PENDING
-  ACCEPTED
 }
