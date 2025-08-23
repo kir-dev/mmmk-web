@@ -12,7 +12,7 @@ export default function Members() {
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    setFilteredData(data.filter((user) => user.name.toLowerCase().includes(searchTerm.toLowerCase())));
+    setFilteredData(data.filter((user) => user.fullName.toLowerCase().includes(searchTerm.toLowerCase())));
   }, [searchTerm]);
 
   return (

@@ -36,16 +36,16 @@ export default function MemberTile({ user }: { user: User }) {
         </div>
         <div className='flex-1 flex flex-col justify-center items-center mt-2 mb-1'>
           <Avatar className='w-40 h-40'>
-            <AvatarImage src={typeof user.profilePicture === 'string' ? user.profilePicture : ''} alt={user.name} />
+            <AvatarImage src={typeof user.profilePicture === 'string' ? user.profilePicture : ''} alt={user.fullName} />
             <AvatarFallback>
-              {user.name
+              {user.fullName
                 .split(' ')
                 .map((n) => n[0])
                 .join('')}
             </AvatarFallback>
           </Avatar>
         </div>
-        <div className='text-left font-semibold text-lg truncate w-full'>{user.name}</div>
+        <div className='text-left font-semibold text-lg truncate w-full'>{user.fullName}</div>
       </Card>
       <div className='flex flex-row justify-between mt-2 text-sm w-full max-w-60'>
         <div className='flex flex-col items-start ml-4'>
