@@ -29,10 +29,15 @@ export default function MMMK() {
             <MemberTile user={roomManager} />
             <MemberTile user={financeManager} />
           </div>
+          <div className='grid grid-cols-3 gap-4 mt-2'>
+            <div className='text-center font-medium'>Főispán</div>
+            <div className='text-center font-medium'>Teremispán</div>
+            <div className='text-center font-medium'>Kincstárnok</div>
+          </div>
           <h1 className='text-2xl font-semibold mt-8 mb-4'>Beengedők</h1>
           <div className='grid grid-cols-3 gap-4'>
             {mockUsers
-              .filter((user) => user.role === 'GATEKEEPER')
+              .filter((user) => user.clubMembership?.isGateKeeper)
               .map((user) => (
                 <MemberTile user={user} key={user.id} />
               ))}
