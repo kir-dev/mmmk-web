@@ -8,46 +8,46 @@ datasource db {
 }
 
 model User {
-  id              Int              @id @default(autoincrement())
-  name            String
-  email           String           @unique
-  phone           String           @unique
-  isDormResident  Boolean
-  roomNumber      String
-  role            Role
-  bandMemberships BandMembership[]
-  cardRight       CardRight?
-  profilePicture  ProfilePicture?
-  gateKeeping     Reservation[]    @relation("GateKeeping")
-  reservations    Reservation[]    @relation("Reservations")
-  posts           Post[]
+  id                      Int              @id @default(autoincrement())
+  email                   String           @unique
+  phone                   String?          @unique
+  role                    Role             @default(USER)
+  authSchId               String?          @unique
+  fullName                String
+  clubMembershipUpdatedAt DateTime?
+  bandMemberships         BandMembership[]
+  clubMembership          ClubMembership?
+  DormResidency           DormResidency?
+  Post                    Post[]
+  profilePicture          ProfilePicture?
+  reservations            Reservation[]    @relation("Reservations")
 }
 
 model ProfilePicture {
-  id           Int    @id @default(autoincrement())
-  userId       Int    @unique
-  mimeType     String
-  profileImage Bytes
-  user         User   @relation(fields: [userId], references: [id])
+  id       Int    @id @default(autoincrement())
+  userId   Int    @unique
+  mimeType String
+  image    Bytes
+  user     User   @relation(fields: [userId], references: [id])
 }
 
-model CardRight {
-  id     Int  @id @default(autoincrement())
-  userId Int  @unique
-  user   User @relation(fields: [userId], references: [id])
+model DormResidency {
+  id         Int  @id @default(autoincrement())
+  userId     Int  @unique
+  roomNumber Int
+  user       User @relation(fields: [userId], references: [id])
 }
 
-model Reservation {
-  id           Int               @id @default(autoincrement())
-  userId       Int?
-  bandId       Int?
-  startTime    DateTime
-  endTime      DateTime
-  gateKeeperId Int?
-  status       ReservationStatus
-  band         Band?             @relation(fields: [bandId], references: [id])
-  gateKeeper   User?             @relation("GateKeeping", fields: [gateKeeperId], references: [id])
-  user         User?             @relation("Reservations", fields: [userId], references: [id])
+model ClubMembership {
+  id                 Int                  @id @default(autoincrement())
+  userId             Int                  @unique
+  status             ClubMembershipStatus
+  titles             String[]
+  hasRoomAccess      Boolean
+  isLeadershipMember Boolean
+  isGateKeeper       Boolean
+  user               User                 @relation(fields: [userId], references: [id])
+  gateKeepingRecords Reservation[]        @relation("GateKeeping")
 }
 
 model Band {
@@ -70,12 +70,25 @@ model BandMembership {
   user   User?                @relation(fields: [userId], references: [id])
 }
 
+model Reservation {
+  id           Int               @id @default(autoincrement())
+  userId       Int?
+  bandId       Int?
+  startTime    DateTime
+  endTime      DateTime
+  gateKeeperId Int?
+  status       ReservationStatus
+  band         Band?             @relation(fields: [bandId], references: [id])
+  gateKeeper   ClubMembership?   @relation("GateKeeping", fields: [gateKeeperId], references: [id])
+  user         User?             @relation("Reservations", fields: [userId], references: [id])
+}
+
 model Comment {
   id           Int      @id @default(autoincrement())
   comment      String
   startTime    DateTime
   endTime      DateTime
-  isReservable Boolean
+  isReservable Boolean  @default(false)
 }
 
 model Period {
@@ -89,14 +102,19 @@ model Post {
   title     String
   body      String
   createdAt DateTime @default(now())
-  author    User     @relation(fields: [authorId], references: [id])
   authorId  Int
+  User      User     @relation(fields: [authorId], references: [id])
 }
 
 enum Role {
   USER
-  GATEKEEPER
   ADMIN
+}
+
+enum ClubMembershipStatus {
+  NEWBIE
+  ACTIVE
+  SENIOR
 }
 
 enum ReservationStatus {

@@ -3,6 +3,7 @@ import { Prisma } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 
 import { PaginationDto } from '../dto/pagination.dto';
+import { User } from '../users/entities/user.entity';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { UpdateReservationDto } from './dto/update-reservation.dto';
 import { Reservation } from './entities/reservation.entity';
@@ -11,10 +12,11 @@ import { Reservation } from './entities/reservation.entity';
 export class ReservationsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  create(createReservationDto: CreateReservationDto) {
+  create(createReservationDto: CreateReservationDto, user: User) {
     return this.prisma.reservation.create({
       data: {
         ...createReservationDto,
+        userId: user.id,
       },
     });
   }

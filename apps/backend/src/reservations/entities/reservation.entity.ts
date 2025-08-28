@@ -1,5 +1,5 @@
 import { ReservationStatus } from '@prisma/client';
-import { IsDate, IsEnum, IsNotEmpty, IsNumber } from 'class-validator';
+import { IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
 
 export class Reservation {
   @IsNotEmpty()
@@ -21,6 +21,7 @@ export class Reservation {
   endTime: Date;
 
   @IsNumber()
+  @IsOptional()
   gateKeeperId: number;
 
   @IsNotEmpty()

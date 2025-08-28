@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString } from 'class-validator';
+import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString } from 'class-validator';
 
 export class Band {
   @IsNotEmpty()
@@ -22,6 +22,6 @@ export class Band {
   description: string;
 
   @IsOptional()
-  @IsString()
+  @IsArray()
   genres: string[];
 }
