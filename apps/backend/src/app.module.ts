@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { BandsModule } from './bands/bandsModule';
 import { CommentsModule } from './comments/comments.module';
 import { MembershipsModule } from './memberships/memberships.module';
+import { PostsModule } from './posts/posts.module';
 import { ReservationsModule } from './reservations/reservations.module';
 import { UsersModule } from './users/users.module';
 
@@ -19,6 +20,7 @@ import { UsersModule } from './users/users.module';
     BandsModule,
     AuthModule,
     MembershipsModule,
+    PostsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

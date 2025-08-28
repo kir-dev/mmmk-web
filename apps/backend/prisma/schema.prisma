@@ -7,39 +7,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  USER
-  ADMIN
-}
-
-enum ClubMembershipStatus {
-  NEWBIE
-  ACTIVE
-  SENIOR
-}
-
-enum ReservationStatus {
-  NORMAL
-  OVERTIME
-}
-
-enum BandMembershipStatus {
-  PENDING
-  ACCEPTED
-}
-
 model User {
   id                      Int              @id @default(autoincrement())
-  authSchId               String?          @unique
-  fullName                String
   email                   String           @unique
   phone                   String?          @unique
-  profilePicture          ProfilePicture?
-  DormResidency           DormResidency?
   role                    Role             @default(USER)
-  clubMembership          ClubMembership?
+  authSchId               String?          @unique
+  fullName                String
   clubMembershipUpdatedAt DateTime?
   bandMemberships         BandMembership[]
+  clubMembership          ClubMembership?
+  DormResidency           DormResidency?
+  Post                    Post[]
+  profilePicture          ProfilePicture?
   reservations            Reservation[]    @relation("Reservations")
 }
 
@@ -54,19 +34,19 @@ model ProfilePicture {
 model DormResidency {
   id         Int  @id @default(autoincrement())
   userId     Int  @unique
-  user       User @relation(fields: [userId], references: [id])
   roomNumber Int
+  user       User @relation(fields: [userId], references: [id])
 }
 
 model ClubMembership {
   id                 Int                  @id @default(autoincrement())
   userId             Int                  @unique
-  user               User                 @relation(fields: [userId], references: [id])
   status             ClubMembershipStatus
   titles             String[]
   hasRoomAccess      Boolean
   isLeadershipMember Boolean
   isGateKeeper       Boolean
+  user               User                 @relation(fields: [userId], references: [id])
   gateKeepingRecords Reservation[]        @relation("GateKeeping")
 }
 
@@ -115,4 +95,34 @@ model Period {
   id        Int      @id @default(autoincrement())
   startDate DateTime
   endDate   DateTime
+}
+
+model Post {
+  id        Int      @id @default(autoincrement())
+  title     String
+  body      String
+  createdAt DateTime @default(now())
+  authorId  Int
+  User      User     @relation(fields: [authorId], references: [id])
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum ClubMembershipStatus {
+  NEWBIE
+  ACTIVE
+  SENIOR
+}
+
+enum ReservationStatus {
+  OVERTIME
+  NORMAL
+}
+
+enum BandMembershipStatus {
+  PENDING
+  ACCEPTED
 }

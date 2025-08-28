@@ -1,6 +1,6 @@
 import { Post } from '../types/post';
 
-export const posts: Post[] = [
+export const mockPosts: Post[] = [
   {
     id: '1',
     title: 'Welcome to the News!',
