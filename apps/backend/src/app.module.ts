@@ -14,17 +14,12 @@ import { UsersModule } from './users/users.module';
 @Module({
   imports: [
     PrismaModule.forRoot({ isGlobal: true }),
-
     UsersModule,
-
     ReservationsModule,
-
     CommentsModule,
-
     BandsModule,
     AuthModule,
     MembershipsModule,
-    ,
     PostsModule,
   ],
   controllers: [AppController],

@@ -20,7 +20,7 @@
     "@radix-ui/react-slot": "^1.1.0",
     "@shadcn/ui": "^0.0.4",
     "@tanstack/react-table": "^8.20.5",
-    "axios": "^1.7.9",
+    "axios": "^1.10.0",
     "button": "^1.1.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -38,6 +38,7 @@
     "react-dom": "^18.2.0",
     "react-icons": "^5.5.0",
     "shadcn": "^2.1.7",
+    "swr": "^2.3.4",
     "switch": "^0.0.0",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7"
