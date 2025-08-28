@@ -1,0 +1,205 @@
+// hooks/useReservationDetails.ts
+import validDate from '@components/calendar/validDate';
+import { useEffect, useMemo, useState } from 'react';
+
+import axiosApi from '@/lib/apiSetup';
+import { Band } from '@/types/band';
+import { ClubMembership } from '@/types/member';
+import { Reservation } from '@/types/reservation';
+import { User } from '@/types/user';
+
+import { useUser } from './useUser';
+
+interface ReservationDetailsProps {
+  isEventDetails: boolean;
+  setIsEventDetails: (value: boolean) => void;
+  clickedEvent: Reservation | undefined;
+  setClickedEvent: (reservation: Reservation) => void;
+  onGetData: () => void;
+  reservations: Reservation[];
+}
+
+export function useReservationDetails(props: ReservationDetailsProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editNameValue, setEditNameValue] = useState('');
+  const [editStartTimeValue, setEditStartTimeValue] = useState(new Date());
+  const [editEndTimeValue, setEditEndTimeValue] = useState(new Date());
+
+  const [user, setUser] = useState<User>();
+  const [band, setBand] = useState<Band>();
+
+  const { user: me, refetch: refetchUser } = useUser();
+  const [gateKeeper, setGateKeeper] = useState<User | null>();
+
+  const [gateKeepers, setGateKeepers] = useState<ClubMembership[]>([]);
+  const [valid, setValid] = useState(true);
+
+  const hasEditRights = useMemo(() => {
+    return me?.role === 'ADMIN' || props.clickedEvent?.userId === me?.id;
+  }, [me, props.clickedEvent]);
+
+  const getGateKeeper = (id: number | null) => {
+    if (id) {
+      axiosApi
+        .get(`/memberships/${id}`)
+        .then((res) => {
+          axiosApi.get(`/users/${res.data.userId}`).then((result) => {
+            setGateKeeper(result.data);
+          });
+        })
+        .catch(() => {
+          setGateKeeper(null);
+        });
+    } else {
+      setGateKeeper(null);
+    }
+  };
+
+  const getUser = (id: number) => {
+    axiosApi.get(`/users/${id}`).then((res) => {
+      setUser(res.data);
+      // Remove this line: setEditNameValue(res.data.name);
+    });
+  };
+
+  // In useReservationDetails.ts, modify the getBand function:
+
+  const getBand = (id: number) => {
+    axiosApi
+      .get(`/bands/${id}`)
+      .then((res) => {
+        if (res.data) {
+          setBand(res.data);
+          if (res.data.name) {
+            setEditNameValue(res.data.name);
+          } else {
+            console.error("Band data doesn't contain name property:", res.data);
+          }
+        } else {
+          console.error('Empty response when fetching band');
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching band data:', error);
+      });
+  };
+
+  const onDelete = () => {
+    axiosApi.delete(`/reservations/${props.clickedEvent?.id}`).then(() => {
+      props.onGetData();
+      props.setIsEventDetails(!props.isEventDetails);
+    });
+  };
+
+  const onEdit = () => {
+    if (isEditing) {
+      if (validDate(editStartTimeValue, editEndTimeValue, props.clickedEvent, props.reservations)) {
+        axiosApi
+          .patch(`/reservations/${props.clickedEvent?.id}`, {
+            startTime: editStartTimeValue.toISOString(),
+            endTime: editEndTimeValue.toISOString(),
+          })
+          .then(() => {
+            props.onGetData();
+            onGetName(props.clickedEvent?.id);
+          });
+        setValid(true);
+      } else {
+        setValid(false);
+      }
+    }
+    setIsEditing(!isEditing);
+  };
+
+  const onGetName = (id: number | undefined) => {
+    if (!id) return;
+    axiosApi.get(`/reservations/${id}`).then((res) => {
+      props.setClickedEvent(res.data);
+    });
+  };
+
+  const getGKs = () => {
+    axiosApi.get('/memberships').then((res) => {
+      setGateKeepers(res.data);
+    });
+  };
+
+  function CurrentUserIsGK() {
+    let isUserGK: ClubMembership | null = null;
+    for (let i = 0; i < gateKeepers.length; i++) {
+      if (gateKeepers[i].userId === me?.id) {
+        isUserGK = gateKeepers[i];
+        return isUserGK;
+      }
+    }
+    return null;
+  }
+
+  const onSetGK = () => {
+    const isUserGK = CurrentUserIsGK();
+
+    if (gateKeeper) {
+      axiosApi
+        .patch(`/reservations/${props.clickedEvent?.id}`, {
+          gateKeeperId: null,
+        })
+        .then(() => {
+          setGateKeeper(null);
+          props.onGetData();
+        });
+    }
+
+    if (isUserGK && gateKeeper === null) {
+      axiosApi
+        .patch(`/reservations/${props.clickedEvent?.id}`, {
+          gateKeeperId: isUserGK.id,
+        })
+        .then(() => {
+          axiosApi.get(`/users/${isUserGK.userId}`).then((resp) => {
+            setGateKeeper(resp.data);
+          });
+          props.onGetData();
+        });
+    }
+  };
+
+  useEffect(() => {
+    // Reset states when a new event is clicked
+    if (props.clickedEvent) {
+      setEditStartTimeValue(new Date(props.clickedEvent.startTime) || new Date());
+      setEditEndTimeValue(new Date(props.clickedEvent.endTime) || new Date());
+      // Reset band and name states
+      setBand(undefined);
+      setEditNameValue('');
+    }
+
+    if (props.clickedEvent?.userId) getUser(props.clickedEvent.userId);
+    if (props.clickedEvent?.bandId) getBand(props.clickedEvent.bandId);
+    getGateKeeper(props.clickedEvent?.gateKeeperId || null);
+    refetchUser();
+    getGKs();
+  }, [props.clickedEvent]);
+
+  const handleCloseModal = () => {
+    props.setIsEventDetails(!props.isEventDetails);
+    setIsEditing(false);
+  };
+
+  return {
+    isEditing,
+    editNameValue,
+    setEditNameValue,
+    setEditStartTimeValue,
+    setEditEndTimeValue,
+    user,
+    band,
+    gateKeeper,
+    valid,
+    hasEditRights,
+    CurrentUserIsGK,
+    onSetGK,
+    onDelete,
+    onEdit,
+    handleCloseModal,
+  };
+}

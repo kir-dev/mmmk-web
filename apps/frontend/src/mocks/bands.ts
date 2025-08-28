@@ -2,7 +2,7 @@ import { Band } from '@/types/band';
 
 export const dummyBands: Band[] = [
   {
-    id: '1',
+    id: 1,
     name: 'The Echoes',
     email: 'contact@theechoes.com',
     webPage: 'http://www.theechoes.com',
@@ -11,7 +11,7 @@ export const dummyBands: Band[] = [
     members: ['Alice Walker', 'Jake Miles', 'Sophie Lee'],
   },
   {
-    id: '2',
+    id: 2,
     name: 'Raging Tides',
     email: 'info@ragingtidesband.com',
     webPage: 'http://www.ragingtidesband.com',
@@ -20,7 +20,7 @@ export const dummyBands: Band[] = [
     members: ['Liam Carter', 'Nina Wells', 'Tommy Drake'],
   },
   {
-    id: '3',
+    id: 3,
     name: 'Starlight Symphony',
     email: 'hello@starlightsymphony.com',
     webPage: 'http://www.starlightsymphony.com',
@@ -29,7 +29,7 @@ export const dummyBands: Band[] = [
     members: ['Emma Clarke', 'Olivia Martinez', 'Jonathan Kim', 'Ethan Moore'],
   },
   {
-    id: '4',
+    id: 4,
     name: 'Neon Dreams',
     email: 'support@neondreams.com',
     webPage: 'http://www.neondreams.com',
@@ -38,7 +38,7 @@ export const dummyBands: Band[] = [
     members: ['Amy Chen', 'Brandon Davis'],
   },
   {
-    id: '5',
+    id: 5,
     name: 'Crimson Folk',
     email: 'contact@crimsonfolk.com',
     webPage: 'http://www.crimsonfolk.com',

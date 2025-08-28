@@ -7,7 +7,7 @@ const currentUser: User = mockUsers[1]; //TODO: replace with real user
 const data = mockGatekeepings; //TODO: replace with real data
 
 function isAuthorized(user: User) {
-  return user.role === 'ADMIN' || user.role === 'GATEKEEPER';
+  return user.clubMembership.isGateKeeper || user.role === 'ADMIN';
 }
 
 function getCurrentPeriodStart() {
@@ -28,7 +28,7 @@ export default function Stats() {
   }
 
   const periodStart = getCurrentPeriodStart();
-  const gatekeepers = mockUsers.filter((u) => u.role === 'GATEKEEPER' || u.role === 'ADMIN');
+  const gatekeepers = mockUsers.filter((u) => u.clubMembership.isGateKeeper || u.role === 'ADMIN');
 
   const gatekeepingCounts = gatekeepers.map((gk) => {
     const count = data.filter((gkEvent) => gkEvent.userId === gk.id && new Date(gkEvent.date) >= periodStart).length;
@@ -50,7 +50,7 @@ export default function Stats() {
         <TableBody>
           {gatekeepingCounts.map((gk) => (
             <TableRow key={gk.id}>
-              <TableCell className='font-medium'>{gk.name}</TableCell>
+              <TableCell className='font-medium'>{gk.fullName}</TableCell>
               <TableCell>{gk.count}</TableCell>
             </TableRow>
           ))}
