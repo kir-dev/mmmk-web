@@ -25,15 +25,25 @@ function getRoleVariant(role: string) {
   }
 }
 
-export default function MemberTile({ user }: { user: User }) {
+export default function MemberTile({
+  user,
+  showBadge = false,
+  showInfo = false,
+}: {
+  user: User;
+  showBadge?: boolean;
+  showInfo?: boolean;
+}) {
   return (
     <div className='flex flex-col items-center'>
       <Card className='w-full max-w-56 h-64 flex flex-col items-center justify-between p-4 pb-2 shadow-lg'>
-        <div className='flex justify-end w-full'>
-          <Badge className='py-1 text-xs' variant={getRoleVariant(user.role)}>
-            {getRoleLabel(user.role)}
-          </Badge>
-        </div>
+        {showBadge && (
+          <div className='flex justify-end w-full'>
+            <Badge className='py-1 text-xs' variant={getRoleVariant(user.role)}>
+              {getRoleLabel(user.role)}
+            </Badge>
+          </div>
+        )}
         <div className='flex-1 flex flex-col justify-center items-center mt-2 mb-1'>
           <Avatar className='w-40 h-40'>
             <AvatarImage src={typeof user.profilePicture === 'string' ? user.profilePicture : ''} alt={user.fullName} />
@@ -47,17 +57,19 @@ export default function MemberTile({ user }: { user: User }) {
         </div>
         <div className='text-left font-semibold text-lg truncate w-full'>{user.fullName}</div>
       </Card>
-      <div className='flex flex-row justify-between mt-2 text-sm w-full max-w-60'>
-        <div className='flex flex-col items-start ml-4'>
-          <span>{user.email}</span>
-          {user.phone && <span>{user.phone}</span>}
-        </div>
-        {user.roomNumber && (
-          <div className='flex flex-col items-end mr-4'>
-            <span>{user.roomNumber}</span>
+      {showInfo && (
+        <div className='flex flex-row justify-between mt-2 text-sm w-full max-w-60'>
+          <div className='flex flex-col items-start ml-4'>
+            <span>{user.email}</span>
+            {user.phone && <span>{user.phone}</span>}
           </div>
-        )}
-      </div>
+          {user.roomNumber && (
+            <div className='flex flex-col items-end mr-4'>
+              <span>{user.roomNumber}</span>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

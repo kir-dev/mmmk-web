@@ -86,7 +86,7 @@ export const mockUsers: User[] = [
       titles: [],
       hasRoomAccess: false,
       isLeadershipMember: false,
-      isGateKeeper: false,
+      isGateKeeper: true,
     },
     clubMembershipUpdatedAt: new Date(),
     fullName: 'David Johnson',

@@ -43,11 +43,11 @@ export function Sidebar() {
           <h2 className='text-xs uppercase text-zinc-400 font-bold mb-2'>Rólunk</h2>
           <div className='space-y-2'>
             <Button
-              variant={pathname.startsWith('/about') ? 'blastActive' : 'blast'}
+              variant={pathname.startsWith('/mmmk') ? 'blastActive' : 'blast'}
               className='w-full justify-start'
               asChild
             >
-              <Link href='/about'>
+              <Link href='/mmmk'>
                 <Heart className='mr-2 h-4 w-4' />
                 MMMK
               </Link>
@@ -79,11 +79,11 @@ export function Sidebar() {
           <h2 className='text-xs uppercase text-zinc-400 font-bold mb-2'>Tagoknak</h2>
           <div className='space-y-2'>
             <Button
-              variant={pathname.startsWith('/reservations') ? 'blastActive' : 'blast'}
+              variant={pathname.startsWith('/reservation') ? 'blastActive' : 'blast'}
               className='w-full justify-start'
               asChild
             >
-              <Link href='/reservations'>
+              <Link href='/reservation'>
                 <CalendarPlus className='mr-2 h-4 w-4' />
                 Foglalás
               </Link>

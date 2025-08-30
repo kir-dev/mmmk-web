@@ -29,7 +29,7 @@ export default function Members() {
       {filteredData.length ? (
         <div className='grid gap-4 py-4 auto-rows-fr grid-cols-[repeat(auto-fill,minmax(228px,228px))] justify-center'>
           {filteredData.map((user) => (
-            <MemberTile user={user} key={user.id} />
+            <MemberTile user={user} key={user.id} showBadge showInfo />
           ))}
         </div>
       ) : (
