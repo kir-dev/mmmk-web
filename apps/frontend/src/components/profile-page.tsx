@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { User } from '@/types/user-dto';
+import { User } from '@/types/user';
 
 const url = 'http://localhost:3001/users/';
 
@@ -31,16 +31,16 @@ export default function ProfilePageComponent() {
       <Card className='max-w-2xl mx-auto'>
         <CardHeader className='flex flex-row items-center gap-4'>
           <Avatar className='w-20 h-20'>
-            <AvatarImage src='' alt={user?.name} />
+            <AvatarImage src='' alt={user?.fullName} />
             <AvatarFallback>
-              {user?.name
+              {user?.fullName
                 .split(' ')
                 .map((n) => n[0])
                 .join('')}
             </AvatarFallback>
           </Avatar>
           <div>
-            <CardTitle className='text-2xl'>{user?.name}</CardTitle>
+            <CardTitle className='text-2xl'>{user?.fullName}</CardTitle>
             <p className='text-muted-foreground'>{user?.email}</p>
           </div>
         </CardHeader>
@@ -59,8 +59,8 @@ export default function ProfilePageComponent() {
                 <Badge variant={user?.isDormResident ? 'default' : 'secondary'}>
                   {user?.isDormResident ? 'Kolis' : 'Nem kolis'}
                 </Badge>
-                <Badge variant={user?.role === 'ADMIN' || user?.role === 'GATEKEEPER' ? 'default' : 'secondary'}>
-                  {user?.role === 'ADMIN' || user?.role === 'GATEKEEPER' ? 'Beengedő' : 'Felhasználó'}
+                <Badge variant={user?.role === 'ADMIN' || user?.clubMembership.isGateKeeper ? 'default' : 'secondary'}>
+                  {user?.role === 'ADMIN' || user?.clubMembership.isGateKeeper ? 'Beengedő' : 'Felhasználó'}
                 </Badge>
               </dd>
             </div>
