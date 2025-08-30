@@ -1,6 +1,6 @@
 # Stage 1: Build the application
 # Use the official Node.js LTS (Long Term Support) image as the base image
-FROM node:22-alpine AS build
+FROM node:20-alpine AS build
 ENV NODE_ENV=development
 
 # Set the working directory inside the container
@@ -20,7 +20,7 @@ RUN yarn prisma generate
 RUN yarn build
 
 # Stage 2: Create a lightweight container with the built application
-FROM node:22-alpine AS production
+FROM node:20-alpine AS production
 ENV NODE_ENV=production
 
 # Set the working directory inside the container
@@ -37,4 +37,4 @@ RUN yarn install --production --frozen-lockfile
 RUN yarn prisma generate
 
 # Command to run the application
-CMD ["node", "dist/src/main"]
+CMD ["node", "dist/main"]
