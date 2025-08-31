@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { User } from '@/types/user';
 
-const url = 'http://localhost:3001/users/';
+const url = 'http://localhost:3030/users/';
 
 export default function ProfilePageComponent() {
   const [user, setUser] = useState<User>();

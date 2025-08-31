@@ -8,7 +8,7 @@ export const mockUsers: User[] = [
       id: 1,
       userId: 1,
       status: 'ACTIVE',
-      titles: ['MEMBER'],
+      titles: ['GROUP_LEADER'],
       hasRoomAccess: true,
       isLeadershipMember: false,
       isGateKeeper: false,
@@ -19,12 +19,6 @@ export const mockUsers: User[] = [
     isDormResident: true,
     roomNumber: '201',
     role: 'USER',
-    profilePicture: {
-      id: 1,
-      userId: 1,
-      image: new Uint8Array(),
-      mimeType: 'image/png',
-    },
   },
   {
     id: 2,
@@ -33,7 +27,7 @@ export const mockUsers: User[] = [
       id: 1,
       userId: 2,
       status: 'ACTIVE',
-      titles: ['MEMBER'],
+      titles: ['ROOM_MANAGER'],
       hasRoomAccess: true,
       isLeadershipMember: false,
       isGateKeeper: false,
@@ -43,13 +37,7 @@ export const mockUsers: User[] = [
     email: 'bob@email.com',
     isDormResident: true,
     roomNumber: '201',
-    role: 'USER',
-    profilePicture: {
-      id: 1,
-      userId: 2,
-      image: new Uint8Array(),
-      mimeType: 'image/png',
-    },
+    role: 'ADMIN',
   },
   {
     id: 3,
@@ -58,7 +46,7 @@ export const mockUsers: User[] = [
       id: 1,
       userId: 3,
       status: 'ACTIVE',
-      titles: ['MEMBER'],
+      titles: ['FINANCE_MANAGER'],
       hasRoomAccess: true,
       isLeadershipMember: false,
       isGateKeeper: false,
@@ -69,12 +57,6 @@ export const mockUsers: User[] = [
     isDormResident: true,
     roomNumber: '202',
     role: 'USER',
-    profilePicture: {
-      id: 1,
-      userId: 3,
-      image: new Uint8Array(),
-      mimeType: 'image/png',
-    },
   },
   {
     id: 4,
@@ -94,12 +76,6 @@ export const mockUsers: User[] = [
     isDormResident: true,
     roomNumber: '203',
     role: 'USER',
-    profilePicture: {
-      id: 1,
-      userId: 4,
-      image: new Uint8Array(),
-      mimeType: 'image/png',
-    },
   },
   {
     id: 5,
@@ -119,12 +95,6 @@ export const mockUsers: User[] = [
     phone: '1239874748',
     isDormResident: false,
     role: 'USER',
-    profilePicture: {
-      id: 1,
-      userId: 5,
-      image: new Uint8Array(),
-      mimeType: 'image/png',
-    },
   },
   {
     id: 6,
@@ -144,12 +114,6 @@ export const mockUsers: User[] = [
     phone: '1239874748',
     isDormResident: false,
     role: 'USER',
-    profilePicture: {
-      id: 1,
-      userId: 6,
-      image: new Uint8Array(),
-      mimeType: 'image/png',
-    },
   },
   {
     id: 7,
@@ -169,11 +133,5 @@ export const mockUsers: User[] = [
     phone: '1239874748',
     isDormResident: false,
     role: 'USER',
-    profilePicture: {
-      id: 1,
-      userId: 7,
-      image: new Uint8Array(),
-      mimeType: 'image/png',
-    },
   },
 ];

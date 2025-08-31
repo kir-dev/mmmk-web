@@ -63,7 +63,86 @@
   * {
     @apply border-border;
   }
+  html {
+    scroll-behavior: smooth;
+  }
   body {
     @apply bg-background text-foreground;
+  }
+
+  /* Improve scrolling performance */
+  .overflow-y-auto {
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted)) transparent;
+  }
+
+  /* Custom scrollbar for webkit browsers */
+  .overflow-y-auto::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .overflow-y-auto::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .overflow-y-auto::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--muted));
+    border-radius: 3px;
+  }
+
+  .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+    background-color: hsl(var(--muted-foreground));
+  }
+
+  /* Main content scroll container - optimized for performance */
+  .main-content-scroll {
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: auto;
+    overscroll-behavior: contain;
+    will-change: scroll-position;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    isolation: isolate;
+    contain: layout style paint;
+    scroll-padding-top: 0;
+    scroll-padding-bottom: 0;
+  }
+
+  /* Ensure smooth scrolling within the container */
+  .main-content-scroll * {
+    transform: translateZ(0);
+  }
+
+  /* Prevent scroll momentum issues */
+  .main-content-scroll {
+    -webkit-overflow-scrolling: auto;
+    scroll-behavior: auto;
+  }
+
+  /* Force hardware acceleration for smooth scrolling */
+  .main-content-scroll {
+    -webkit-transform: translate3d(0, 0, 0);
+    -moz-transform: translate3d(0, 0, 0);
+    -ms-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+  }
+
+  /* Sticky header within scroll container */
+  .main-content-scroll .sticky {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: hsl(var(--background));
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  /* Ensure sticky elements don't interfere with scroll */
+  .main-content-scroll .sticky {
+    transform: translateZ(0);
+    will-change: transform;
   }
 }
