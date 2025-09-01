@@ -1,5 +1,5 @@
 // utils/reservationSubmitter.ts
-import IsOvertime, { getFirstDayOfWeek, getLastDayOfWeek } from '@components/calendar/isReservationOvertime';
+import IsOvertime, { getReservationsOfDay, getReservationsOfWeek } from '@components/calendar/isReservationOvertime';
 import validDate from '@components/calendar/validDate';
 
 import collisionWithAdminRes from '@/hooks/collisionWithAdminRes';
@@ -22,16 +22,17 @@ export async function submitReservation(params: {
   reservations: Reservation[];
   onSuccess: () => void;
   setValid: (valid: boolean) => void;
+  adminOverride: boolean;
 }): Promise<ReservationSubmitResult> {
-  const { user, band, startTime, endTime, myUser, reservations, onSuccess, setValid } = params;
+  const { user, band, startTime, endTime, myUser, reservations, onSuccess, setValid, adminOverride } = params;
 
-  if (!user?.id || !band?.id || !startTime || !endTime) {
-    if (myUser?.role === 'USER') {
-      // If we're a regular user, we use the current user
-      params.user = myUser;
-    } else {
-      return { success: false, message: 'All fields must be filled.' };
-    }
+  if (!myUser) {
+    setValid(false);
+    return { success: false, message: 'Nincs bejelentkezett felhasználó' };
+  }
+
+  if (!band?.id || !startTime || !endTime) {
+    return { success: false, message: 'Band, start time and end time are required.' };
   }
 
   // Create copies to avoid mutating the original dates
@@ -42,38 +43,26 @@ export async function submitReservation(params: {
   start.setHours(start.getHours() - 1);
   end.setHours(end.getHours() - 1);
 
-  const now = new Date();
-  const startOfWeek = getFirstDayOfWeek(now);
-  const endOfWeek = getLastDayOfWeek(now);
+  const reservationsOfWeek = getReservationsOfWeek(reservations, band);
 
-  const reservationsOfWeek = reservations.filter((reservation) => {
-    const reservationStart = new Date(reservation.startTime);
-    return (
-      reservationStart.getTime() >= startOfWeek.getTime() &&
-      reservationStart.getTime() <= endOfWeek.getTime() &&
-      reservation.bandId === band?.id
-    );
-  });
+  const reservationsOfDay = getReservationsOfDay(reservations, band, start);
 
-  const reservationsOfDay = reservations.filter((reservation) => {
-    const reservationStart = new Date(reservation.startTime);
-    return (
-      reservationStart.getDate() === start.getDate() &&
-      reservationStart.getMonth() === start.getMonth() &&
-      reservationStart.getFullYear() === start.getFullYear() &&
-      reservation.bandId === band?.id
-    );
-  });
+  let submissionUserId: number;
+  if (myUser?.role === 'ADMIN') {
+    submissionUserId = user?.id || myUser.id;
+  } else {
+    submissionUserId = myUser.id;
+  }
 
   // Admin can override collision checks
-  if (myUser?.role === 'ADMIN' && !collisionWithAdminRes(start, end, reservationsOfDay)) {
+  if (myUser?.role === 'ADMIN' && !collisionWithAdminRes(start, end, reservationsOfDay) && adminOverride) {
     try {
       await axiosApi.post('http://localhost:3030/reservations', {
-        userId: user?.id,
+        userId: submissionUserId,
         bandId: band?.id,
         startTime: start.toISOString(),
         endTime: end.toISOString(),
-        status: 'NORMAL',
+        status: 'ADMINMADE',
       });
 
       onSuccess();
@@ -87,36 +76,48 @@ export async function submitReservation(params: {
   if (validDate(start, end, undefined, reservations)) {
     const reservationTimes = IsOvertime(start, end, reservationsOfWeek, reservationsOfDay);
 
-    // Handle overtime reservation if needed
-    if (reservationTimes[2] && reservationTimes[3]) {
-      try {
-        await axiosApi.post('http://localhost:3030/reservations', {
-          userId: user?.id,
-          bandId: band?.id,
-          startTime: reservationTimes[2].toISOString(),
-          endTime: reservationTimes[3].toISOString(),
-          status: 'OVERTIME',
-        });
-      } catch (error) {
-        console.error('Failed to create overtime reservation', error);
-      }
-    }
-
     // Create normal reservation if it's long enough
-    const minimumReservationTime = 0.25 * 60 * 1000; // 15 minutes in milliseconds
+    const minimumReservationTime = 0.5 * 60 * 1000; // 30 minutes in milliseconds
     if (reservationTimes[1].getTime() - reservationTimes[0].getTime() > minimumReservationTime) {
       try {
         await axiosApi.post('http://localhost:3030/reservations', {
-          userId: user?.id,
+          userId: submissionUserId,
           bandId: band?.id,
           startTime: reservationTimes[0].toISOString(),
           endTime: reservationTimes[1].toISOString(),
           status: 'NORMAL',
         });
 
+        // Handle overtime reservation if needed
+        if (reservationTimes[2] && reservationTimes[3]) {
+          await axiosApi.post('http://localhost:3030/reservations', {
+            userId: submissionUserId,
+            bandId: band?.id,
+            startTime: reservationTimes[2].toISOString(),
+            endTime: reservationTimes[3].toISOString(),
+            status: 'OVERTIME',
+          });
+
+          onSuccess();
+        }
+
         onSuccess();
       } catch (error) {
         return { success: false, message: 'Failed to create reservation' };
+      }
+    } else if (reservationTimes[2] && reservationTimes[3]) {
+      try {
+        await axiosApi.post('http://localhost:3030/reservations', {
+          userId: submissionUserId,
+          bandId: band?.id,
+          startTime: reservationTimes[0].toISOString(),
+          endTime: reservationTimes[3].toISOString(),
+          status: 'OVERTIME',
+        });
+
+        onSuccess();
+      } catch (error) {
+        console.error('Failed to create overtime reservation', error);
       }
     }
 

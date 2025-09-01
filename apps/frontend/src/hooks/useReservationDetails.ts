@@ -1,9 +1,13 @@
 // hooks/useReservationDetails.ts
+import { start } from 'node:repl';
+
+import IsOvertime, { getReservationsOfDay, getReservationsOfWeek } from '@components/calendar/isReservationOvertime';
 import validDate from '@components/calendar/validDate';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 
 import axiosApi from '@/lib/apiSetup';
+import { submitReservation } from '@/lib/reservationSubmitter';
 import { Band } from '@/types/band';
 import { ClubMembership } from '@/types/member';
 import { Reservation } from '@/types/reservation';
@@ -30,7 +34,7 @@ export function useReservationDetails(props: ReservationDetailsProps) {
   const [band, setBand] = useState<Band>();
 
   const [me, setMe] = useState<User>();
-  const [gateKeeper, setGateKeeper] = useState<User | null>();
+  const [gateKeeper, setGateKeeper] = useState<User | null>(null);
 
   const [gateKeepers, setGateKeepers] = useState<ClubMembership[]>([]);
   const [valid, setValid] = useState(true);
@@ -40,8 +44,11 @@ export function useReservationDetails(props: ReservationDetailsProps) {
   const getMe = () => {
     axiosApi.get('http://localhost:3030/users/me').then((res) => {
       setMe(res.data);
+      console.log(`${props.clickedEvent?.userId} ${me?.id} ${res.data.id}`);
       if (res.data.role === 'ADMIN' || props.clickedEvent?.userId === res.data.id) {
         setHasEditRights(true);
+      } else {
+        setHasEditRights(false);
       }
     });
   };
@@ -93,10 +100,17 @@ export function useReservationDetails(props: ReservationDetailsProps) {
   };
 
   const onDelete = () => {
-    axios.delete(`${url}/${props.clickedEvent?.id}`).then(() => {
-      props.onGetData();
-      props.setIsEventDetails(!props.isEventDetails);
-    });
+    if (new Date(props.clickedEvent!.startTime).getTime() < new Date().getTime()) {
+      alert('Nem törölhető a múltbeli foglalás!');
+      return;
+    }
+    const confirmDelete = window.confirm('Biztosan törlöd a foglalást?');
+    if (confirmDelete && props.clickedEvent?.id) {
+      return axios.delete(`${url}/${props.clickedEvent?.id}`).then(() => {
+        props.onGetData();
+        props.setIsEventDetails(!props.isEventDetails);
+      });
+    }
   };
 
   const onEdit = () => {
@@ -186,11 +200,45 @@ export function useReservationDetails(props: ReservationDetailsProps) {
     getGateKeeper(props.clickedEvent?.gateKeeperId || null);
     getMe();
     getGKs();
-  }, [props.clickedEvent]);
+  }, [props.clickedEvent?.id]);
 
   const handleCloseModal = () => {
     props.setIsEventDetails(!props.isEventDetails);
     setIsEditing(false);
+    setValid(true);
+  };
+
+  const setAsOvertime = () => {
+    axiosApi
+      .patch(`${url}/${props.clickedEvent?.id}`, {
+        status: 'OVERTIME',
+      })
+      .then(() => {
+        props.onGetData();
+        props.setIsEventDetails(!props.isEventDetails);
+      });
+  };
+
+  const requestNormalReservation = () => {
+    if (!props.clickedEvent) return;
+
+    const start = new Date(new Date(props.clickedEvent.startTime).getTime() + 60 * 60 * 1000);
+    const end = new Date(new Date(props.clickedEvent.endTime).getTime() + 60 * 60 * 1000);
+
+    submitReservation({
+      user: user,
+      band: band,
+      startTime: start,
+      endTime: end,
+      myUser: me,
+      reservations: props.reservations,
+      onSuccess: () => {
+        props.onGetData();
+        props.setIsEventDetails(!props.isEventDetails);
+      },
+      setValid: (valid: boolean) => {},
+      adminOverride: false,
+    });
   };
 
   return {
@@ -209,5 +257,7 @@ export function useReservationDetails(props: ReservationDetailsProps) {
     onDelete,
     onEdit,
     handleCloseModal,
+    setAsOvertime,
+    requestNormalReservation,
   };
 }

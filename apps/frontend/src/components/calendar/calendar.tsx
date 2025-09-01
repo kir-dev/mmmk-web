@@ -36,8 +36,8 @@ export default function Calendar() {
       .get(url, {
         params: {
           page: 1,
-          page_size: 10,
-          limit: 10,
+          page_size: 168,
+          limit: 168,
         },
       })
       .then((res) => {
@@ -48,8 +48,8 @@ export default function Calendar() {
       .get('http://localhost:3030/comments', {
         params: {
           page: 1,
-          page_size: 10,
-          limit: 10,
+          page_size: 168,
+          limit: 168,
         },
       })
       .then((res) => {

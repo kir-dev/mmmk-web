@@ -36,6 +36,9 @@ export default function AddReservation(props: AddPanelProps) {
   const suggestionRef = useRef<HTMLDivElement>(null);
 
   const [valid, setValid] = useState(true);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const [adminOverride, setAdminOverride] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -52,7 +55,7 @@ export default function AddReservation(props: AddPanelProps) {
   }, []);
 
   useEffect(() => {
-    axios.get('http://localhost:3030/band').then((res) => {
+    axios.get('http://localhost:3030/bands').then((res) => {
       setBands(res.data);
     });
     axios.get('http://localhost:3030/users').then((res) => {
@@ -116,7 +119,7 @@ export default function AddReservation(props: AddPanelProps) {
   };
 
   const handleSubmit = async () => {
-    await submitReservation({
+    const { success, message } = await submitReservation({
       user,
       band,
       startTime,
@@ -131,10 +134,15 @@ export default function AddReservation(props: AddPanelProps) {
         setUserName('');
         setStartTime(new Date());
         setEndTime(new Date());
+        setAdminOverride(false);
         props.onAddEvent();
       },
       setValid,
+      adminOverride,
     });
+    if (message) {
+      setErrorMessage(message);
+    }
   };
 
   function shiftStart(date: Date) {
@@ -151,37 +159,49 @@ export default function AddReservation(props: AddPanelProps) {
   return (
     <div className='space-y-5'>
       {myUser?.role === 'ADMIN' ? (
-        <div className='relative'>
-          <label htmlFor='name' className='block text-sm font-medium text-zinc-300 mb-1'>
-            Név
-          </label>
+        <>
           <div className='relative'>
-            <Input
-              id='name'
-              value={userName}
-              onChange={handleUserNameChange}
-              required
-              className='bg-zinc-700 border-zinc-600 text-zinc-100 w-full px-3 py-2 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent'
-              placeholder='Válasszon felhasználót...'
-            />
-            {showUserSuggestions && userSuggestions.length > 0 && (
-              <div
-                ref={suggestionRef}
-                className='absolute z-10 w-full mt-1 bg-zinc-700 border border-zinc-600 rounded-md shadow-lg max-h-60 overflow-auto'
-              >
-                {userSuggestions.map((suggestion) => (
-                  <button
-                    key={suggestion.id}
-                    className='px-4 py-2 cursor-pointer hover:bg-zinc-600 w-full text-left text-zinc-200 transition-colors'
-                    onClick={() => handleUserSuggestionClick(suggestion)}
-                  >
-                    {suggestion.fullName}
-                  </button>
-                ))}
-              </div>
-            )}
+            <label htmlFor='name' className='block text-sm font-medium text-zinc-300 mb-1'>
+              Név
+            </label>
+            <div className='relative'>
+              <Input
+                id='name'
+                value={userName}
+                onChange={handleUserNameChange}
+                required
+                className='bg-zinc-700 border-zinc-600 text-zinc-100 w-full px-3 py-2 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent'
+                placeholder='Válasszon felhasználót...'
+              />
+              {showUserSuggestions && userSuggestions.length > 0 && (
+                <div
+                  ref={suggestionRef}
+                  className='absolute z-10 w-full mt-1 bg-zinc-700 border border-zinc-600 rounded-md shadow-lg max-h-60 overflow-auto'
+                >
+                  {userSuggestions.map((suggestion) => (
+                    <button
+                      key={suggestion.id}
+                      className='px-4 py-2 cursor-pointer hover:bg-zinc-600 w-full text-left text-zinc-200 transition-colors'
+                      onClick={() => handleUserSuggestionClick(suggestion)}
+                    >
+                      {suggestion.fullName}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+
+          <div className='flex flex-col'>
+            <label>Admin foglalás</label>
+            <input
+              type='checkbox'
+              checked={adminOverride}
+              onChange={(e) => setAdminOverride(e.target.checked)}
+              className='h-4 w-4 accent-orange-500'
+            />
+          </div>
+        </>
       ) : null}
 
       <div className='relative'>
@@ -253,7 +273,7 @@ export default function AddReservation(props: AddPanelProps) {
               strokeLinejoin='round'
             />
           </svg>
-          Hibás időpont - kérjük válasszon másik időpontot
+          {errorMessage}
         </div>
       )}
 

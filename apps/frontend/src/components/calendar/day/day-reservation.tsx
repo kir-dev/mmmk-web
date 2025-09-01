@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 
 import { Band } from '@/types/band';
 import { Reservation } from '@/types/reservation';
+import { User } from '@/types/user';
 
 interface DayEventProps {
   reservation: Reservation;
@@ -14,12 +15,13 @@ export default function DayReservation(props: DayEventProps) {
   const startDate = new Date(props.reservation.startTime);
   const endDate = new Date(props.reservation.endTime);
   const [band, setBand] = useState<Band>();
+  const [user, setUser] = useState<User>(null);
 
   const offset = (startDate.getMinutes() / 60) * 80;
 
   const getUser = (id: number) => {
-    axios.get(`http://localhost:3030/users/${id}`).then(() => {
-      //setUser(res.data);
+    axios.get(`http://localhost:3030/users/${id}`).then((res) => {
+      setUser(res.data);
     });
   };
 
@@ -55,14 +57,16 @@ export default function DayReservation(props: DayEventProps) {
           ${
             props.reservation.status === 'OVERTIME'
               ? 'bg-gradient-to-r from-blue-500 to-blue-400'
-              : 'bg-gradient-to-r from-emerald-600 to-emerald-500'
+              : props.reservation.status === 'ADMINMADE'
+                ? 'bg-gradient-to-r from-orange-600 to-orange-400'
+                : 'bg-gradient-to-r from-emerald-600 to-emerald-400'
           }
           justify-start
           overflow-hidden
           rounded-md
           shadow-md
           border-l-4
-          ${props.reservation.status === 'OVERTIME' ? 'border-blue-600' : 'border-emerald-700'}
+          ${props.reservation.status === 'OVERTIME' ? 'border-blue-600' : props.reservation.status === 'ADMINMADE' ? 'border-orange-700' : 'border-emerald-700'}
           transition-all
           duration-200
           hover:shadow-lg

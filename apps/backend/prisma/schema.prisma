@@ -21,6 +21,7 @@ enum ClubMembershipStatus {
 enum ReservationStatus {
   NORMAL
   OVERTIME
+  ADMINMADE
 }
 
 enum BandMembershipStatus {

@@ -17,7 +17,7 @@ interface DailyViewPropsWO {
 
 export default function DailyViewWO(props: DailyViewPropsWO) {
   return (
-    <div className='w-full h-full'>
+    <div className='w-full h-full relative'>
       <Line />
       {Array.from({ length: 48 }, (_, i) => (
         <div

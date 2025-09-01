@@ -16,7 +16,6 @@ export class ReservationsService {
     return this.prisma.reservation.create({
       data: {
         ...createReservationDto,
-        userId: user.id,
       },
     });
   }
