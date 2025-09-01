@@ -2,6 +2,7 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 
+import axiosApi from '@/lib/apiSetup';
 import { Band } from '@/types/band';
 import { Reservation } from '@/types/reservation';
 import { User } from '@/types/user';
@@ -20,13 +21,13 @@ export default function DayReservation(props: DayEventProps) {
   const offset = (startDate.getMinutes() / 60) * 80;
 
   const getUser = (id: number) => {
-    axios.get(`http://localhost:3030/users/${id}`).then((res) => {
-      setUser(res.data);
+    axiosApi.get(`/users/${id}`).then(() => {
+      //setUser(res.data);
     });
   };
 
   const getBand = (id: number) => {
-    axios.get(`http://localhost:3030/bands/${id}`).then((res) => {
+    axiosApi.get(`/bands/${id}`).then((res) => {
       setBand(res.data);
     });
   };

@@ -1,6 +1,5 @@
 import validDate from '@components/calendar/validDate';
-import axios from 'axios';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import axiosApi from '@/lib/apiSetup';
 import { submitReservation } from '@/lib/reservationSubmitter';
@@ -9,7 +8,7 @@ import { ClubMembership } from '@/types/member';
 import { Reservation } from '@/types/reservation';
 import { User } from '@/types/user';
 
-const url = 'http://localhost:3030/reservations';
+import { useUser } from './useUser';
 
 interface ReservationDetailsProps {
   isEventDetails: boolean;
@@ -29,31 +28,22 @@ export function useReservationDetails(props: ReservationDetailsProps) {
   const [user, setUser] = useState<User>();
   const [band, setBand] = useState<Band>();
 
-  const [me, setMe] = useState<User>();
-  const [gateKeeper, setGateKeeper] = useState<User | null>(null);
+  const { user: me, refetch: refetchUser } = useUser();
+  const [gateKeeper, setGateKeeper] = useState<User | null>();
 
   const [gateKeepers, setGateKeepers] = useState<ClubMembership[]>([]);
   const [valid, setValid] = useState(true);
 
-  const [hasEditRights, setHasEditRights] = useState(false);
-
-  const getMe = () => {
-    axiosApi.get('http://localhost:3030/users/me').then((res) => {
-      setMe(res.data);
-      if (res.data.role === 'ADMIN' || props.clickedEvent?.userId === res.data.id) {
-        setHasEditRights(true);
-      } else {
-        setHasEditRights(false);
-      }
-    });
-  };
+  const hasEditRights = useMemo(() => {
+    return me?.role === 'ADMIN' || props.clickedEvent?.userId === me?.id;
+  }, [me, props.clickedEvent]);
 
   const getGateKeeper = (id: number | null) => {
     if (id) {
-      axios
-        .get(`http://localhost:3030/memberships/${id}`)
+      axiosApi
+        .get(`/memberships/${id}`)
         .then((res) => {
-          axios.get(`http://localhost:3030/users/${res.data.userId}`).then((result) => {
+          axiosApi.get(`/users/${res.data.userId}`).then((result) => {
             setGateKeeper(result.data);
           });
         })
@@ -66,7 +56,7 @@ export function useReservationDetails(props: ReservationDetailsProps) {
   };
 
   const getUser = (id: number) => {
-    axios.get(`http://localhost:3030/users/${id}`).then((res) => {
+    axiosApi.get(`/users/${id}`).then((res) => {
       setUser(res.data);
       // Remove this line: setEditNameValue(res.data.name);
     });
@@ -75,8 +65,8 @@ export function useReservationDetails(props: ReservationDetailsProps) {
   // In useReservationDetails.ts, modify the getBand function:
 
   const getBand = (id: number) => {
-    axios
-      .get(`http://localhost:3030/bands/${id}`)
+    axiosApi
+      .get(`/bands/${id}`)
       .then((res) => {
         if (res.data) {
           setBand(res.data);
@@ -101,7 +91,7 @@ export function useReservationDetails(props: ReservationDetailsProps) {
     }
     const confirmDelete = window.confirm('Biztosan törlöd a foglalást?');
     if (confirmDelete && props.clickedEvent?.id) {
-      return axios.delete(`${url}/${props.clickedEvent?.id}`).then(() => {
+      return axiosApi.delete(`/reservations/${props.clickedEvent?.id}`).then(() => {
         props.onGetData();
         props.setIsEventDetails(!props.isEventDetails);
       });
@@ -111,8 +101,8 @@ export function useReservationDetails(props: ReservationDetailsProps) {
   const onEdit = () => {
     if (isEditing) {
       if (validDate(editStartTimeValue, editEndTimeValue, props.clickedEvent, props.reservations)) {
-        axios
-          .patch(`${url}/${props.clickedEvent?.id}`, {
+        axiosApi
+          .patch(`/reservations/${props.clickedEvent?.id}`, {
             startTime: editStartTimeValue.toISOString(),
             endTime: editEndTimeValue.toISOString(),
           })
@@ -130,13 +120,13 @@ export function useReservationDetails(props: ReservationDetailsProps) {
 
   const onGetName = (id: number | undefined) => {
     if (!id) return;
-    axios.get(`${url}/${id}`).then((res) => {
+    axiosApi.get(`/reservations/${id}`).then((res) => {
       props.setClickedEvent(res.data);
     });
   };
 
   const getGKs = () => {
-    axiosApi.get('http://localhost:3030/memberships').then((res) => {
+    axiosApi.get('/memberships').then((res) => {
       setGateKeepers(res.data);
     });
   };
@@ -157,7 +147,7 @@ export function useReservationDetails(props: ReservationDetailsProps) {
 
     if (gateKeeper) {
       axiosApi
-        .patch(`${url}/${props.clickedEvent?.id}`, {
+        .patch(`/reservations/${props.clickedEvent?.id}`, {
           gateKeeperId: null,
         })
         .then(() => {
@@ -168,11 +158,11 @@ export function useReservationDetails(props: ReservationDetailsProps) {
 
     if (isUserGK && gateKeeper === null) {
       axiosApi
-        .patch(`${url}/${props.clickedEvent?.id}`, {
+        .patch(`/reservations/${props.clickedEvent?.id}`, {
           gateKeeperId: isUserGK.id,
         })
         .then(() => {
-          axiosApi.get(`http://localhost:3030/users/${isUserGK.userId}`).then((resp) => {
+          axiosApi.get(`/users/${isUserGK.userId}`).then((resp) => {
             setGateKeeper(resp.data);
           });
           props.onGetData();
@@ -193,7 +183,7 @@ export function useReservationDetails(props: ReservationDetailsProps) {
     if (props.clickedEvent?.userId) getUser(props.clickedEvent.userId);
     if (props.clickedEvent?.bandId) getBand(props.clickedEvent.bandId);
     getGateKeeper(props.clickedEvent?.gateKeeperId || null);
-    getMe();
+    refetchUser();
     getGKs();
   }, [props.clickedEvent?.id]);
 

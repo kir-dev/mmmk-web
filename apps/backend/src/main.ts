@@ -4,12 +4,13 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 import { AppModule } from './app.module';
 
-const cors = require('cors');
-
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.use(cors());
-  app.enableCors();
+  app.enableCors({
+    origin: [process.env.FRONTEND_URL],
+    methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'],
+    credentials: true,
+  });
 
   //Validation
   app.useGlobalPipes(

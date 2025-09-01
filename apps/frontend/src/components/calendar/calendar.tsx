@@ -3,17 +3,15 @@
 import { AddPanel } from '@components/calendar/add-panel';
 import CommentDetails from '@components/calendar/comment-details';
 import ReservationDetails from '@components/calendar/reservation-details';
-import axios from 'axios';
 import { useEffect, useState } from 'react';
 
+import axiosApi from '@/lib/apiSetup';
 import { Comment } from '@/types/comment';
 import { Reservation } from '@/types/reservation';
 
 import DailyView from './day/daily-view';
 //import MonthlyView from './month/monthly-view';
 import DWView from './week/daily-weekly-view';
-
-const url = 'http://localhost:3030/reservations';
 
 export enum View {
   Month,
@@ -32,8 +30,8 @@ export default function Calendar() {
   const [view, setView] = useState<View>(View.Week);
 
   const onGetData = () => {
-    axios
-      .get(url, {
+    axiosApi
+      .get('/reservations', {
         params: {
           page: 1,
           page_size: 168,
@@ -44,8 +42,8 @@ export default function Calendar() {
         setReservations(res.data.data);
       });
 
-    axios
-      .get('http://localhost:3030/comments', {
+    axiosApi
+      .get('/comments', {
         params: {
           page: 1,
           page_size: 168,

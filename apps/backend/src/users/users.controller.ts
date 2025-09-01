@@ -18,7 +18,7 @@ export class UsersController {
 
   @Get('me')
   @ApiBearerAuth()
-  @UseGuards(AuthGuard('jwt')) // Ha JWT-t használsz
+  @UseGuards(AuthGuard('jwt'))
   async getCurrentUser(@CurrentUser() user: User) {
     return this.usersService.findMe(user.authSchId);
   }
