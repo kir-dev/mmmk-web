@@ -1,11 +1,8 @@
-// apps/frontend/src/components/calendar/day/day-reservation.tsx
-import axios from 'axios';
 import { useEffect, useState } from 'react';
 
 import axiosApi from '@/lib/apiSetup';
 import { Band } from '@/types/band';
 import { Reservation } from '@/types/reservation';
-import { User } from '@/types/user';
 
 interface DayEventProps {
   reservation: Reservation;
@@ -16,7 +13,6 @@ export default function DayReservation(props: DayEventProps) {
   const startDate = new Date(props.reservation.startTime);
   const endDate = new Date(props.reservation.endTime);
   const [band, setBand] = useState<Band>();
-  const [user, setUser] = useState<User>(null);
 
   const offset = (startDate.getMinutes() / 60) * 80;
 
@@ -56,6 +52,7 @@ export default function DayReservation(props: DayEventProps) {
         className={`
           flex flex-row
           ${
+            // eslint-disable-next-line no-nested-ternary
             props.reservation.status === 'OVERTIME'
               ? 'bg-gradient-to-r from-blue-500 to-blue-400'
               : props.reservation.status === 'ADMINMADE'
@@ -67,7 +64,14 @@ export default function DayReservation(props: DayEventProps) {
           rounded-md
           shadow-md
           border-l-4
-          ${props.reservation.status === 'OVERTIME' ? 'border-blue-600' : props.reservation.status === 'ADMINMADE' ? 'border-orange-700' : 'border-emerald-700'}
+          ${
+            // eslint-disable-next-line no-nested-ternary
+            props.reservation.status === 'OVERTIME'
+              ? 'border-blue-600'
+              : props.reservation.status === 'ADMINMADE'
+                ? 'border-orange-700'
+                : 'border-emerald-700'
+          }
           transition-all
           duration-200
           hover:shadow-lg

@@ -83,7 +83,7 @@ export function Sidebar() {
               className='w-full justify-start'
               asChild
             >
-              <Link href='/reservations'>
+              <Link href='/reservation'>
                 <CalendarPlus className='mr-2 h-4 w-4' />
                 Foglalás
               </Link>

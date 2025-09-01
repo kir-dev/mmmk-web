@@ -86,7 +86,7 @@ export function useReservationDetails(props: ReservationDetailsProps) {
 
   const onDelete = () => {
     if (new Date(props.clickedEvent!.startTime).getTime() < new Date().getTime()) {
-      alert('Nem törölhető a múltbeli foglalás!');
+      //alert('Nem törölhető a múltbeli foglalás!');
       return;
     }
     const confirmDelete = window.confirm('Biztosan törlöd a foglalást?');
@@ -195,7 +195,7 @@ export function useReservationDetails(props: ReservationDetailsProps) {
 
   const setAsOvertime = () => {
     axiosApi
-      .patch(`${url}/${props.clickedEvent?.id}`, {
+      .patch(`/${props.clickedEvent?.id}`, {
         status: 'OVERTIME',
       })
       .then(() => {
@@ -221,7 +221,7 @@ export function useReservationDetails(props: ReservationDetailsProps) {
         props.onGetData();
         props.setIsEventDetails(!props.isEventDetails);
       },
-      setValid: (valid: boolean) => {},
+      setValid: () => {},
       adminOverride: false,
     });
   };

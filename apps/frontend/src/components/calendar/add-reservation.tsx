@@ -1,5 +1,4 @@
 import { Input } from '@components/ui/input';
-import axios from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
 
 import { useUser } from '@/hooks/useUser';
