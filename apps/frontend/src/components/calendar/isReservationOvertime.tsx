@@ -50,10 +50,10 @@ export default function IsOvertime(
   reservationsOfWeek: Reservation[],
   reservationsOfDay: Reservation[]
 ): Date[] {
-  let normalStart = new Date(1970, 1, 1, 0, 0, 0);
-  let normalEnd = new Date(1970, 1, 1, 0, 0, 0);
-  let overtimeStart = new Date(1970, 1, 1, 0, 0, 0);
-  let overtimeEnd = new Date(1970, 1, 1, 0, 0, 0);
+  let normalStart;
+  let normalEnd;
+  let overtimeStart;
+  let overtimeEnd;
 
   const reservationMinutes = (endTime.getTime() - startTime.getTime()) / (1000 * 60); // Convert milliseconds to minutes
 

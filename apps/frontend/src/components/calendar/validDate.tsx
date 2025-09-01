@@ -1,6 +1,5 @@
 import deleteReservation from '@/hooks/deleteReservation';
 import { Reservation } from '@/types/reservation';
-import { User } from '@/types/user';
 
 export default function validDate(
   start: Date,

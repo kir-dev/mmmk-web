@@ -119,7 +119,7 @@ export default function AddReservation(props: AddPanelProps) {
   };
 
   const handleSubmit = async () => {
-    const { success, message } = await submitReservation({
+    const { message } = await submitReservation({
       user,
       band,
       startTime,

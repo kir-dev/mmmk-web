@@ -1,7 +1,3 @@
-// hooks/useReservationDetails.ts
-import { start } from 'node:repl';
-
-import IsOvertime, { getReservationsOfDay, getReservationsOfWeek } from '@components/calendar/isReservationOvertime';
 import validDate from '@components/calendar/validDate';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
@@ -44,7 +40,6 @@ export function useReservationDetails(props: ReservationDetailsProps) {
   const getMe = () => {
     axiosApi.get('http://localhost:3030/users/me').then((res) => {
       setMe(res.data);
-      console.log(`${props.clickedEvent?.userId} ${me?.id} ${res.data.id}`);
       if (res.data.role === 'ADMIN' || props.clickedEvent?.userId === res.data.id) {
         setHasEditRights(true);
       } else {
