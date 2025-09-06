@@ -142,10 +142,29 @@ export function useReservationDetails(props: ReservationDetailsProps) {
     return null;
   }
 
+  const handleSubmit = async (message: string) => {
+    fetch('/api/kir-mail/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: gateKeeper?.fullName,
+        email: 'marciemail7@gmail.com', //gateKeeper?.email,
+        message: message,
+      }),
+    }).then((response) => {
+      if (response.ok) {
+      } else {
+      }
+    });
+  };
+
   const onSetGK = () => {
     const isUserGK = CurrentUserIsGK();
+    console.log(me);
 
-    if (gateKeeper) {
+    if (gateKeeper && isUserGK && gateKeeper.id === isUserGK.userId) {
       axiosApi
         .patch(`/reservations/${props.clickedEvent?.id}`, {
           gateKeeperId: null,
@@ -153,17 +172,23 @@ export function useReservationDetails(props: ReservationDetailsProps) {
         .then(() => {
           setGateKeeper(null);
           props.onGetData();
+          handleSubmit('A beengedő visszamondta a foglalásod.');
         });
     }
 
     if (isUserGK && gateKeeper === null) {
       axiosApi
         .patch(`/reservations/${props.clickedEvent?.id}`, {
-          gateKeeperId: isUserGK.id,
+          gateKeeperId: isUserGK.userId,
         })
         .then(() => {
+          console.log(isUserGK.id);
+          console.log(isUserGK.userId);
           axiosApi.get(`/users/${isUserGK.userId}`).then((resp) => {
             setGateKeeper(resp.data);
+            handleSubmit(
+              `A foglalásodhoz beengedő lett rendelve. Beengedőd neve: ${resp.data.fullName}, e-mail címe: ${resp.data.email}`
+            );
           });
           props.onGetData();
         });
