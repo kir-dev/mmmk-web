@@ -1,4 +1,4 @@
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function Room() {
   return (
@@ -7,11 +7,11 @@ export default function Room() {
         <h1 className='text-2xl font-semibold text-primary'>Próbaterem</h1>
       </div>
       <Card className='m-4'>
+        <CardHeader>
+          <CardTitle>Ludwig dobcucc</CardTitle>
+        </CardHeader>
         <CardContent>
-          <h1 className='text-2xl font-semibold my-8'>Eszközök</h1>
-          <h2 className='text-xl font-semibold mb-4'>Ludwig dobcucc</h2>
-          <p className='text-md font-semibold mb-2'>Adatok:</p>
-          <ul className='list-disc list-inside space-y-1 mb-8'>
+          <ul className='list-disc list-inside space-y-1'>
             <li>Pergő: 14&quot;</li>
             <li>Tamok: 10&quot; felső, 12&quot; felső, 14&quot; álló</li>
             <li>Lábdob: 22&quot;</li>
@@ -24,9 +24,14 @@ export default function Room() {
             <li>Kolomp</li>
             <li>Állványok mindenhez</li>
           </ul>
-          <h2 className='text-xl font-semibold mb-4'>Peavey Valveking 112 Gitárerősítő Combo</h2>
-          <p className='text-md font-semibold mb-2'>Adatok:</p>
-          <ul className='list-disc list-inside space-y-1 mb-8'>
+        </CardContent>
+      </Card>
+      <Card className='m-4'>
+        <CardHeader>
+          <CardTitle>Peavey Valveking 112 Gitárerősítő Combo</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ul className='list-disc list-inside space-y-1'>
             <li>50 Wattos</li>
             <li>Full csöves</li>
             <li>3 db 12AX7-es előfok</li>
@@ -37,9 +42,14 @@ export default function Room() {
             <li>Effect loop</li>
             <li>Zengető</li>
           </ul>
-          <h2 className='text-xl font-semibold mb-4'>Line6 Spider III 120 Gitárerősítő Combo</h2>
-          <p className='text-md font-semibold mb-2'>Adatok:</p>
-          <ul className='list-disc list-inside space-y-1 mb-8'>
+        </CardContent>
+      </Card>
+      <Card className='m-4'>
+        <CardHeader>
+          <CardTitle>Line6 Spider III 120 Gitárerősítő Combo</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ul className='list-disc list-inside space-y-1'>
             <li>Digitális</li>
             <li>120 Wattos</li>
             <li>12 erősítőmodell: Clean, Twang, Blues, Crunch, Metal, Insane (2 verzió mindegyikből)</li>
@@ -49,9 +59,14 @@ export default function Room() {
             <li>4 csatornás lábkapcsoló</li>
             <li>2 db 10-es Custom Celestion hangszóró</li>
           </ul>
-          <h2 className='text-xl font-semibold mb-4'>Gallien-Krueger Backline 600 Basszus erősítőfej</h2>
-          <p className='text-md font-semibold mb-2'>Adatok:</p>
-          <ul className='list-disc list-inside space-y-1 mb-8'>
+        </CardContent>
+      </Card>
+      <Card className='m-4'>
+        <CardHeader>
+          <CardTitle>Gallien-Krueger Backline 600 Basszus erősítőfej</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ul className='list-disc list-inside space-y-1'>
             <li>300 Watt @ 4 ohm</li>
             <li>4 sávos EQ</li>
             <li>2 csatorna</li>
@@ -59,9 +74,14 @@ export default function Room() {
             <li>Effect loop</li>
             <li>XLR, hangoló kimenet</li>
           </ul>
-          <h2 className='text-xl font-semibold mb-4'>Gallien-Krueger GLX Basszusláda</h2>
-          <p className='text-md font-semibold mb-2'>Adatok:</p>
-          <ul className='list-disc list-inside space-y-1 mb-4'>
+        </CardContent>
+      </Card>
+      <Card className='m-4'>
+        <CardHeader>
+          <CardTitle>Gallien-Krueger GLX Basszusláda</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ul className='list-disc list-inside space-y-1'>
             <li>400 Watt @ 8 ohm</li>
             <li>4 db 10&quot;-es hangszóró</li>
           </ul>
