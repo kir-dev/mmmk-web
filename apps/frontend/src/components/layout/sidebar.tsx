@@ -1,15 +1,5 @@
 'use client';
-import {
-  BarChart3,
-  BookAudio,
-  CalendarPlus,
-  Heart,
-  KeyboardMusic,
-  ListMusic,
-  MicVocal,
-  Radio,
-  Users2,
-} from 'lucide-react';
+import { BarChart3, BookAudio, CalendarPlus, Heart, ListMusic, MicVocal, Radio, Users2 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -43,11 +33,11 @@ export function Sidebar() {
           <h2 className='text-xs uppercase text-zinc-400 font-bold mb-2'>Rólunk</h2>
           <div className='space-y-2'>
             <Button
-              variant={pathname.startsWith('/about') ? 'blastActive' : 'blast'}
+              variant={pathname.startsWith('/mmmk') ? 'blastActive' : 'blast'}
               className='w-full justify-start'
               asChild
             >
-              <Link href='/about'>
+              <Link href='/mmmk'>
                 <Heart className='mr-2 h-4 w-4' />
                 MMMK
               </Link>
@@ -79,11 +69,11 @@ export function Sidebar() {
           <h2 className='text-xs uppercase text-zinc-400 font-bold mb-2'>Tagoknak</h2>
           <div className='space-y-2'>
             <Button
-              variant={pathname.startsWith('/reservations') ? 'blastActive' : 'blast'}
+              variant={pathname.startsWith('/reservation') ? 'blastActive' : 'blast'}
               className='w-full justify-start'
               asChild
             >
-              <Link href='/reservations'>
+              <Link href='/reservation'>
                 <CalendarPlus className='mr-2 h-4 w-4' />
                 Foglalás
               </Link>
@@ -106,22 +96,6 @@ export function Sidebar() {
               <Link href='/stats'>
                 <BarChart3 className='mr-2 h-4 w-4' />
                 Statisztika
-              </Link>
-            </Button>
-          </div>
-        </div>
-
-        <div className='pt-4'>
-          <h2 className='text-xs uppercase text-zinc-400 font-bold mb-2'>Admin</h2>
-          <div className='space-y-2'>
-            <Button
-              variant={pathname.startsWith('/super') ? 'blastActive' : 'blast'}
-              className='w-full justify-start'
-              asChild
-            >
-              <Link href='/super'>
-                <KeyboardMusic className='mr-2 h-4 w-4' />
-                Admin Nézet
               </Link>
             </Button>
           </div>

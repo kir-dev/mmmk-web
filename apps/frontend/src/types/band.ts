@@ -7,3 +7,10 @@ export type Band = {
   genres?: string[];
   members?: string[];
 };
+
+export type BandMembership = {
+  id: number;
+  bandId: number;
+  userId: number;
+  role: string;
+};

@@ -16,8 +16,8 @@ export default function Members() {
   }, [searchTerm]);
 
   return (
-    <div className='w-full overflow-y-auto'>
-      <div className='flex items-center justify-between flex-row p-4 sticky top-0 bg-background z-10'>
+    <div className='w-full main-content-scroll h-full'>
+      <div className='flex items-center justify-between flex-row p-4 bg-background sticky top-0 z-10'>
         <h1 className='text-2xl font-semibold text-primary'>Felhasználók</h1>
         <Input
           placeholder='Keresés...'
@@ -29,7 +29,7 @@ export default function Members() {
       {filteredData.length ? (
         <div className='grid gap-4 py-4 auto-rows-fr grid-cols-[repeat(auto-fill,minmax(228px,228px))] justify-center'>
           {filteredData.map((user) => (
-            <MemberTile user={user} key={user.id} />
+            <MemberTile user={user} key={user.id} showBadge showContact />
           ))}
         </div>
       ) : (
