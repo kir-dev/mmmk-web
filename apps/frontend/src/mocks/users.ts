@@ -73,6 +73,7 @@ export const mockUsers: User[] = [
     clubMembershipUpdatedAt: new Date(),
     fullName: 'David Johnson',
     email: 'david@email.com',
+    phone: '1239874748',
     isDormResident: true,
     roomNumber: '203',
     role: 'USER',
