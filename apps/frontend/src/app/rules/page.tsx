@@ -242,9 +242,9 @@ export default function Rules() {
               <li>A próbaterem külső ajtajának nyitva hagyása - 2 pont</li>
               <li>Egyéb kihágásokért a körvezetőség egyéni megítélése szerint járhat büntetőpont.</li>
             </ul>
-            <p className='mt-8 font-semibold text-2xl'>A szabályzat megváltoztatásának jogát fenntartjuk.</p>
           </CardContent>
         </Card>
+        <p className='mt-8 font-semibold text-2xl mb-4 px-4'>A szabályzat megváltoztatásának jogát fenntartjuk.</p>
       </div>
     </div>
   );
