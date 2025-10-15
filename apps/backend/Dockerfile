@@ -37,4 +37,4 @@ RUN yarn install --production --frozen-lockfile
 RUN yarn prisma generate
 
 # Command to run the application
-CMD ["node", "dist/src/main"]
+CMD ["node", "dist/main"]
