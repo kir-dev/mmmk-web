@@ -1,7 +1,7 @@
 # Stage 1: Build the application
 # Use the official Node.js LTS (Long Term Support) image as the base image
-FROM node:20-alpine AS build
-ENV NODE_ENV=development
+FROM node:22-alpine AS build
+ENV NODE_ENV=development PRISMA_CLIENT_ENGINE_TYPE=library
 
 # Set the working directory inside the container
 WORKDIR /app
@@ -16,14 +16,12 @@ RUN yarn install
 COPY . .
 
 # Build the NestJS application
-RUN cd ./backend
 RUN yarn prisma generate
 RUN yarn build
-RUN cd ..
 
 # Stage 2: Create a lightweight container with the built application
-FROM node:20-alpine AS production
-ENV NODE_ENV=production
+FROM node:22-alpine AS production
+ENV NODE_ENV=production PRISMA_CLIENT_ENGINE_TYPE=library
 
 # Set the working directory inside the container
 WORKDIR /app
@@ -36,9 +34,7 @@ COPY --from=build /app/prisma ./prisma
 
 # Install only production dependencies
 RUN yarn install --production --frozen-lockfile
-RUN cd ./backend
 RUN yarn prisma generate
-RUN cd ..
 
 # Command to run the application
 CMD ["node", "dist/main"]
