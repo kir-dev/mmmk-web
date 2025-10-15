@@ -16,10 +16,10 @@ RUN yarn install
 COPY . .
 
 # Build the NestJS application
-RUN cd apps/backend
+RUN cd ./backend
 RUN yarn prisma generate
 RUN yarn build
-RUN cd ../..
+RUN cd ..
 
 # Stage 2: Create a lightweight container with the built application
 FROM node:20-alpine AS production
@@ -36,9 +36,9 @@ COPY --from=build /app/prisma ./prisma
 
 # Install only production dependencies
 RUN yarn install --production --frozen-lockfile
-RUN cd apps/backend
+RUN cd ./backend
 RUN yarn prisma generate
-RUN cd ../..
+RUN cd ..
 
 # Command to run the application
 CMD ["node", "dist/main"]
