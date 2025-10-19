@@ -16,7 +16,7 @@ export class ReservationsController {
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
   create(@Body() createReservationDto: CreateReservationDto, @CurrentUser() user: User) {
-    return this.reservationsService.create(createReservationDto, user);
+    return this.reservationsService.create(createReservationDto);
   }
 
   @Get()

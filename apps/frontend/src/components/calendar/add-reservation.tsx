@@ -55,7 +55,7 @@ export default function AddReservation(props: AddPanelProps) {
   }, []);
 
   useEffect(() => {
-    axiosApi.get('/band').then((res) => {
+    axiosApi.get('/bands').then((res) => {
       setBands(res.data);
     });
     axiosApi.get('/users').then((res) => {

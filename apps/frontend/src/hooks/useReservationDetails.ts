@@ -29,7 +29,11 @@ export function useReservationDetails(props: ReservationDetailsProps) {
   const [band, setBand] = useState<Band>();
 
   const { user: me, refetch: refetchUser } = useUser();
-  const [gateKeeper, setGateKeeper] = useState<User | null>();
+
+  // User who is the gatekeeper
+  const [gateKeeper, setGateKeeper] = useState<User | null>(null);
+  // Membership id bound to the reservation (what backend expects as gateKeeperId)
+  const [gateKeeperMembershipId, setGateKeeperMembershipId] = useState<number | null>(null);
 
   const [gateKeepers, setGateKeepers] = useState<ClubMembership[]>([]);
   const [valid, setValid] = useState(true);
@@ -38,10 +42,11 @@ export function useReservationDetails(props: ReservationDetailsProps) {
     return me?.role === 'ADMIN' || props.clickedEvent?.userId === me?.id;
   }, [me, props.clickedEvent]);
 
-  const getGateKeeper = (id: number | null) => {
-    if (id) {
+  const getGateKeeper = (membershipId: number | null) => {
+    setGateKeeperMembershipId(membershipId);
+    if (membershipId) {
       axiosApi
-        .get(`/memberships/${id}`)
+        .get(`/memberships/${membershipId}`)
         .then((res) => {
           axiosApi.get(`/users/${res.data.userId}`).then((result) => {
             setGateKeeper(result.data);
@@ -56,13 +61,8 @@ export function useReservationDetails(props: ReservationDetailsProps) {
   };
 
   const getUser = (id: number) => {
-    axiosApi.get(`/users/${id}`).then((res) => {
-      setUser(res.data);
-      // Remove this line: setEditNameValue(res.data.name);
-    });
+    axiosApi.get(`/users/${id}`).then((res) => setUser(res.data));
   };
-
-  // In useReservationDetails.ts, modify the getBand function:
 
   const getBand = (id: number) => {
     axiosApi
@@ -70,52 +70,41 @@ export function useReservationDetails(props: ReservationDetailsProps) {
       .then((res) => {
         if (res.data) {
           setBand(res.data);
-          if (res.data.name) {
-            setEditNameValue(res.data.name);
-          } else {
-            console.error("Band data doesn't contain name property:", res.data);
-          }
-        } else {
-          console.error('Empty response when fetching band');
+          if (res.data.name) setEditNameValue(res.data.name);
         }
       })
-      .catch((error) => {
-        console.error('Error fetching band data:', error);
-      });
+      .catch(() => {});
   };
 
   const onDelete = () => {
-    if (new Date(props.clickedEvent!.startTime).getTime() < new Date().getTime()) {
-      //alert('Nem törölhető a múltbeli foglalás!');
-      return;
-    }
-    const confirmDelete = window.confirm('Biztosan törlöd a foglalást?');
-    if (confirmDelete && props.clickedEvent?.id) {
-      return axiosApi.delete(`/reservations/${props.clickedEvent?.id}`).then(() => {
-        props.onGetData();
-        props.setIsEventDetails(!props.isEventDetails);
-      });
-    }
+    if (!props.clickedEvent) return;
+    if (new Date(props.clickedEvent.startTime).getTime() < Date.now()) return;
+    if (!window.confirm('Biztosan törlöd a foglalást?')) return;
+    axiosApi.delete(`/reservations/${props.clickedEvent.id}`).then(() => {
+      props.onGetData();
+      props.setIsEventDetails(!props.isEventDetails);
+    });
   };
 
   const onEdit = () => {
+    if (!props.clickedEvent) return;
     if (isEditing) {
       if (validDate(editStartTimeValue, editEndTimeValue, props.clickedEvent, props.reservations)) {
         axiosApi
-          .patch(`/reservations/${props.clickedEvent?.id}`, {
+          .patch(`/reservations/${props.clickedEvent.id}`, {
             startTime: editStartTimeValue.toISOString(),
             endTime: editEndTimeValue.toISOString(),
           })
           .then(() => {
             props.onGetData();
-            onGetName(props.clickedEvent?.id);
+            onGetName(props.clickedEvent.id);
           });
         setValid(true);
       } else {
         setValid(false);
       }
     }
-    setIsEditing(!isEditing);
+    setIsEditing((p) => !p);
   };
 
   const onGetName = (id: number | undefined) => {
@@ -126,88 +115,77 @@ export function useReservationDetails(props: ReservationDetailsProps) {
   };
 
   const getGKs = () => {
-    axiosApi.get('/memberships').then((res) => {
-      setGateKeepers(res.data);
-    });
+    axiosApi.get('/memberships').then((res) => setGateKeepers(res.data));
   };
 
-  function CurrentUserIsGK() {
-    let isUserGK: ClubMembership | null = null;
-    for (let i = 0; i < gateKeepers.length; i++) {
-      if (gateKeepers[i].userId === me?.id) {
-        isUserGK = gateKeepers[i];
-        return isUserGK;
-      }
-    }
-    return null;
+  function CurrentUserIsGK(): ClubMembership | null {
+    return gateKeepers.find((m) => m.userId === me?.id) || null;
   }
 
-  const handleSubmit = async (message: string) => {
+  const handleSubmitMail = (message: string) => {
     fetch('/api/kir-mail/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        name: gateKeeper?.fullName,
-        email: 'marciemail7@gmail.com', //gateKeeper?.email,
+        name: 'Marci',
+        email: 'marciemail7@gmail.com',
         message: message,
       }),
     }).then((response) => {
       if (response.ok) {
+        alert('E-mail elküldve!');
       } else {
+        alert('Hiba történt az e-mail küldése közben!');
       }
     });
   };
 
   const onSetGK = () => {
-    const isUserGK = CurrentUserIsGK();
-    console.log(me);
+    if (!props.clickedEvent) return;
+    const myMembership = CurrentUserIsGK();
+    if (!myMembership) return;
 
-    if (gateKeeper && isUserGK && gateKeeper.id === isUserGK.userId) {
-      axiosApi
-        .patch(`/reservations/${props.clickedEvent?.id}`, {
-          gateKeeperId: null,
-        })
-        .then(() => {
-          setGateKeeper(null);
-          props.onGetData();
-          handleSubmit('A beengedő visszamondta a foglalásod.');
-        });
+    // Unset if current user already assigned (membership id matches)
+    if (gateKeeperMembershipId && gateKeeperMembershipId === myMembership.id) {
+      axiosApi.patch(`/reservations/${props.clickedEvent.id}`, { gateKeeperId: null }).then(() => {
+        setGateKeeper(null);
+        setGateKeeperMembershipId(null);
+        props.onGetData();
+        handleSubmitMail('A beengedő visszamondta a foglalásod.');
+      });
+      return;
     }
 
-    if (isUserGK && gateKeeper === null) {
-      axiosApi
-        .patch(`/reservations/${props.clickedEvent?.id}`, {
-          gateKeeperId: isUserGK.userId,
-        })
-        .then(() => {
-          console.log(isUserGK.id);
-          console.log(isUserGK.userId);
-          axiosApi.get(`/users/${isUserGK.userId}`).then((resp) => {
-            setGateKeeper(resp.data);
-            handleSubmit(
-              `A foglalásodhoz beengedő lett rendelve. Beengedőd neve: ${resp.data.fullName}, e-mail címe: ${resp.data.email}`
-            );
-          });
-          props.onGetData();
+    // Set gatekeeper using membership id \*NOT\* user id
+    if (!gateKeeperMembershipId) {
+      axiosApi.patch(`/reservations/${props.clickedEvent.id}`, { gateKeeperId: myMembership.id }).then(() => {
+        setGateKeeperMembershipId(myMembership.id);
+        axiosApi.get(`/users/${myMembership.userId}`).then((resp) => {
+          setGateKeeper(resp.data);
+          handleSubmitMail(
+            `A foglalásodhoz beengedő lett rendelve. Név: ${resp.data.fullName}, e-mail: ${resp.data.email}`
+          );
         });
+        props.onGetData();
+      });
     }
   };
 
   useEffect(() => {
-    // Reset states when a new event is clicked
     if (props.clickedEvent) {
-      setEditStartTimeValue(new Date(props.clickedEvent.startTime) || new Date());
-      setEditEndTimeValue(new Date(props.clickedEvent.endTime) || new Date());
-      // Reset band and name states
+      setEditStartTimeValue(new Date(props.clickedEvent.startTime));
+      setEditEndTimeValue(new Date(props.clickedEvent.endTime));
       setBand(undefined);
       setEditNameValue('');
+      if (props.clickedEvent.userId) getUser(props.clickedEvent.userId);
+      if (props.clickedEvent.bandId) getBand(props.clickedEvent.bandId);
+      getGateKeeper(props.clickedEvent.gateKeeperId || null);
+    } else {
+      setGateKeeper(null);
+      setGateKeeperMembershipId(null);
     }
-
-    if (props.clickedEvent?.userId) getUser(props.clickedEvent.userId);
-    if (props.clickedEvent?.bandId) getBand(props.clickedEvent.bandId);
-    getGateKeeper(props.clickedEvent?.gateKeeperId || null);
     refetchUser();
     getGKs();
   }, [props.clickedEvent?.id]);
@@ -219,25 +197,30 @@ export function useReservationDetails(props: ReservationDetailsProps) {
   };
 
   const setAsOvertime = () => {
-    axiosApi
-      .patch(`/${props.clickedEvent?.id}`, {
-        status: 'OVERTIME',
-      })
-      .then(() => {
-        props.onGetData();
-        props.setIsEventDetails(!props.isEventDetails);
-      });
+    if (!props.clickedEvent) return;
+    const today = new Date().getDate();
+    if (
+      new Date(props.clickedEvent.startTime).getDate() < today ||
+      (new Date(props.clickedEvent.startTime).getHours() < new Date().getHours() &&
+        new Date(props.clickedEvent.startTime).getDate() === today) ||
+      (new Date(props.clickedEvent.startTime).getHours() === new Date().getHours() &&
+        new Date(props.clickedEvent.startTime).getMinutes() <= new Date().getMinutes() &&
+        new Date(props.clickedEvent.startTime).getDate() === today)
+    )
+      return;
+    axiosApi.patch(`/reservations/${props.clickedEvent.id}`, { status: 'OVERTIME' }).then(() => {
+      props.onGetData();
+      props.setIsEventDetails(!props.isEventDetails);
+    });
   };
 
   const requestNormalReservation = () => {
-    if (!props.clickedEvent) return;
-
+    if (!props.clickedEvent || !me) return;
     const start = new Date(new Date(props.clickedEvent.startTime).getTime() + 60 * 60 * 1000);
     const end = new Date(new Date(props.clickedEvent.endTime).getTime() + 60 * 60 * 1000);
-
     submitReservation({
-      user: user,
-      band: band,
+      user,
+      band,
       startTime: start,
       endTime: end,
       myUser: me,
