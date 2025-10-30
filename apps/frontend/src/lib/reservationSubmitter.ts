@@ -5,8 +5,10 @@ import validDate from '@components/calendar/validDate';
 import collisionWithAdminRes from '@/hooks/collisionWithAdminRes';
 import axiosApi from '@/lib/apiSetup';
 import { Band } from '@/types/band';
+import { Comment } from '@/types/comment';
 import { Reservation } from '@/types/reservation';
 import { User } from '@/types/user';
+import { isOverlapping } from '@/utils/isOverlapping';
 
 interface ReservationSubmitResult {
   success: boolean;
@@ -71,6 +73,35 @@ export async function submitReservation(params: {
     } catch (error) {
       return { success: false, message: 'Failed to create reservation' };
     }
+  }
+
+  let comments: Comment[] = [];
+  try {
+    const res = await axiosApi.get('/comments', {
+      params: {
+        page: 1,
+        page_size: 10,
+        limit: 10,
+      },
+    });
+    comments = res.data.data;
+  } catch (e) {
+    // If comments can't be loaded, fail safe and allow reservation
+    comments = [];
+  }
+
+  const hasNonReservable = comments.some((comment) => {
+    if (!comment.isReservable) {
+      const commentStart = new Date(comment.startTime);
+      const commentEnd = new Date(comment.endTime);
+      return isOverlapping(start, end, commentStart, commentEnd);
+    }
+    return false;
+  });
+
+  if (hasNonReservable) {
+    setValid(false);
+    return { success: false, message: 'The room is not reservable during the selected time.' };
   }
 
   if (validDate(start, end, undefined, reservations)) {

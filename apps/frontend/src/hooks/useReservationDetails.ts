@@ -79,7 +79,7 @@ export function useReservationDetails(props: ReservationDetailsProps) {
   const onDelete = () => {
     if (!props.clickedEvent) return;
     if (new Date(props.clickedEvent.startTime).getTime() < Date.now()) return;
-    if (!window.confirm('Biztosan törlöd a foglalást?')) return;
+    //if (!window.confirm('Biztosan törlöd a foglalást?')) return;
     axiosApi.delete(`/reservations/${props.clickedEvent.id}`).then(() => {
       props.onGetData();
       props.setIsEventDetails(!props.isEventDetails);
@@ -97,7 +97,7 @@ export function useReservationDetails(props: ReservationDetailsProps) {
           })
           .then(() => {
             props.onGetData();
-            onGetName(props.clickedEvent.id);
+            onGetName(props.clickedEvent?.id);
           });
         setValid(true);
       } else {
@@ -135,9 +135,9 @@ export function useReservationDetails(props: ReservationDetailsProps) {
       }),
     }).then((response) => {
       if (response.ok) {
-        alert('E-mail elküldve!');
+        //alert('E-mail elküldve!');
       } else {
-        alert('Hiba történt az e-mail küldése közben!');
+        //alert('Hiba történt az e-mail küldése közben!');
       }
     });
   };

@@ -1,4 +1,4 @@
-import { CardRight, ProfilePicture } from '@prisma/client';
+import { ProfilePicture } from '@prisma/client';
 
 export type User = {
   id: number;
@@ -8,7 +8,6 @@ export type User = {
   isDormResident: boolean;
   roomNumber?: string;
   role: string;
-  cardRight?: CardRight;
   profilePicture?: ProfilePicture;
   created_at: string;
   updated_at: string;

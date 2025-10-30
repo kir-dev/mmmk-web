@@ -193,7 +193,7 @@ export default function AddReservation(props: AddPanelProps) {
       ) : null}
 
       <div className='relative'>
-        <label htmlFor='band' className='block text-sm font-medium text-zinc-300 mb-1'>
+        <label htmlFor='band' className='block text-sm font-medium text-black dark:text-zinc-300 mb-1'>
           Banda
         </label>
         <div className='relative'>
@@ -202,7 +202,7 @@ export default function AddReservation(props: AddPanelProps) {
             value={bandName}
             onChange={handleBandNameChange}
             required
-            className='bg-zinc-700 border-zinc-600 text-zinc-100 w-full px-3 py-2 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent'
+            className='bg-white hover:bg-slate-200 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-black dark:text-zinc-200 border-zinc-600 w-full px-3 py-2 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent'
             placeholder='Válasszon bandát...'
           />
           {showBandSuggestions && bandSuggestions.length > 0 && (
@@ -226,24 +226,24 @@ export default function AddReservation(props: AddPanelProps) {
 
       <div className='grid grid-cols-2 gap-4'>
         <div className='flex flex-col'>
-          <label htmlFor='begin' className='block text-sm font-medium text-zinc-300 mb-1'>
+          <label htmlFor='begin' className='block text-sm font-medium text-black dark:text-zinc-300 mb-1'>
             Kezdés
           </label>
           <input
             id='begin'
-            className='bg-zinc-700 rounded-md border border-zinc-600 text-zinc-100 px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-transparent'
+            className='bg-white hover:bg-slate-200 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-black dark:text-zinc-200 rounded-md border border-zinc-600 px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-transparent'
             type='datetime-local'
             onChange={(e) => shiftStart(new Date(e.target.value))}
           />
         </div>
 
         <div className='flex flex-col'>
-          <label htmlFor='end' className='block text-sm font-medium text-zinc-300 mb-1'>
+          <label htmlFor='end' className='block text-sm font-medium text-black dark:text-zinc-300 mb-1'>
             Vége
           </label>
           <input
             id='end'
-            className='bg-zinc-700 rounded-md border border-zinc-600 text-zinc-100 px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-transparent'
+            className='bg-white hover:bg-slate-200 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-black dark:text-zinc-200 rounded-md border border-zinc-600 px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-transparent'
             type='datetime-local'
             onChange={(e) => shiftEnd(new Date(e.target.value))}
           />

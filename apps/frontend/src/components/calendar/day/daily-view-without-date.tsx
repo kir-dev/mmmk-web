@@ -12,6 +12,7 @@ interface DailyViewPropsWO {
   comments: Comment[];
   currentDate: Date;
   onEventClick: (id: number) => void;
+  onCommentClick: (id: number) => void;
   setCurrentDate: (date: Date) => void;
 }
 
@@ -46,7 +47,7 @@ export default function DailyViewWO(props: DailyViewPropsWO) {
             const eventStartDate = new Date(comment.startTime);
             const eventEndDate = new Date(comment.endTime);
             if (ActualReservationForTheDay(eventStartDate, eventEndDate, props.currentDate, comment, i)) {
-              return <DayComment key={`comment-${comment.id}`} comment={comment} onEventClick={props.onEventClick} />;
+              return <DayComment key={`comment-${comment.id}`} comment={comment} onEventClick={props.onCommentClick} />;
             }
             return null;
           })}

@@ -50,12 +50,14 @@ export default function IsOvertime(
   reservationsOfWeek: Reservation[],
   reservationsOfDay: Reservation[]
 ): Date[] {
+  const paddingMinutes = 10; // Minimum regular slot to avoid splitting
+
   let normalStart;
   let normalEnd;
   let overtimeStart;
   let overtimeEnd;
 
-  const reservationMinutes = (endTime.getTime() - startTime.getTime()) / (1000 * 60); // Convert milliseconds to minutes
+  const reservationMinutes = (endTime.getTime() - startTime.getTime()) / (1000 * 60);
 
   let minutesReserved = 0;
   if (reservationsOfWeek) {
@@ -63,7 +65,7 @@ export default function IsOvertime(
       if (reservation.status === 'OVERTIME') continue;
       const startTime = new Date(reservation.startTime);
       const endTime = new Date(reservation.endTime);
-      minutesReserved += (endTime.getTime() - startTime.getTime()) / (1000 * 60); // Convert milliseconds to minutes
+      minutesReserved += (endTime.getTime() - startTime.getTime()) / (1000 * 60);
     }
   }
   const remainingMinutes = 360 - minutesReserved;
@@ -73,29 +75,35 @@ export default function IsOvertime(
     if (reservation.status === 'OVERTIME') continue;
     const startTime = new Date(reservation.startTime);
     const endTime = new Date(reservation.endTime);
-    minutesReservedThatDay += (endTime.getTime() - startTime.getTime()) / (1000 * 60); // Convert milliseconds to minutes
+    minutesReservedThatDay += (endTime.getTime() - startTime.getTime()) / (1000 * 60);
   }
 
-  if (reservationMinutes > remainingMinutes) {
-    console.log('res>remaining');
+  // If the remaining regular time is less than padding, treat the whole as overtime
+  if (
+    (reservationMinutes > remainingMinutes && remainingMinutes < paddingMinutes) ||
+    (reservationMinutes > 180 && 180 - minutesReservedThatDay < paddingMinutes) ||
+    (reservationMinutes + minutesReservedThatDay > 180 && 180 - minutesReservedThatDay < paddingMinutes)
+  ) {
+    normalStart = startTime;
+    normalEnd = startTime; // No regular part
+    overtimeStart = startTime;
+    overtimeEnd = endTime;
+  } else if (reservationMinutes > remainingMinutes) {
     normalStart = startTime;
     normalEnd = new Date(startTime.getTime() + remainingMinutes * 60 * 1000);
     overtimeStart = new Date(normalEnd.getTime() + 60 * 1000);
     overtimeEnd = endTime;
   } else if (reservationMinutes > 180) {
-    console.log('res>180');
     normalStart = startTime;
     normalEnd = new Date(startTime.getTime() + 180 * 60 * 1000);
     overtimeStart = new Date(normalEnd.getTime() + 60 * 1000);
     overtimeEnd = endTime;
   } else if (reservationMinutes + minutesReservedThatDay > 180) {
-    console.log('res+remaining>180');
     normalStart = startTime;
     normalEnd = new Date(startTime.getTime() + (180 - minutesReservedThatDay) * 60 * 1000);
     overtimeStart = new Date(normalEnd.getTime() + 60 * 1000);
     overtimeEnd = endTime;
   } else {
-    console.log('normal res');
     normalStart = startTime;
     normalEnd = endTime;
     overtimeStart = new Date(0);
@@ -108,6 +116,5 @@ export default function IsOvertime(
   if (overtimeStart.getFullYear() !== 1970 && overtimeEnd.getFullYear() !== 1970) {
     result.push(overtimeStart, overtimeEnd);
   }
-  console.log(result);
   return result;
 }

@@ -27,7 +27,7 @@ export default function Calendar() {
   const [comments, setComments] = useState<Comment[]>([]);
   const [isCommentDetails, setIsCommentDetails] = useState(false);
   const [clickedComment, setClickedComment] = useState<Comment>();
-  const [view, setView] = useState<View>(View.Week);
+  const [view, setView] = useState<View>(View.Day);
 
   const onGetData = () => {
     axiosApi
@@ -60,10 +60,10 @@ export default function Calendar() {
     setClickedReservation(reservations.find((event) => event.id === id));
   };
 
-  /*const onCommentClick = (id: number) => {
+  const onCommentClick = (id: number) => {
     setIsCommentDetails(!isCommentDetails);
     setClickedComment(comments.find((comment) => comment.id === id));
-  };*/
+  };
 
   useEffect(() => {
     onGetData();
@@ -71,21 +71,19 @@ export default function Calendar() {
 
   return (
     <div className='w-full container mx-auto'>
-      <div className='flex flex-row'>
-        <div className='self-center'>
-          <button
-            className='m-1 border-2 border-orange-500 dark:bg-orange-600 dark:hover:bg-orange-500 dark:text-slate-50 font-bold py-1 px-2 rounded-lg'
-            onClick={() => setView(View.Week)}
-          >
-            Week
-          </button>
-          <button
-            className='m-1 border-2 border-orange-500 dark:bg-orange-600 dark:hover:bg-orange-500 dark:text-slate-50 font-bold py-1 px-2 rounded-lg'
-            onClick={() => setView(View.Day)}
-          >
-            Day
-          </button>
-        </div>
+      <div className='flex flex-row gap-2'>
+        <button
+          className={`m - 1 border-2 border-orange-500 dark:hover:bg-orange-500 dark:text-slate-50 font-bold py-1 px-2 rounded-lg hidden md:block ${view === View.Week ? 'bg-orange-500 text-slate-50 dark:bg-orange-600' : ''}`}
+          onClick={() => setView(View.Week)}
+        >
+          Heti nézet
+        </button>
+        <button
+          className={`m - 1 border-2 border-orange-500 dark:hover:bg-orange-500 dark:text-slate-50 font-bold py-1 px-2 rounded-lg ${view === View.Day ? 'bg-orange-500 text-slate-50 dark:bg-orange-600' : ''}`}
+          onClick={() => setView(View.Day)}
+        >
+          Napi nézet
+        </button>
         <div className='ml-auto'>
           <AddPanel onGetData={onGetData} currentDate={currentDate} reservations={reservations} />
         </div>
@@ -96,6 +94,7 @@ export default function Calendar() {
           reservations={reservations}
           comments={comments}
           onEventClick={onEventClick}
+          onCommentClick={onCommentClick}
           currentDate={currentDate}
           setCurrentDate={setCurrentDate}
         />
@@ -105,6 +104,7 @@ export default function Calendar() {
           reservations={reservations}
           comments={comments}
           onEventClick={onEventClick}
+          onCommentClick={onCommentClick}
           setCurrentDate={setCurrentDate}
         />
       )}

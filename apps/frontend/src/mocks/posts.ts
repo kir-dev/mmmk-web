@@ -1,3 +1,4 @@
+/*
 import { Post } from '../types/post';
 
 export const mockPosts: Post[] = [
@@ -74,3 +75,4 @@ export const mockPosts: Post[] = [
     createdAt: '2024-06-12T19:00:00Z',
   },
 ];
+*/

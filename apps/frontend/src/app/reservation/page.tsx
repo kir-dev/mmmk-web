@@ -2,7 +2,7 @@ import Calendar from '@components/calendar/calendar';
 
 export default function ReservationPage() {
   return (
-    <div className='overflow-auto w-full'>
+    <div className='w-full'>
       <Calendar />
     </div>
   );

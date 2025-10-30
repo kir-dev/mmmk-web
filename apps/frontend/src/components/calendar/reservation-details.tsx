@@ -51,7 +51,7 @@ export default function ReservationDetails(props: EventDetailsProps) {
           <div className='w-full max-w-md overflow-hidden bg-white dark:bg-slate-800 rounded-xl shadow-xl animate-in slide-in-from-right'>
             {/* Header */}
             <div className='flex items-center justify-between p-4 border-b dark:border-slate-700'>
-              <h2 className='text-xl font-bold text-slate-800 dark:text-white'>Reservation Details</h2>
+              <h2 className='text-xl font-bold text-slate-800 dark:text-white'>Foglalás részletek</h2>
               <button
                 className='p-1.5 rounded-full text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors'
                 onClick={handleCloseModal}
@@ -67,26 +67,28 @@ export default function ReservationDetails(props: EventDetailsProps) {
             <div className='p-4 space-y-4 text-slate-700 dark:text-slate-300'>
               {/* Band/Name */}
               <div className='space-y-1'>
-                <label className='text-xs font-medium text-slate-500 dark:text-slate-400'>Band Name</label>
+                <label className='text-xs font-medium text-slate-500 dark:text-slate-400'>Banda neve</label>
                 <p className='font-medium'>{band?.name || '-'}</p>
               </div>
 
               {/* User Info */}
               <div className='space-y-1'>
-                <label className='text-xs font-medium text-slate-500 dark:text-slate-400'>Booked By</label>
+                <label className='text-xs font-medium text-slate-500 dark:text-slate-400'>Foglaló személy</label>
                 <p className='font-medium'>{user?.fullName || '-'}</p>
               </div>
 
               {/* Gatekeeper */}
               <div className='space-y-1'>
-                <label className='text-xs font-medium text-slate-500 dark:text-slate-400'>Gatekeeper</label>
+                <label className='text-xs font-medium text-slate-500 dark:text-slate-400'>Beengedő</label>
                 <p className='font-medium'>{gateKeeper?.fullName || 'Not assigned'}</p>
               </div>
 
               {/* Gatekeeper Phone */}
               {gateKeeper && (
                 <div className='space-y-1'>
-                  <label className='text-xs font-medium text-slate-500 dark:text-slate-400'>Gatekeeper Phone</label>
+                  <label className='text-xs font-medium text-slate-500 dark:text-slate-400'>
+                    Beengedő telefonszáma
+                  </label>
                   <p className='font-medium'>{gateKeeper?.phone || '-'}</p>
                 </div>
               )}
@@ -94,7 +96,7 @@ export default function ReservationDetails(props: EventDetailsProps) {
               {/* Time Range */}
               <div className='grid grid-cols-2 gap-4'>
                 <div className='space-y-1'>
-                  <label className='text-xs font-medium text-slate-500 dark:text-slate-400'>Start Time</label>
+                  <label className='text-xs font-medium text-slate-500 dark:text-slate-400'>Kezdés</label>
                   {isEditing ? (
                     <input
                       className='w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md'
@@ -117,7 +119,7 @@ export default function ReservationDetails(props: EventDetailsProps) {
                 </div>
 
                 <div className='space-y-1'>
-                  <label className='text-xs font-medium text-slate-500 dark:text-slate-400'>End Time</label>
+                  <label className='text-xs font-medium text-slate-500 dark:text-slate-400'>Befejezés</label>
                   {isEditing ? (
                     <input
                       className='w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md'
@@ -143,7 +145,7 @@ export default function ReservationDetails(props: EventDetailsProps) {
               {/* Status */}
               <div className='space-y-1 flex flex-row gap-4'>
                 <div className='flex flex-col gap-2'>
-                  <label className='text-xs font-medium text-slate-500 dark:text-slate-400'>Status</label>
+                  <label className='text-xs font-medium text-slate-500 dark:text-slate-400'>Státusz</label>
                   <span
                     className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
                     ${props.clickedEvent?.status === 'OVERTIME' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300' : ''}
@@ -153,9 +155,6 @@ export default function ReservationDetails(props: EventDetailsProps) {
                   >
                     {resType}
                   </span>
-                </div>
-                <div className='flex flex-col gap-2 ml-auto'>
-                  <label className='text-xs font-medium text-slate-500 dark:text-slate-400'>Actions</label>
                 </div>
               </div>
 
@@ -176,7 +175,7 @@ export default function ReservationDetails(props: EventDetailsProps) {
                       ${gateKeeper === null ? 'bg-orange-500 hover:bg-orange-600' : 'bg-amber-600 hover:bg-amber-700'}`}
                     onClick={onSetGK}
                   >
-                    {gateKeeper === null ? 'Set me as gatekeeper' : 'Unset me as gatekeeper'}
+                    {gateKeeper === null ? 'Jelentkezés beengedőnek' : 'Lejelentkezés beengedőként'}
                   </button>
                 )}
 
