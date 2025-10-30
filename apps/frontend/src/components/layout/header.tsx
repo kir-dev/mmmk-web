@@ -25,6 +25,7 @@ export function Header() {
 
   const userData = useProfile();
   const user = userData.profile;
+  const url = `/profile/${user?.id}`;
 
   return (
     <header className='px-4 py-4 flex items-center justify-between'>
@@ -39,7 +40,7 @@ export function Header() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant='outline' className='relative h-10 w-10 rounded-full'>
-                <Avatar className='h-8 w-8'>
+                <Avatar className='h-8 w-8 items-center justify-center'>
                   <AvatarFallback>{user.fullName.charAt(0)}</AvatarFallback>
                 </Avatar>
               </Button>
@@ -51,7 +52,7 @@ export function Header() {
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <Link href='/profile'>Profile</Link>
+                <Link href={url}>Profile</Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Button onClick={userData.logout}>Log out</Button>
