@@ -1,6 +1,10 @@
-import { ClubMembershipStatus } from '@prisma/client';
-
 import { Reservation } from '@/types/reservation';
+
+export enum ClubMembershipStatus {
+  NEWBIE = 'NEWBIE',
+  ACTIVE = 'ACTIVE',
+  SENIOR = 'SENIOR',
+}
 
 export type ClubMembership = {
   id: number;

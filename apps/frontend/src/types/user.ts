@@ -1,4 +1,18 @@
-import { BandMembership, ClubMembership, ProfilePicture, Reservation, Role } from '@prisma/client';
+import { BandMembership } from '@/types/band';
+import { ClubMembership } from '@/types/member';
+import { Reservation } from '@/types/reservation';
+
+export enum Role {
+  USER = 'USER',
+  ADMIN = 'ADMIN',
+}
+
+export type ProfilePicture = {
+  id: number;
+  userId: number;
+  mimeType: string;
+  image: string;
+};
 
 export type User = {
   id: number;

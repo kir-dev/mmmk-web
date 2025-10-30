@@ -1,4 +1,11 @@
-import { Band, ClubMembership, ReservationStatus, User } from '@prisma/client';
+import { Band } from '@/types/band';
+import { ClubMembership } from '@/types/member';
+import { User } from '@/types/user';
+
+export enum ReservationStatus {
+  OVERTIME = 'OVERTIME',
+  NORMAL = 'NORMAL',
+}
 
 export type Reservation = {
   id: number;
