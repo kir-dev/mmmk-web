@@ -30,14 +30,9 @@ export default function ProfilePageComponent() {
     <div className='container mx-auto p-4'>
       <Card className='max-w-2xl mx-auto'>
         <CardHeader className='flex flex-row items-center gap-4'>
-          <Avatar className='w-20 h-20'>
+          <Avatar className='w-20 h-20 items-center justify-center text-5xl font-bold'>
             <AvatarImage src='' alt={user?.fullName} />
-            <AvatarFallback>
-              {user?.fullName
-                .split(' ')
-                .map((n) => n[0])
-                .join('')}
-            </AvatarFallback>
+            <AvatarFallback>{user?.fullName.charAt(0)}</AvatarFallback>
           </Avatar>
           <div>
             <CardTitle className='text-2xl'>{user?.fullName}</CardTitle>

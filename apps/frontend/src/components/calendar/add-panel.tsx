@@ -2,7 +2,8 @@
 import AddComment from '@components/calendar/add-comment';
 import AddReservation from '@components/calendar/add-reservation';
 import { Button } from '@components/ui/button';
-import React, { useEffect, useState } from 'react';
+import { Plus } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 import { Reservation } from '@/types/reservation';
 
@@ -94,22 +95,9 @@ export function AddPanel(props: AddEventProps) {
           </div>
         </div>
       ) : (
-        <button
-          className='h-10 w-10 flex items-center justify-center rounded-full bg-orange-500 hover:bg-orange-600 text-white font-bold shadow-md transition-transform hover:scale-105'
-          onClick={onAddEvent}
-        >
-          <svg
-            xmlns='http://www.w3.org/2000/svg'
-            width='20'
-            height='20'
-            viewBox='0 0 24 24'
-            fill='none'
-            stroke='currentColor'
-            strokeWidth='2'
-          >
-            <path d='M12 5v14M5 12h14' />
-          </svg>
-        </button>
+        <Button onClick={onAddEvent}>
+          <Plus />
+        </Button>
       )}
     </div>
   );

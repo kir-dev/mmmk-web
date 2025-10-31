@@ -1,8 +1,7 @@
-import { CurrentUser } from '@kir-dev/passport-authsch';
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { Role, User } from '@prisma/client';
+import { Role } from '@prisma/client';
 import { Roles } from 'src/auth/decorators/Roles.decorator';
 import { RolesGuard } from 'src/auth/roles.guard';
 
@@ -55,8 +54,8 @@ export class BandsController {
   @Post(':id/members/:userId')
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
-  addMember(@Param('id', ParseIntPipe) bandId: number, @CurrentUser() user: User) {
-    return this.bandsService.addMember(bandId, user.id);
+  addMember(@Param('id', ParseIntPipe) bandId: number, @Param('userId', ParseIntPipe) userId: number) {
+    return this.bandsService.addMember(bandId, userId);
   }
 
   @Delete(':id/members/:userId')
