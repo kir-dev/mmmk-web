@@ -3,26 +3,16 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { User } from '@/types/user';
 
-function getRoleLabel(role: string) {
-  switch (role) {
-    case 'ADMIN':
-      return 'Admin';
-    case 'GATEKEEPER':
-      return 'Beengedő';
-    default:
-      return 'Felhasználó';
-  }
+function getRoleLabel(user: User) {
+  if (user.role === 'ADMIN') return 'Admin';
+  if (user.clubMembership?.isGateKeeper) return 'Beengedő';
+  return 'Felhasználó';
 }
 
-function getRoleVariant(role: string) {
-  switch (role) {
-    case 'ADMIN':
-      return 'destructive';
-    case 'GATEKEEPER':
-      return 'default';
-    default:
-      return 'secondary';
-  }
+function getRoleVariant(user: User) {
+  if (user.role === 'ADMIN') return 'destructive';
+  if (user.clubMembership?.isGateKeeper) return 'default';
+  return 'secondary';
 }
 
 function getTitleLabel(title: string) {
@@ -51,11 +41,11 @@ export default function MemberTile({
 }) {
   return (
     <div className='flex flex-col items-center'>
-      <Card className='w-full max-w-56 h-64 flex flex-col items-center justify-between p-4 pb-2 shadow-lg'>
+      <Card className='w-[228px] min-h-64 flex flex-col items-center justify-between p-4 pb-2 shadow-lg'>
         {showBadge && (
           <div className='flex justify-end w-full'>
-            <Badge className='py-1 text-xs' variant={getRoleVariant(user.role)}>
-              {getRoleLabel(user.role)}
+            <Badge className='py-1 text-xs' variant={getRoleVariant(user)}>
+              {getRoleLabel(user)}
             </Badge>
           </div>
         )}
@@ -70,7 +60,12 @@ export default function MemberTile({
             </AvatarFallback>
           </Avatar>
         </div>
-        <div className='text-center font-semibold text-lg truncate w-full'>{user.fullName}</div>
+        <div
+          className='text-center font-semibold text-lg w-full px-2 break-words whitespace-normal'
+          title={user.fullName}
+        >
+          {user.fullName}
+        </div>
         {showTitle && (
           <div className='text-center font-semibold text-md truncate w-full pt-1'>
             {getTitleLabel(user.clubMembership.titles[0])}

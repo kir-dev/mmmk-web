@@ -1,19 +1,60 @@
+/* eslint-disable no-nested-ternary */
 'use client';
 
 import { Input } from '@components/ui/input';
 import { useEffect, useState } from 'react';
 
 import MemberTile from '@/components/member/member-tile';
-import { mockUsers } from '@/mocks/users';
+import axiosApi from '@/lib/apiSetup';
+import { ClubMembership } from '@/types/member';
+import { User } from '@/types/user';
 
 export default function Members() {
-  const data = mockUsers; //TODO: replace with real data
-  const [filteredData, setFilteredData] = useState(data);
+  const [users, setUsers] = useState<User[]>([]);
+  const [filteredData, setFilteredData] = useState<User[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setFilteredData(data.filter((user) => user.fullName.toLowerCase().includes(searchTerm.toLowerCase())));
-  }, [searchTerm]);
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    Promise.all([axiosApi.get('/users'), axiosApi.get('/memberships')])
+      .then(([usersRes, membershipsRes]) => {
+        if (cancelled) return;
+        const rawUsers: any[] = Array.isArray(usersRes.data) ? usersRes.data : usersRes.data?.users || [];
+        const memberships: ClubMembership[] = Array.isArray(membershipsRes.data)
+          ? membershipsRes.data
+          : membershipsRes.data?.memberships || [];
+
+        const usersWithMembership: User[] = rawUsers.map((u: any) => {
+          const cm = memberships.find((m) => m.userId === u.id);
+          return cm ? { ...u, clubMembership: cm } : u;
+        });
+
+        setUsers(usersWithMembership as User[]);
+        setFilteredData(usersWithMembership as User[]);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setError('Nem sikerült betölteni a felhasználókat.');
+        setUsers([]);
+        setFilteredData([]);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    const term = searchTerm.toLowerCase();
+    setFilteredData(users.filter((user) => user.fullName.toLowerCase().includes(term)));
+  }, [searchTerm, users]);
 
   return (
     <div className='w-full main-content-scroll h-full'>
@@ -26,8 +67,12 @@ export default function Members() {
           className='max-w-sm target:ring-0'
         />
       </div>
-      {filteredData.length ? (
-        <div className='grid gap-4 py-4 auto-rows-fr grid-cols-[repeat(auto-fill,minmax(228px,228px))] justify-center'>
+      {loading ? (
+        <div className='h-24 flex items-center justify-center text-center'>Betöltés…</div>
+      ) : error ? (
+        <div className='h-24 flex items-center justify-center text-center'>{error}</div>
+      ) : filteredData.length ? (
+        <div className='grid gap-8 py-4 auto-rows-fr grid-cols-[repeat(auto-fill,minmax(228px,228px))] justify-center'>
           {filteredData.map((user) => (
             <MemberTile user={user} key={user.id} showBadge showContact />
           ))}
