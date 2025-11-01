@@ -51,13 +51,8 @@ export default function MemberTile({
         )}
         <div className='flex-1 flex flex-col justify-center items-center mt-2 mb-1'>
           <Avatar className='w-40 h-40'>
-            <AvatarImage src='/placeholder.svg' alt={user.fullName} />
-            <AvatarFallback>
-              {user.fullName
-                .split(' ')
-                .map((n) => n[0])
-                .join('')}
-            </AvatarFallback>
+            <AvatarImage src='' alt={user.fullName} />
+            <AvatarFallback>{user?.fullName?.charAt(0)}</AvatarFallback>
           </Avatar>
         </div>
         <div

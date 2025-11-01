@@ -1,23 +1,20 @@
 'use client';
 
-import axios from 'axios';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import axiosApi from '@/lib/apiSetup';
 import { User } from '@/types/user';
-
-const url = 'http://localhost:3030/users/';
 
 export default function ProfilePageComponent() {
   const [user, setUser] = useState<User>();
-  const userId = useParams().id;
-  const finalURL = url + userId;
+  const { id: userId } = useParams<{ id: string }>();
 
   const getUser = async () => {
-    axios.get<User>(finalURL).then((res) => {
+    axiosApi.get<User>(`/users/${userId}`).then((res) => {
       setUser(res.data);
     });
   };
@@ -32,7 +29,7 @@ export default function ProfilePageComponent() {
         <CardHeader className='flex flex-row items-center gap-4'>
           <Avatar className='w-20 h-20 items-center justify-center text-5xl font-bold'>
             <AvatarImage src='' alt={user?.fullName} />
-            <AvatarFallback>{user?.fullName.charAt(0)}</AvatarFallback>
+            <AvatarFallback>{user?.fullName?.charAt(0)}</AvatarFallback>
           </Avatar>
           <div>
             <CardTitle className='text-2xl'>{user?.fullName}</CardTitle>

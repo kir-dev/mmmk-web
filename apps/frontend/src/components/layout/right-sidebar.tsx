@@ -58,10 +58,8 @@ export function RightSidebar() {
             {gatekeepers.map((user) => (
               <li key={user.id} className='text-sm'>
                 <div className='font-medium'>{user.fullName}</div>
-                <div className='text-muted-foreground'>
-                  {user.email}
-                  {user.phone ? ` · ${user.phone}` : ''}
-                </div>
+                <div className='text-muted-foreground'>{user.email}</div>
+                <div className='text-muted-foreground'> {user.phone ? ` · ${user.phone}` : ''}</div>
               </li>
             ))}
           </ul>
