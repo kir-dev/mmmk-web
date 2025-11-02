@@ -71,7 +71,10 @@
   }
 
   /* Responsive media */
-  img, video, canvas, svg {
+  img,
+  video,
+  canvas,
+  svg {
     max-width: 100%;
     height: auto;
   }
