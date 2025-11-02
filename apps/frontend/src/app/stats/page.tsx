@@ -7,7 +7,7 @@ import { useUser } from '@/hooks/useUser';
 import axiosApi from '@/lib/apiSetup';
 import { ClubMembership } from '@/types/member';
 import { Reservation } from '@/types/reservation';
-import { Role, User } from '@/types/user';
+import { User } from '@/types/user';
 
 function getCurrentPeriodStart() {
   const now = new Date();
@@ -75,23 +75,19 @@ export default function Stats() {
 
   const isAuthorized = useMemo(() => {
     if (!me) return false;
-    if (me.role === Role.ADMIN) return true;
-    const myMembership = memberships.find((m) => m.userId === me.id);
-    return Boolean(myMembership?.isGateKeeper);
+    if ((me as any)?.clubMembership) return true;
+    return (memberships || []).some((m) => m.userId === me.id);
   }, [me, memberships]);
 
   const gatekeepingCounts = useMemo(() => {
-    // Map membershipId -> user for quick lookup
     const membershipToUser = new Map<number, User>();
     users.forEach((u) => {
       const mid = (u as any)?.clubMembership?.id as number | undefined;
       if (mid) membershipToUser.set(mid, u);
     });
 
-    // Consider users who are gatekeepers or admins
     const eligibleUsers = users.filter((u) => (u as any)?.clubMembership?.isGateKeeper);
 
-    // Count reservations per membership id for current period
     const counts = new Map<number, number>();
     reservations.forEach((r) => {
       const start = new Date((r as any).startTime);
@@ -100,7 +96,6 @@ export default function Stats() {
       if (start >= periodStart) counts.set(mid, (counts.get(mid) || 0) + 1);
     });
 
-    // Build result for eligible users
     return eligibleUsers.map((u) => {
       const mid = (u as any)?.clubMembership?.id as number | undefined;
       const count = mid ? counts.get(mid) || 0 : 0;
@@ -136,8 +131,8 @@ export default function Stats() {
 
   return (
     <div className='w-full main-content-scroll h-full'>
-      <div className='flex items-center justify-between flex-row p-4 bg-background sticky top-0 z-10'>
-        <h1 className='text-2xl font-semibold text-primary'>Beengedési statisztika</h1>
+      <div className='flex items-center justify-between flex-col sm:flex-row gap-2 p-4 bg-background sticky top-0 z-10'>
+        <h1 className='text-2xl font-semibold text-primary text-center sm:text-left'>Beengedési statisztika</h1>
       </div>
       <Table>
         <TableHeader>
