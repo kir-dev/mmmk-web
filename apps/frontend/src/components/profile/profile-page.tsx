@@ -51,8 +51,8 @@ export default function ProfilePageComponent() {
                 <Badge variant={user?.isDormResident ? 'default' : 'secondary'}>
                   {user?.isDormResident ? 'Kolis' : 'Nem kolis'}
                 </Badge>
-                <Badge variant={user?.role === 'ADMIN' || user?.clubMembership.isGateKeeper ? 'default' : 'secondary'}>
-                  {user?.role === 'ADMIN' || user?.clubMembership.isGateKeeper ? 'Beengedő' : 'Felhasználó'}
+                <Badge variant={user?.role === 'ADMIN' || user?.clubMembership?.isGateKeeper ? 'default' : 'secondary'}>
+                  {user?.role === 'ADMIN' || user?.clubMembership?.isGateKeeper ? 'Beengedő' : 'Felhasználó'}
                 </Badge>
               </dd>
             </div>
