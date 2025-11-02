@@ -6,6 +6,7 @@ import BandRow from '@/components/band/band-row';
 import CreateBandDialog from '@/components/band/create-band-dialog';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
+import { useUser } from '@/hooks/useUser';
 import axiosApi from '@/lib/apiSetup';
 import { Band } from '@/types/band';
 
@@ -13,6 +14,7 @@ export default function Bands() {
   const [bands, setBands] = useState<Band[]>([]);
   const [filteredData, setFilteredData] = useState<Band[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const { user } = useUser();
 
   const fetchBands = () => {
     axiosApi.get('/bands').then((res) => {
@@ -32,15 +34,15 @@ export default function Bands() {
 
   return (
     <div className='w-full main-content-scroll h-full'>
-      <div className='flex items-center justify-between flex-row p-4 bg-background sticky top-0 z-10'>
-        <h1 className='text-2xl font-semibold text-primary'>Zenekarok</h1>
-        <div className='flex gap-4'>
-          <CreateBandDialog onCreated={() => fetchBands()} />
+      <div className='flex items-center justify-between flex-col sm:flex-row gap-3 p-4 bg-background sticky top-0 z-10'>
+        <h1 className='text-2xl font-semibold text-primary w-full sm:w-auto text-center sm:text-left'>Zenekarok</h1>
+        <div className='flex gap-2 w-full sm:w-auto flex-col sm:flex-row'>
+          {user && <CreateBandDialog onCreated={() => fetchBands()} />}
           <Input
             placeholder='Keresés...'
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
-            className='max-w-sm target:ring-0'
+            className='w-full sm:max-w-sm target:ring-0'
           />
         </div>
       </div>
