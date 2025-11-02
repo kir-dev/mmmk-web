@@ -70,6 +70,12 @@
     @apply bg-background text-foreground;
   }
 
+  /* Responsive media */
+  img, video, canvas, svg {
+    max-width: 100%;
+    height: auto;
+  }
+
   /* Improve scrolling performance */
   .overflow-y-auto {
     -webkit-overflow-scrolling: touch;
