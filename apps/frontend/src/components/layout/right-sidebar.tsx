@@ -29,7 +29,9 @@ export function RightSidebar() {
           return cm ? { ...u, clubMembership: cm } : u;
         });
 
-        const gks = usersWithMembership.filter((u) => u.clubMembership?.isGateKeeper);
+        const gks = usersWithMembership
+          .filter((u) => u.clubMembership?.isGateKeeper)
+          .sort((a, b) => a.fullName.localeCompare(b.fullName, 'hu'));
         setGatekeepers(gks);
       } catch {
         if (!cancelled) setGatekeepers([]);
@@ -59,7 +61,7 @@ export function RightSidebar() {
               <li key={user.id} className='text-sm'>
                 <div className='font-medium'>{user.fullName}</div>
                 <div className='text-muted-foreground'>{user.email}</div>
-                <div className='text-muted-foreground'> {user.phone ? ` · ${user.phone}` : ''}</div>
+                <div className='text-muted-foreground'> {user.phone ? `${user.phone}` : ''}</div>
               </li>
             ))}
           </ul>

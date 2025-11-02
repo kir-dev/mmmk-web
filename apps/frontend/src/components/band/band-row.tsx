@@ -1,12 +1,11 @@
 import { LogOut, Pencil, Play } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
+import BandFormDialog from '@/components/band/band-form-dialog';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
 import { TableCell, TableRow } from '@/components/ui/table';
-import { TextArea } from '@/components/ui/textarea';
 import getUser from '@/hooks/getUser';
 import { useUser } from '@/hooks/useUser';
 import axiosApi from '@/lib/apiSetup';
@@ -22,11 +21,7 @@ export default function BandRow({ band }: { band: Band }) {
   }, [user, band.members]);
 
   const [editOpen, setEditOpen] = useState(false);
-  const [name, setName] = useState(band.name || '');
-  const [email, setEmail] = useState(band.email || '');
-  const [webPage, setWebPage] = useState(band.webPage || '');
-  const [description, setDescription] = useState(band.description || '');
-  const [genresInput, setGenresInput] = useState((band.genres || []).join(', '));
+  // edit form is handled by BandFormDialog
 
   const [users, setUsers] = useState<{ id: number; fullName: string }[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<number | ''>('');
@@ -97,76 +92,29 @@ export default function BandRow({ band }: { band: Band }) {
         <TableRow className='border-0'>
           <CollapsibleContent asChild>
             <TableCell colSpan={7}>
-              <div className='flex flex-row justify-between items-start px-4 gap-4'>
-                <div className='order-1 flex-1 pr-4 break-words'>{band.description}</div>
-                <div className='order-2 flex-1 pr-4'>
+              <div className='flex flex-col md:flex-row justify-between items-start px-4 gap-4'>
+                <div className='order-1 flex-1 md:pr-4 break-words w-full'>{band.description}</div>
+                <div className='order-2 flex-1 md:pr-4 w-full'>
                   <strong>Tagok: </strong>
                   {memberNames.join(', ')}
                 </div>
-                <div className='order-3 ml-auto flex flex-row items-center gap-2 shrink-0 flex-wrap'>
-                  {!isMember && user && (
-                    <Button
-                      size='sm'
-                      onClick={() =>
-                        axiosApi.post(`/bands/${band.id}/members/${user.id}`).then(() => window.location.reload())
-                      }
-                    >
-                      Csatlakozás
-                    </Button>
-                  )}
+                <div className='order-3 md:ml-auto flex flex-row items-center gap-2 shrink-0 flex-wrap w-full md:w-auto'>
+                  {/* Join button removed intentionally */}
                   {isMember && user && (
                     <>
                       <div>
-                        <Dialog open={editOpen} onOpenChange={setEditOpen}>
-                          <DialogTrigger asChild>
+                        <BandFormDialog
+                          mode='edit'
+                          band={band}
+                          open={editOpen}
+                          onOpenChange={setEditOpen}
+                          onSuccess={() => window.location.reload()}
+                          trigger={
                             <Button size='sm' variant='secondary'>
                               <Pencil />
                             </Button>
-                          </DialogTrigger>
-                          <DialogContent>
-                            <DialogHeader>
-                              <DialogTitle>Zenekar szerkesztése</DialogTitle>
-                            </DialogHeader>
-                            <div className='flex flex-col gap-3'>
-                              <Input placeholder='Nev' value={name} onChange={(e) => setName(e.target.value)} />
-                              <Input placeholder='Email' value={email} onChange={(e) => setEmail(e.target.value)} />
-                              <Input
-                                placeholder='Weboldal'
-                                value={webPage}
-                                onChange={(e) => setWebPage(e.target.value)}
-                              />
-                              <TextArea
-                                placeholder='Leirás'
-                                rows={4}
-                                value={description}
-                                onChange={(e) => setDescription(e.target.value)}
-                              />
-                              <Input
-                                placeholder='Műfajok (vesszővel elvalásztva)'
-                                value={genresInput}
-                                onChange={(e) => setGenresInput(e.target.value)}
-                              />
-                              <div className='flex justify-end gap-2 mt-2'>
-                                <Button variant='ghost' onClick={() => setEditOpen(false)}>
-                                  Megse
-                                </Button>
-                                <Button
-                                  onClick={() => {
-                                    const genres = genresInput
-                                      .split(',')
-                                      .map((g) => g.trim())
-                                      .filter((g) => g.length > 0);
-                                    axiosApi
-                                      .patch(`/bands/${band.id}`, { name, email, webPage, description, genres })
-                                      .then(() => window.location.reload());
-                                  }}
-                                >
-                                  Mentes
-                                </Button>
-                              </div>
-                            </div>
-                          </DialogContent>
-                        </Dialog>
+                          }
+                        />
                       </div>
                       <div>
                         <Button
@@ -223,7 +171,10 @@ export default function BandRow({ band }: { band: Band }) {
                                     if (selectedUserId === '') return;
                                     axiosApi
                                       .post(`/bands/${band.id}/members/${selectedUserId}`)
-                                      .then(() => window.location.reload());
+                                      .then(() => window.location.reload())
+                                      .catch((e) => {
+                                        if (e?.response?.status === 409) window.location.reload();
+                                      });
                                   }}
                                   disabled={selectedUserId === ''}
                                 >
