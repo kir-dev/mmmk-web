@@ -8,15 +8,11 @@ export default function ActualReservationForTheDay(
   event: Reservation | Comment,
   i: number
 ) {
-  if (
+  return (
     new Date(event.startTime).getHours() === i / 2 &&
     eventStartDate.getDate() === currentDate.getDate() &&
     eventEndDate.getDate() === currentDate.getDate() &&
-    //eventStartDate.getMonth() === currentDate.getMonth() &&
+    eventStartDate.getMonth() === currentDate.getMonth() &&
     eventStartDate.getFullYear() === currentDate.getFullYear()
-  ) {
-    return true;
-  } else {
-    return false;
-  }
+  );
 }

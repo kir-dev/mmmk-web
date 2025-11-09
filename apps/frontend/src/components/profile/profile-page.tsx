@@ -1,23 +1,20 @@
 'use client';
 
-import axios from 'axios';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import axiosApi from '@/lib/apiSetup';
 import { User } from '@/types/user';
-
-const url = 'http://localhost:3030/users/';
 
 export default function ProfilePageComponent() {
   const [user, setUser] = useState<User>();
-  const userId = useParams().id;
-  const finalURL = url + userId;
+  const { id: userId } = useParams<{ id: string }>();
 
   const getUser = async () => {
-    axios.get<User>(finalURL).then((res) => {
+    axiosApi.get<User>(`/users/${userId}`).then((res) => {
       setUser(res.data);
     });
   };
@@ -30,14 +27,9 @@ export default function ProfilePageComponent() {
     <div className='container mx-auto p-4'>
       <Card className='max-w-2xl mx-auto'>
         <CardHeader className='flex flex-row items-center gap-4'>
-          <Avatar className='w-20 h-20'>
+          <Avatar className='w-20 h-20 items-center justify-center text-5xl font-bold'>
             <AvatarImage src='' alt={user?.fullName} />
-            <AvatarFallback>
-              {user?.fullName
-                .split(' ')
-                .map((n) => n[0])
-                .join('')}
-            </AvatarFallback>
+            <AvatarFallback>{user?.fullName?.charAt(0)}</AvatarFallback>
           </Avatar>
           <div>
             <CardTitle className='text-2xl'>{user?.fullName}</CardTitle>
@@ -59,8 +51,8 @@ export default function ProfilePageComponent() {
                 <Badge variant={user?.isDormResident ? 'default' : 'secondary'}>
                   {user?.isDormResident ? 'Kolis' : 'Nem kolis'}
                 </Badge>
-                <Badge variant={user?.role === 'ADMIN' || user?.clubMembership.isGateKeeper ? 'default' : 'secondary'}>
-                  {user?.role === 'ADMIN' || user?.clubMembership.isGateKeeper ? 'Beengedő' : 'Felhasználó'}
+                <Badge variant={user?.role === 'ADMIN' || user?.clubMembership?.isGateKeeper ? 'default' : 'secondary'}>
+                  {user?.role === 'ADMIN' || user?.clubMembership?.isGateKeeper ? 'Beengedő' : 'Felhasználó'}
                 </Badge>
               </dd>
             </div>

@@ -7,6 +7,28 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  USER
+  ADMIN
+}
+
+enum ClubMembershipStatus {
+  NEWBIE
+  ACTIVE
+  SENIOR
+}
+
+enum ReservationStatus {
+  NORMAL
+  OVERTIME
+  ADMINMADE
+}
+
+enum BandMembershipStatus {
+  PENDING
+  ACCEPTED
+}
+
 model User {
   id                      Int              @id @default(autoincrement())
   email                   String           @unique
@@ -68,6 +90,8 @@ model BandMembership {
   status BandMembershipStatus @default(PENDING)
   band   Band?                @relation(fields: [bandId], references: [id])
   user   User?                @relation(fields: [userId], references: [id])
+
+  @@unique([bandId, userId])
 }
 
 model Reservation {
@@ -104,25 +128,4 @@ model Post {
   createdAt DateTime @default(now())
   authorId  Int
   User      User     @relation(fields: [authorId], references: [id])
-}
-
-enum Role {
-  USER
-  ADMIN
-}
-
-enum ClubMembershipStatus {
-  NEWBIE
-  ACTIVE
-  SENIOR
-}
-
-enum ReservationStatus {
-  OVERTIME
-  NORMAL
-}
-
-enum BandMembershipStatus {
-  PENDING
-  ACCEPTED
 }

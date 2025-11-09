@@ -8,14 +8,14 @@ import { NewsForm } from '@/components/news/news-form';
 import { Button } from '@/components/ui/button';
 import Pagination from '@/components/ui/pagination';
 import usePosts from '@/hooks/use-post';
-import { mockUsers } from '@/mocks/users';
+import { useUser } from '@/hooks/useUser';
 import { Post } from '@/types/post';
-import { User } from '@/types/user';
+import { Role } from '@/types/user';
 import api from '@/utils/api-setup';
 
 export default function News() {
-  const currentUser: User = mockUsers[1]; //TODO: replace with real user
-  const isAdmin = currentUser.role === 'ADMIN';
+  const { user: currentUser } = useUser();
+  const isAdmin = currentUser?.role === Role.ADMIN;
   const [page, setPage] = useState(1);
   const { data: posts, isLoading, mutate } = usePosts(page, 10);
   const [editing, setEditing] = useState<Post | null>(null);
@@ -23,16 +23,17 @@ export default function News() {
   const [dialogOpen, setDialogOpen] = useState(false);
 
   async function handleCreate(post: Omit<Post, 'id' | 'createdAt'>) {
+    if (!isAdmin || !currentUser) return;
     await api.post('/posts', {
       title: post.title,
       body: post.body,
-      authorId: 1,
+      authorId: currentUser.id,
     });
     await mutate();
   }
 
   async function handleEdit(post: Omit<Post, 'id' | 'createdAt'>) {
-    if (!editing) return;
+    if (!isAdmin || !editing) return;
     await api.patch(`/posts/${editing.id}`, {
       title: post.title,
       body: post.body,
@@ -42,6 +43,7 @@ export default function News() {
   }
 
   async function handleDelete(id: string) {
+    if (!isAdmin) return;
     await api.delete(`/posts/${id}`);
     await mutate();
   }
@@ -60,17 +62,17 @@ export default function News() {
 
   return (
     <div className='w-full main-content-scroll h-full'>
-      <div className='flex items-center justify-between flex-row p-4 bg-background sticky top-0 z-10'>
-        <h1 className='text-2xl font-semibold text-primary'>Hírek</h1>
+      <div className='flex items-center justify-between flex-col sm:flex-row gap-3 p-4 bg-background sticky top-0 z-10'>
+        <h1 className='text-2xl font-semibold text-primary w-full sm:w-auto text-center sm:text-left'>Hírek</h1>
         {isAdmin && (
-          <Button onClick={openCreateDialog}>
+          <Button onClick={openCreateDialog} className='w-full sm:w-auto'>
             <Plus />
           </Button>
         )}
       </div>
       <div className='m-4'>
         <div className='space-y-4'>
-          {isLoading && <p>Loading...</p>}
+          {isLoading && <p>Betöltés…</p>}
           {posts?.data &&
             posts.data.map((post: Post) => (
               <NewsCard
@@ -85,16 +87,18 @@ export default function News() {
         </div>
       </div>
 
-      <NewsForm
-        initial={editing || undefined}
-        onSave={creating ? handleCreate : handleEdit}
-        onCancel={() => {
-          setCreating(false);
-          setEditing(null);
-        }}
-        isOpen={dialogOpen}
-        onOpenChange={setDialogOpen}
-      />
+      {isAdmin && (
+        <NewsForm
+          initial={editing || undefined}
+          onSave={creating ? handleCreate : handleEdit}
+          onCancel={() => {
+            setCreating(false);
+            setEditing(null);
+          }}
+          isOpen={dialogOpen}
+          onOpenChange={setDialogOpen}
+        />
+      )}
     </div>
   );
 }

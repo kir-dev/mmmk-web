@@ -38,8 +38,8 @@
     "react-dom": "^18.2.0",
     "react-icons": "^5.5.0",
     "shadcn": "^2.1.7",
-    "swr": "^2.3.4",
     "switch": "^0.0.0",
+    "swr": "^2.3.4",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7"
   },

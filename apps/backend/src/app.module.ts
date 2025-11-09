@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from 'nestjs-prisma';
 
 import { AppController } from './app.controller';
@@ -21,6 +22,7 @@ import { UsersModule } from './users/users.module';
     AuthModule,
     MembershipsModule,
     PostsModule,
+    ConfigModule.forRoot(),
   ],
   controllers: [AppController],
   providers: [AppService],
