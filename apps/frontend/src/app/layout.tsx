@@ -28,7 +28,7 @@ export default function RootLayout({
               {/* Mobile open button */}
               <button
                 onClick={() => setOpen(true)}
-                className={`md:hidden fixed top-1/2 left-2 z-30 backdrop-blur-lg shadow-lg border border-white/30 p-2 transition-all duration-300 text-black dark:text-white rounded-full ${open ? 'hidden' : 'block'}`}
+                className={`md:hidden fixed top-20 left-2 z-30 shadow-lg p-2 transition-all duration-300 text-black dark:text-white rounded-full ${open ? 'hidden' : 'block'}`}
                 aria-label='Open navigation'
               >
                 <svg width='24' height='24' fill='none' stroke='currentColor' strokeWidth='2'>
@@ -48,7 +48,7 @@ export default function RootLayout({
                   className={`
                     h-full
                     bg-slate-300
-                    dark:bg-slate-800 md:bg-transparent dark:md:bg-transparent
+                    dark:bg-zinc-900 md:bg-transparent dark:md:bg-transparent
                     dark:text-white
                     fixed top-0 left-0 z-50
                     transition-transform duration-300

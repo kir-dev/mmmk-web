@@ -90,6 +90,8 @@ model BandMembership {
   status BandMembershipStatus @default(PENDING)
   band   Band?                @relation(fields: [bandId], references: [id])
   user   User?                @relation(fields: [userId], references: [id])
+
+  @@unique([bandId, userId])
 }
 
 model Reservation {

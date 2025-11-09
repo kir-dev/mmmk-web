@@ -72,7 +72,9 @@ export class AuthService {
             titles: membership.titles.filter(
               (title) => title !== process.env.PEK_NEWBIE_TITLE && title !== process.env.PEK_MEMBER_TITLE
             ),
-            isGateKeeper: membership.titles.includes(process.env.PEK_GATEKEEPER_TITLE),
+            isGateKeeper: membership.titles.includes(
+              process.env.PEK_GATEKEEPER_TITLE || process.env.PEK_ROOM_MANAGER_TITLE
+            ),
             hasRoomAccess: false,
             isLeadershipMember: false,
           },
