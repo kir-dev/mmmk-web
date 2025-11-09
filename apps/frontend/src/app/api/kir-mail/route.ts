@@ -10,13 +10,12 @@ export async function POST(request: NextRequest) {
     process.env.KIR_MAIL_URL ?? '',
     {
       from: {
-        name: body.name || 'Teszt Név',
-        email: body.email || 'teszt@example.com',
+        name: 'MMMK',
       },
-      to: 'marciemail7@gmail.com',
+      to: body.email,
       subject: 'MMMK - Terem foglalás',
       html: body.message || '<h1>Ez egy teszt üzenet</h1>',
-      replyTo: body.email,
+      replyTo: body.sender,
       queue: 'send',
     },
     {

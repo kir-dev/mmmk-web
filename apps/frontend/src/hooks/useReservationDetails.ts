@@ -122,7 +122,7 @@ export function useReservationDetails(props: ReservationDetailsProps) {
     return gateKeepers.find((m) => m.userId === me?.id) || null;
   }
 
-  const handleSubmitMail = (message: string) => {
+  const handleSubmitMail = (message: string, email: string, sender: string) => {
     fetch('/api/kir-mail/', {
       method: 'POST',
       headers: {
@@ -130,8 +130,9 @@ export function useReservationDetails(props: ReservationDetailsProps) {
       },
       body: JSON.stringify({
         name: 'Marci',
-        email: 'marciemail7@gmail.com',
+        email: email,
         message: message,
+        sender: sender,
       }),
     }).then((response) => {
       if (response.ok) {
@@ -142,10 +143,15 @@ export function useReservationDetails(props: ReservationDetailsProps) {
     });
   };
 
-  const onSetGK = () => {
+  const onSetGK = async () => {
     if (!props.clickedEvent) return;
     const myMembership = CurrentUserIsGK();
     if (!myMembership) return;
+
+    let emailUser;
+    await axiosApi.get(`/users/${props.clickedEvent?.userId}`).then((res) => {
+      emailUser = res.data.email;
+    });
 
     // Unset if current user already assigned (membership id matches)
     if (gateKeeperMembershipId && gateKeeperMembershipId === myMembership.id) {
@@ -153,7 +159,7 @@ export function useReservationDetails(props: ReservationDetailsProps) {
         setGateKeeper(null);
         setGateKeeperMembershipId(null);
         props.onGetData();
-        handleSubmitMail('A beengedő visszamondta a foglalásod.');
+        handleSubmitMail('A beengedő visszamondta a foglalásod.', emailUser!, me!.email);
       });
       return;
     }
@@ -165,7 +171,9 @@ export function useReservationDetails(props: ReservationDetailsProps) {
         axiosApi.get(`/users/${myMembership.userId}`).then((resp) => {
           setGateKeeper(resp.data);
           handleSubmitMail(
-            `A foglalásodhoz beengedő lett rendelve. Név: ${resp.data.fullName}, e-mail: ${resp.data.email}`
+            `A foglalásodhoz beengedő lett rendelve. Név: ${resp.data.fullName}, e-mail: ${resp.data.email}`,
+            emailUser!,
+            resp.data.email
           );
         });
         props.onGetData();
