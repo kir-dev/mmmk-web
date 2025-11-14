@@ -76,14 +76,35 @@ export function useReservationDetails(props: ReservationDetailsProps) {
       .catch(() => {});
   };
 
-  const onDelete = () => {
-    if (!props.clickedEvent) return;
-    if (new Date(props.clickedEvent.startTime).getTime() < Date.now()) return;
+  const onDelete = async () => {
+    if (!props.clickedEvent) {
+      console.error('No clicked event to delete');
+      return;
+    }
+
+    const reservationStart = new Date(props.clickedEvent.startTime);
+    if (reservationStart.getTime() < Date.now()) {
+      //alert('Nem törölhetsz múltbeli foglalást!');
+      return;
+    }
+
     //if (!window.confirm('Biztosan törlöd a foglalást?')) return;
-    axiosApi.delete(`/reservations/${props.clickedEvent.id}`).then(() => {
+
+    try {
+      //console.log('Deleting reservation with ID:', props.clickedEvent.id);
+      await axiosApi.delete(`/reservations/${props.clickedEvent.id}`);
+      //console.log('Reservation deleted successfully');
+
+      // Close modal first to prevent any state issues
+      props.setIsEventDetails(false);
+
+      // Then refresh data
       props.onGetData();
-      props.setIsEventDetails(!props.isEventDetails);
-    });
+    } catch (error: any) {
+      console.error('Error deleting reservation:', error);
+      //const errorMessage = error.response?.data?.message || error.message || 'Ismeretlen hiba történt';
+      //alert(`Hiba történt a foglalás törlése közben: ${errorMessage}`);
+    }
   };
 
   const onEdit = () => {
@@ -246,6 +267,8 @@ export function useReservationDetails(props: ReservationDetailsProps) {
     isEditing,
     editNameValue,
     setEditNameValue,
+    editStartTimeValue,
+    editEndTimeValue,
     setEditStartTimeValue,
     setEditEndTimeValue,
     user,

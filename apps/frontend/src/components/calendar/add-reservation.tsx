@@ -8,6 +8,8 @@ import { Band } from '@/types/band';
 import { Reservation } from '@/types/reservation';
 import { User } from '@/types/user';
 
+import { TimePicker } from './time-picker';
+
 interface AddPanelProps {
   onGetData: () => void;
   currentDate: Date;
@@ -26,8 +28,18 @@ export default function AddReservation(props: AddPanelProps) {
   const [users, setUsers] = useState<User[]>([]);
   const [user, setUser] = useState<User>();
 
-  const [startTime, setStartTime] = useState(new Date());
-  const [endTime, setEndTime] = useState(new Date());
+  // Initialize with rounded times (15-minute intervals)
+  const getRoundedDate = () => {
+    const date = new Date();
+    const minutes = Math.floor(date.getMinutes() / 15) * 15;
+    date.setMinutes(minutes);
+    date.setSeconds(0);
+    date.setMilliseconds(0);
+    return date;
+  };
+
+  const [startTime, setStartTime] = useState(getRoundedDate());
+  const [endTime, setEndTime] = useState(getRoundedDate());
 
   const [userSuggestions, setUserSuggestions] = useState<User[]>([]);
   const [bandSuggestions, setBandSuggestions] = useState<Band[]>([]);
@@ -133,16 +145,6 @@ export default function AddReservation(props: AddPanelProps) {
     }
   };
 
-  function shiftStart(date: Date) {
-    date.setHours(date.getHours() + 1);
-    setStartTime(date);
-  }
-
-  function shiftEnd(date: Date) {
-    date.setHours(date.getHours() + 1);
-    setEndTime(date);
-  }
-
   // For add-reservation.tsx - replace the return part with:
   return (
     <div className='space-y-5'>
@@ -224,30 +226,10 @@ export default function AddReservation(props: AddPanelProps) {
         </div>
       </div>
 
-      <div className='grid grid-cols-2 gap-4'>
-        <div className='flex flex-col'>
-          <label htmlFor='begin' className='block text-sm font-medium text-black dark:text-zinc-300 mb-1'>
-            Kezdés
-          </label>
-          <input
-            id='begin'
-            className='bg-white hover:bg-slate-200 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-black dark:text-zinc-200 rounded-md border border-zinc-600 px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-transparent'
-            type='datetime-local'
-            onChange={(e) => shiftStart(new Date(e.target.value))}
-          />
-        </div>
+      <div className='space-y-4'>
+        <TimePicker label='Kezdés' value={startTime} onChange={setStartTime} />
 
-        <div className='flex flex-col'>
-          <label htmlFor='end' className='block text-sm font-medium text-black dark:text-zinc-300 mb-1'>
-            Vége
-          </label>
-          <input
-            id='end'
-            className='bg-white hover:bg-slate-200 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-black dark:text-zinc-200 rounded-md border border-zinc-600 px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-transparent'
-            type='datetime-local'
-            onChange={(e) => shiftEnd(new Date(e.target.value))}
-          />
-        </div>
+        <TimePicker label='Vége' value={endTime} onChange={setEndTime} />
       </div>
 
       {!valid && (

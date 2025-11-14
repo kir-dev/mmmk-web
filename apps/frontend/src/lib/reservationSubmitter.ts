@@ -41,10 +41,6 @@ export async function submitReservation(params: {
   const start = new Date(startTime);
   const end = new Date(endTime);
 
-  // Adjust time zone
-  start.setHours(start.getHours() - 1);
-  end.setHours(end.getHours() - 1);
-
   const reservationsOfWeek = getReservationsOfWeek(reservations, band);
 
   const reservationsOfDay = getReservationsOfDay(reservations, band, start);

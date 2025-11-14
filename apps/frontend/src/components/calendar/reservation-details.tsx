@@ -1,8 +1,10 @@
 // components/calendar/reservation-details.tsx
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 
 import { useReservationDetails } from '@/hooks/useReservationDetails';
 import { Reservation } from '@/types/reservation';
+
+import { TimePicker } from './time-picker';
 
 interface EventDetailsProps {
   isEventDetails: boolean;
@@ -18,6 +20,8 @@ export default function ReservationDetails(props: EventDetailsProps) {
 
   const {
     isEditing,
+    editStartTimeValue,
+    editEndTimeValue,
     setEditStartTimeValue,
     setEditEndTimeValue,
     user,
@@ -94,53 +98,29 @@ export default function ReservationDetails(props: EventDetailsProps) {
               )}
 
               {/* Time Range */}
-              <div className='grid grid-cols-2 gap-4'>
-                <div className='space-y-1'>
-                  <label className='text-xs font-medium text-slate-500 dark:text-slate-400'>Kezdés</label>
-                  {isEditing ? (
-                    <input
-                      className='w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md'
-                      type='datetime-local'
-                      defaultValue={new Date(
-                        new Date(props.clickedEvent.startTime).setHours(
-                          new Date(props.clickedEvent.startTime).getHours() + 2
-                        )
-                      )
-                        .toISOString()
-                        .slice(0, 16)}
-                      onChange={(e) => setEditStartTimeValue(new Date(e.target.value))}
-                    />
-                  ) : (
+              {isEditing ? (
+                <div className='space-y-4'>
+                  <TimePicker label='Kezdés' value={editStartTimeValue} onChange={setEditStartTimeValue} />
+                  <TimePicker label='Befejezés' value={editEndTimeValue} onChange={setEditEndTimeValue} />
+                </div>
+              ) : (
+                <div className='grid grid-cols-2 gap-4'>
+                  <div className='space-y-1'>
+                    <label className='text-xs font-medium text-slate-500 dark:text-slate-400'>Kezdés</label>
                     <p className='font-medium'>
                       {new Date(props.clickedEvent.startTime).getHours()}:
                       {new Date(props.clickedEvent.startTime).getMinutes().toString().padStart(2, '0')}
                     </p>
-                  )}
-                </div>
-
-                <div className='space-y-1'>
-                  <label className='text-xs font-medium text-slate-500 dark:text-slate-400'>Befejezés</label>
-                  {isEditing ? (
-                    <input
-                      className='w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md'
-                      type='datetime-local'
-                      defaultValue={new Date(
-                        new Date(props.clickedEvent.endTime).setHours(
-                          new Date(props.clickedEvent.endTime).getHours() + 2
-                        )
-                      )
-                        .toISOString()
-                        .slice(0, 16)}
-                      onChange={(e) => setEditEndTimeValue(new Date(e.target.value))}
-                    />
-                  ) : (
+                  </div>
+                  <div className='space-y-1'>
+                    <label className='text-xs font-medium text-slate-500 dark:text-slate-400'>Befejezés</label>
                     <p className='font-medium'>
                       {new Date(props.clickedEvent.endTime).getHours()}:
                       {new Date(props.clickedEvent.endTime).getMinutes().toString().padStart(2, '0')}
                     </p>
-                  )}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Status */}
               <div className='space-y-1 flex flex-row gap-4'>
@@ -184,15 +164,25 @@ export default function ReservationDetails(props: EventDetailsProps) {
                     <div className='flex flex-row gap-2'>
                       {!isEditing && (
                         <button
+                          type='button'
                           className='px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-md hover:bg-red-600 transition-colors'
-                          onClick={onDelete}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            onDelete();
+                          }}
                         >
                           Törlés
                         </button>
                       )}
                       <button
+                        type='button'
                         className='px-4 py-2 text-sm font-medium text-white bg-green-500 rounded-md hover:bg-green-600 transition-colors'
-                        onClick={onEdit}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          onEdit();
+                        }}
                       >
                         {isEditing ? 'Mentés' : 'Szerkesztés'}
                       </button>

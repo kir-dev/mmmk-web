@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import axiosApi from '@/lib/apiSetup';
 import { Comment } from '@/types/comment';
 
+import { TimePicker } from './time-picker';
+
 interface EventDetailsProps {
   isCommentDetails: boolean;
   setIsCommentDetails: (value: boolean) => void;
@@ -18,11 +20,29 @@ export default function CommentDetails(props: EventDetailsProps) {
   const [editEndTimeValue, setEditEndTimeValue] = useState<Date | null>(null);
   const [isReservable, setIsReservable] = useState<boolean>(false);
 
-  const onDelete = () => {
-    axiosApi.delete(`/comments/${props.clickedComment?.id}`).then(() => {
-      props.onGetData();
+  const onDelete = async () => {
+    if (!props.clickedComment) {
+      console.error('No clicked comment to delete');
+      return;
+    }
+
+    //if (!window.confirm('Biztosan törlöd a kommentet?')) return;
+
+    try {
+      //console.log('Deleting comment with ID:', props.clickedComment.id);
+      await axiosApi.delete(`/comments/${props.clickedComment.id}`);
+      //console.log('Comment deleted successfully');
+
+      // Close modal first to prevent any state issues
       props.setIsCommentDetails(false);
-    });
+
+      // Then refresh data
+      props.onGetData();
+    } catch (error: any) {
+      console.error('Error deleting comment:', error);
+      //const errorMessage = error.response?.data?.message || error.message || 'Ismeretlen hiba történt';
+      //alert(`Hiba történt a komment törlése közben: ${errorMessage}`);
+    }
   };
 
   const onEdit = () => {
@@ -93,52 +113,33 @@ export default function CommentDetails(props: EventDetailsProps) {
                   <p className='font-medium'>{props.clickedComment?.comment}</p>
                 )}
               </div>
-              <div className='grid grid-cols-2 gap-4'>
-                <div className='space-y-1'>
-                  <label className='text-xs font-medium text-slate-500 dark:text-slate-400'>Kezdete</label>
-                  {isEditing ? (
-                    <input
-                      className='w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md'
-                      type='datetime-local'
-                      value={
-                        editStartTimeValue
-                          ? new Date(editStartTimeValue.getTime() - editStartTimeValue.getTimezoneOffset() * 60000)
-                              .toISOString()
-                              .slice(0, 16)
-                          : ''
-                      }
-                      onChange={(e) => setEditStartTimeValue(new Date(e.target.value))}
-                    />
-                  ) : (
+              {isEditing ? (
+                <div className='space-y-4'>
+                  <TimePicker
+                    label='Kezdete'
+                    value={editStartTimeValue || new Date()}
+                    onChange={setEditStartTimeValue}
+                  />
+                  <TimePicker label='Vége' value={editEndTimeValue || new Date()} onChange={setEditEndTimeValue} />
+                </div>
+              ) : (
+                <div className='grid grid-cols-2 gap-4'>
+                  <div className='space-y-1'>
+                    <label className='text-xs font-medium text-slate-500 dark:text-slate-400'>Kezdete</label>
                     <p className='font-medium'>
                       {new Date(props.clickedComment.startTime).getHours()}:
                       {new Date(props.clickedComment.startTime).getMinutes().toString().padStart(2, '0')}
                     </p>
-                  )}
-                </div>
-                <div className='space-y-1'>
-                  <label className='text-xs font-medium text-slate-500 dark:text-slate-400'>Vége</label>
-                  {isEditing ? (
-                    <input
-                      className='w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md'
-                      type='datetime-local'
-                      value={
-                        editEndTimeValue
-                          ? new Date(editEndTimeValue.getTime() - editEndTimeValue.getTimezoneOffset() * 60000)
-                              .toISOString()
-                              .slice(0, 16)
-                          : ''
-                      }
-                      onChange={(e) => setEditEndTimeValue(new Date(e.target.value))}
-                    />
-                  ) : (
+                  </div>
+                  <div className='space-y-1'>
+                    <label className='text-xs font-medium text-slate-500 dark:text-slate-400'>Vége</label>
                     <p className='font-medium'>
                       {new Date(props.clickedComment.endTime).getHours()}:
                       {new Date(props.clickedComment.endTime).getMinutes().toString().padStart(2, '0')}
                     </p>
-                  )}
+                  </div>
                 </div>
-              </div>
+              )}
               <div className='space-y-1'>
                 {isEditing ? (
                   <>
@@ -168,8 +169,13 @@ export default function CommentDetails(props: EventDetailsProps) {
             {/* Footer with Actions */}
             <div className='p-4 border-t dark:border-slate-700 bg-slate-50 dark:bg-slate-900 flex flex-row gap-2 justify-end'>
               <button
+                type='button'
                 className='px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-md hover:bg-red-600 transition-colors'
-                onClick={onDelete}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onDelete();
+                }}
               >
                 Törlés
               </button>

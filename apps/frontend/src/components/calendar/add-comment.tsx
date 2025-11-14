@@ -3,15 +3,27 @@ import { useState } from 'react';
 import { useUser } from '@/hooks/useUser'; // Import your user hook
 import axiosApi from '@/lib/apiSetup';
 
+import { TimePicker } from './time-picker';
+
 interface AddCommentProps {
   onGetData: () => void;
   onAddEvent: () => void;
 }
 
 export default function AddComment(props: AddCommentProps) {
+  // Initialize with rounded times (15-minute intervals)
+  const getRoundedDate = () => {
+    const date = new Date();
+    const minutes = Math.floor(date.getMinutes() / 15) * 15;
+    date.setMinutes(minutes);
+    date.setSeconds(0);
+    date.setMilliseconds(0);
+    return date;
+  };
+
   const [comment, setComment] = useState('');
-  const [startTime, setStartTime] = useState(new Date());
-  const [endTime, setEndTime] = useState(new Date());
+  const [startTime, setStartTime] = useState(getRoundedDate());
+  const [endTime, setEndTime] = useState(getRoundedDate());
   const [isReservable, setIsReservable] = useState<boolean>(false);
 
   const { user } = useUser(); // Get current user
@@ -62,30 +74,10 @@ export default function AddComment(props: AddCommentProps) {
         />
       </div>
 
-      <div className='grid grid-cols-2 gap-4'>
-        <div className='flex flex-col'>
-          <label htmlFor='begin' className='block text-sm font-medium text-black dark:text-zinc-300 mb-1'>
-            Kezdés
-          </label>
-          <input
-            id='begin'
-            className='bg-white hover:bg-slate-200 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-black dark:text-zinc-200 rounded-md border border-zinc-600 px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-transparent'
-            type='datetime-local'
-            onChange={(e) => setStartTime(new Date(e.target.value))}
-          />
-        </div>
+      <div className='space-y-4'>
+        <TimePicker label='Kezdés' value={startTime} onChange={setStartTime} />
 
-        <div className='flex flex-col'>
-          <label htmlFor='end' className='block text-sm font-medium text-black dark:text-zinc-300 mb-1'>
-            Vége
-          </label>
-          <input
-            id='end'
-            className='bg-white hover:bg-slate-200 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-black dark:text-zinc-200 rounded-md border border-zinc-600 px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-transparent'
-            type='datetime-local'
-            onChange={(e) => setEndTime(new Date(e.target.value))}
-          />
-        </div>
+        <TimePicker label='Vége' value={endTime} onChange={setEndTime} />
       </div>
 
       <div className='flex items-center'>
