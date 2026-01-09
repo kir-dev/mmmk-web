@@ -43,7 +43,7 @@ export default function DayReservation(props: DayEventProps) {
 
   return (
     <div
-      className='z-40 absolute inset-x-1'
+      className='z-30 absolute inset-x-1'
       style={{
         top: `${offset}px`,
       }}

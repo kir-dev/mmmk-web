@@ -30,6 +30,7 @@ export default function ReservationDetails(props: EventDetailsProps) {
     valid,
     hasEditRights,
     CurrentUserIsGK,
+    currentUserCanBeGateKeeper,
     onSetGK,
     onDelete,
     onEdit,
@@ -149,13 +150,13 @@ export default function ReservationDetails(props: EventDetailsProps) {
             {/* Footer with Actions */}
             <div className='p-4 border-t dark:border-slate-700 bg-slate-50 dark:bg-slate-900'>
               <div className='flex flex-wrap items-center justify-between gap-2'>
-                {CurrentUserIsGK() && (
+                {CurrentUserIsGK() && gateKeeper === null && currentUserCanBeGateKeeper() && (
                   <button
                     className={`px-4 py-2 text-sm font-medium text-white rounded-md transition-colors
                       ${gateKeeper === null ? 'bg-orange-500 hover:bg-orange-600' : 'bg-amber-600 hover:bg-amber-700'}`}
                     onClick={onSetGK}
                   >
-                    {gateKeeper === null ? 'Jelentkezés beengedőnek' : 'Lejelentkezés beengedőként'}
+                    {gateKeeper === null ? 'Jelentkezés beengedőnek' : 'Beengedés leadása'}
                   </button>
                 )}
 

@@ -39,8 +39,17 @@ export function useReservationDetails(props: ReservationDetailsProps) {
   const [valid, setValid] = useState(true);
 
   const hasEditRights = useMemo(() => {
-    return me?.role === 'ADMIN' || props.clickedEvent?.userId === me?.id;
-  }, [me, props.clickedEvent]);
+    if (me?.role === 'ADMIN') return true;
+    if (props.clickedEvent?.userId === me?.id) return true;
+
+    // Check if user is a member of the band associated with this reservation
+    if (band && band.members && me?.id) {
+      const isUserInBand = band.members.some((member) => member.userId === me.id);
+      if (isUserInBand) return true;
+    }
+
+    return false;
+  }, [me, props.clickedEvent, band]);
 
   const getGateKeeper = (membershipId: number | null) => {
     setGateKeeperMembershipId(membershipId);
@@ -141,6 +150,18 @@ export function useReservationDetails(props: ReservationDetailsProps) {
 
   function CurrentUserIsGK(): ClubMembership | null {
     return gateKeepers.find((m) => m.userId === me?.id) || null;
+  }
+
+  function currentUserCanBeGateKeeper(): boolean {
+    if (!me || !props.clickedEvent) return false;
+    // User cannot be gatekeeper for their own reservation
+    if (props.clickedEvent.userId === me.id) return false;
+    // User cannot be gatekeeper for a band they're a member of
+    if (band && band.members) {
+      const isUserInBand = band.members.some((member) => member.userId === me.id);
+      if (isUserInBand) return false;
+    }
+    return true;
   }
 
   const handleSubmitMail = (message: string, email: string, sender: string) => {
@@ -277,6 +298,7 @@ export function useReservationDetails(props: ReservationDetailsProps) {
     valid,
     hasEditRights,
     CurrentUserIsGK,
+    currentUserCanBeGateKeeper,
     onSetGK,
     onDelete,
     onEdit,

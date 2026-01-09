@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
+import { useUser } from '@/hooks/useUser';
 import axiosApi from '@/lib/apiSetup';
 import { Comment } from '@/types/comment';
 
@@ -14,11 +15,14 @@ interface EventDetailsProps {
 }
 
 export default function CommentDetails(props: EventDetailsProps) {
+  const { user: me } = useUser();
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState('');
   const [editStartTimeValue, setEditStartTimeValue] = useState<Date | null>(null);
   const [editEndTimeValue, setEditEndTimeValue] = useState<Date | null>(null);
   const [isReservable, setIsReservable] = useState<boolean>(false);
+
+  const isAdmin = me?.role === 'ADMIN';
 
   const onDelete = async () => {
     if (!props.clickedComment) {
@@ -168,23 +172,27 @@ export default function CommentDetails(props: EventDetailsProps) {
 
             {/* Footer with Actions */}
             <div className='p-4 border-t dark:border-slate-700 bg-slate-50 dark:bg-slate-900 flex flex-row gap-2 justify-end'>
-              <button
-                type='button'
-                className='px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-md hover:bg-red-600 transition-colors'
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onDelete();
-                }}
-              >
-                Törlés
-              </button>
-              <button
-                className='px-4 py-2 text-sm font-medium text-white bg-green-500 rounded-md hover:bg-green-600 transition-colors'
-                onClick={onEdit}
-              >
-                {isEditing ? 'Mentés' : 'Szerkesztés'}
-              </button>
+              {isAdmin && (
+                <>
+                  <button
+                    type='button'
+                    className='px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-md hover:bg-red-600 transition-colors'
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      onDelete();
+                    }}
+                  >
+                    Törlés
+                  </button>
+                  <button
+                    className='px-4 py-2 text-sm font-medium text-white bg-green-500 rounded-md hover:bg-green-600 transition-colors'
+                    onClick={onEdit}
+                  >
+                    {isEditing ? 'Mentés' : 'Szerkesztés'}
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
