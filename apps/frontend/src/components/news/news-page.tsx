@@ -46,6 +46,11 @@ export default function News() {
     await mutate();
   }
 
+  async function handleTogglePin(id: string) {
+    await api.patch(`/posts/${id}/pin`);
+    await mutate();
+  }
+
   function openCreateDialog() {
     setCreating(true);
     setEditing(null);
@@ -79,6 +84,7 @@ export default function News() {
                 isAdmin={isAdmin}
                 openEditDialog={openEditDialog}
                 handleDelete={handleDelete}
+                handleTogglePin={handleTogglePin}
               />
             ))}
           {posts && posts.count > 0 && <Pagination page={page} setPage={setPage} posts={posts} />}
