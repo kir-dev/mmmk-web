@@ -4,6 +4,7 @@ export interface Post {
   body: string;
   createdAt: string;
   authorId: string;
+  isPinned?: boolean;
 }
 
 export interface PaginatedPosts {

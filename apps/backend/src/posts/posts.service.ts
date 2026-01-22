@@ -24,6 +24,7 @@ export class PostsService {
     const posts = this.prisma.post.findMany({
       skip: hasPagination ? (page - 1) * pageSize : undefined,
       take: hasPagination ? pageSize : undefined,
+      orderBy: [{ isPinned: 'desc' }, { createdAt: 'desc' }],
     });
 
     const count = this.prisma.post.count();
@@ -85,6 +86,23 @@ export class PostsService {
         where: {
           id,
         },
+      });
+    } catch (e) {
+      if (e instanceof Prisma.PrismaClientKnownRequestError) {
+        if (e.code === 'P2025') {
+          throw new NotFoundException(`This post doesn't exist.`);
+        }
+        throw new InternalServerErrorException('An error occurred.');
+      }
+    }
+  }
+
+  async togglePin(id: number) {
+    try {
+      const post = await this.prisma.post.findUniqueOrThrow({ where: { id } });
+      return await this.prisma.post.update({
+        where: { id },
+        data: { isPinned: !post.isPinned },
       });
     } catch (e) {
       if (e instanceof Prisma.PrismaClientKnownRequestError) {

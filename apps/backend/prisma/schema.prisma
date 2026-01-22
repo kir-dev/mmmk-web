@@ -103,6 +103,7 @@ model Post {
   body      String
   createdAt DateTime @default(now())
   authorId  Int
+  isPinned  Boolean  @default(false)
   User      User     @relation(fields: [authorId], references: [id])
 }
 
