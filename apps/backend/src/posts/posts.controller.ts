@@ -28,6 +28,11 @@ export class PostsController {
     return this.postsService.update(id, updatePostDto);
   }
 
+  @Patch(':id/pin')
+  togglePin(@Param('id', ParseIntPipe) id: number) {
+    return this.postsService.togglePin(id);
+  }
+
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.postsService.remove(id);
