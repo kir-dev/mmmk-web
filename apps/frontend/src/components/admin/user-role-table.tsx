@@ -69,6 +69,9 @@ export function UserRoleTable({ currentUserId }: Props) {
             const isSelf = user.id === currentUserId;
             const isPending = pendingIds.has(user.id);
             const isAdmin = user.role === Role.ADMIN;
+            let buttonLabel = 'Admin adása';
+            if (isPending) buttonLabel = 'Mentés...';
+            else if (isAdmin) buttonLabel = 'Admin elvétele';
             return (
               <TableRow key={user.id}>
                 <TableCell className='font-medium'>{user.fullName}</TableCell>
@@ -83,7 +86,7 @@ export function UserRoleTable({ currentUserId }: Props) {
                     disabled={isSelf || isPending}
                     onClick={() => toggleRole(user)}
                   >
-                    {isPending ? 'Mentés...' : isAdmin ? 'Admin elvétele' : 'Admin adása'}
+                    {buttonLabel}
                   </Button>
                 </TableCell>
               </TableRow>
