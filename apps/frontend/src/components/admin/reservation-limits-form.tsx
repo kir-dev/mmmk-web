@@ -126,7 +126,7 @@ export function ReservationLimitsForm() {
         )}
 
         {tiers.map((tier, index) => (
-          <div key={index} className='rounded-md border p-4 space-y-3'>
+          <div key={tier.minPoints} className='rounded-md border p-4 space-y-3'>
             <div className='flex items-center justify-between'>
               <span className='text-sm font-medium'>Küszöb #{index + 1}</span>
               <Button size='sm' variant='destructive' onClick={() => removeTier(index)}>
