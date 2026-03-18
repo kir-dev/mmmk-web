@@ -1,15 +1,5 @@
 'use client';
-import {
-  BarChart3,
-  BookAudio,
-  CalendarPlus,
-  Heart,
-  ListMusic,
-  MicVocal,
-  Radio,
-  ShieldCheck,
-  Users2,
-} from 'lucide-react';
+import { BookAudio, CalendarPlus, Heart, ListMusic, MicVocal, ShieldCheck, Users2 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -94,7 +84,7 @@ export function Sidebar() {
               </Button>
             </div>
           </div>
-        </div>
+        )}
 
         {user?.role === Role.ADMIN && (
           <div className='pt-4'>
