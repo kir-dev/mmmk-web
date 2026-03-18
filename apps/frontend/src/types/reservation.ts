@@ -6,6 +6,7 @@ export enum ReservationStatus {
   OVERTIME = 'OVERTIME',
   NORMAL = 'NORMAL',
   ADMINMADE = 'ADMINMADE',
+  SANCTIONED = 'SANCTIONED',
 }
 
 export type Reservation = {
@@ -19,4 +20,5 @@ export type Reservation = {
   band: Band;
   gateKeeper: ClubMembership;
   user: User;
+  needToBeLetIn: boolean;
 };

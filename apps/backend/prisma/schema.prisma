@@ -22,6 +22,7 @@ enum ReservationStatus {
   NORMAL
   OVERTIME
   ADMINMADE
+  SANCTIONED
 }
 
 enum BandMembershipStatus {
@@ -30,11 +31,11 @@ enum BandMembershipStatus {
 }
 
 model User {
-  id                      Int              @id @default(autoincrement())
-  email                   String           @unique
-  phone                   String?          @unique
-  role                    Role             @default(USER)
-  authSchId               String?          @unique
+  id                      Int               @id @default(autoincrement())
+  email                   String            @unique
+  phone                   String?           @unique
+  role                    Role              @default(USER)
+  authSchId               String?           @unique
   fullName                String
   clubMembershipUpdatedAt DateTime?
   bandMemberships         BandMembership[]
@@ -42,7 +43,8 @@ model User {
   DormResidency           DormResidency?
   Post                    Post[]
   profilePicture          ProfilePicture?
-  reservations            Reservation[]    @relation("Reservations")
+  reservations            Reservation[]     @relation("Reservations")
+  sanctionRecords         SanctionRecord[]  @relation("UserSanctions")
 }
 
 model ProfilePicture {
@@ -70,17 +72,19 @@ model ClubMembership {
   isGateKeeper       Boolean
   user               User                 @relation(fields: [userId], references: [id])
   gateKeepingRecords Reservation[]        @relation("GateKeeping")
+  sanctionsAwarded   SanctionRecord[]     @relation("GateKeeperSanctions")
 }
 
 model Band {
-  id           Int              @id @default(autoincrement())
-  name         String
-  email        String?
-  webPage      String?
-  description  String?
-  genres       String[]
-  members      BandMembership[]
-  reservations Reservation[]
+  id              Int              @id @default(autoincrement())
+  name            String
+  email           String?
+  webPage         String?
+  description     String?
+  genres          String[]
+  members         BandMembership[]
+  reservations    Reservation[]
+  sanctionRecords SanctionRecord[] @relation("BandSanctions")
 }
 
 model BandMembership {
@@ -102,6 +106,7 @@ model Reservation {
   endTime      DateTime
   gateKeeperId Int?
   status       ReservationStatus
+  needToBeLetIn Boolean @default(false)
   band         Band?             @relation(fields: [bandId], references: [id])
   gateKeeper   ClubMembership?   @relation("GateKeeping", fields: [gateKeeperId], references: [id])
   user         User?             @relation("Reservations", fields: [userId], references: [id])
@@ -119,6 +124,7 @@ model Period {
   id        Int      @id @default(autoincrement())
   startDate DateTime
   endDate   DateTime
+  isOpen    Boolean  @default(false)
 }
 
 model Post {
@@ -129,3 +135,27 @@ model Post {
   authorId  Int
   User      User     @relation(fields: [authorId], references: [id])
 }
+
+model Settings {
+  id                          Int   @id @default(autoincrement())
+  maxHoursPerWeek             Float @default(8.0)
+  maxHoursPerDay              Float @default(4.0)
+  minReservationMinutes       Int   @default(30)
+  maxReservationMinutes       Int   @default(180)
+  sanctionHourPenaltyPerPoint Float @default(1.0)
+}
+
+model SanctionRecord {
+  id           Int              @id @default(autoincrement())
+  userId       Int?
+  bandId       Int?
+  points       Int
+  reason       String
+  awardedBy    Int
+  awardedAt    DateTime         @default(now())
+
+  user         User?            @relation("UserSanctions", fields: [userId], references: [id])
+  band         Band?            @relation("BandSanctions", fields: [bandId], references: [id])
+  gateKeeper   ClubMembership   @relation("GateKeeperSanctions", fields: [awardedBy], references: [id])
+}
+

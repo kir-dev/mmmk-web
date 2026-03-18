@@ -22,24 +22,24 @@ export default function DayComment(props: DayEventProps) {
 
   return (
     <div
-      className='z-40 absolute inset-x-1'
+      className='z-30 absolute inset-x-1 pointer-events-none'
       style={{
         top: `${offset}px`,
       }}
     >
       <div
         className={`
-          flex flex-row 
+          flex flex-row
           ${
             props.comment.isReservable
               ? 'bg-gradient-to-r from-teal-700 to-teal-600'
               : 'bg-gradient-to-r from-rose-700 to-rose-600'
-          } 
-          justify-start 
-          overflow-hidden 
-          rounded-md 
-          shadow-md 
-          border-l-4 
+          }
+          justify-start
+          overflow-hidden
+          rounded-md
+          shadow-md
+          border-l-4
           ${props.comment.isReservable ? 'border-teal-800' : 'border-rose-800'}
           transition-all
           duration-200
@@ -51,7 +51,7 @@ export default function DayComment(props: DayEventProps) {
         }}
       >
         <button
-          className='flex w-full bg-transparent px-2 py-1 hover:bg-black/10 transition-colors duration-200'
+          className='pointer-events-auto flex w-full bg-transparent px-2 py-1 hover:bg-black/10 transition-colors duration-200'
           onClick={() => props.onEventClick(props.comment.id)}
         >
           <div className='flex flex-col w-full'>

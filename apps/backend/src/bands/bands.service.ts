@@ -24,7 +24,10 @@ export class BandsService {
 
   async findOne(id: number): Promise<Band> {
     try {
-      const res = await this.prisma.band.findUniqueOrThrow({ where: { id } });
+      const res = await this.prisma.band.findUniqueOrThrow({
+        where: { id },
+        include: { members: true },
+      });
       return res;
     } catch (error) {
       throw new NotFoundException('No band found');

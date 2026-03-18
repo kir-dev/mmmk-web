@@ -19,7 +19,7 @@ export function Sidebar() {
           <h2 className='text-xs uppercase text-zinc-400 font-bold mb-2'>Rólunk</h2>
           <div className='space-y-2'>
             <Button
-              variant={pathname.startsWith('/mmmk') ? 'blastActive' : 'blast'}
+              variant={pathname?.startsWith('/mmmk') ? 'blastActive' : 'blast'}
               className='w-full justify-start'
               asChild
             >
@@ -29,7 +29,7 @@ export function Sidebar() {
               </Link>
             </Button>
             <Button
-              variant={pathname.startsWith('/room') ? 'blastActive' : 'blast'}
+              variant={pathname?.startsWith('/room') ? 'blastActive' : 'blast'}
               className='w-full justify-start'
               asChild
             >
@@ -39,7 +39,7 @@ export function Sidebar() {
               </Link>
             </Button>
             <Button
-              variant={pathname.startsWith('/rules') ? 'blastActive' : 'blast'}
+              variant={pathname?.startsWith('/rules') ? 'blastActive' : 'blast'}
               className='w-full justify-start'
               asChild
             >
@@ -55,7 +55,7 @@ export function Sidebar() {
             <h2 className='text-xs uppercase text-zinc-400 font-bold mb-2'>Tagoknak</h2>
             <div className='space-y-2'>
               <Button
-                variant={pathname.startsWith('/members') ? 'blastActive' : 'blast'}
+                variant={pathname?.startsWith('/members') ? 'blastActive' : 'blast'}
                 className='w-full justify-start'
                 asChild
               >
@@ -65,7 +65,7 @@ export function Sidebar() {
                 </Link>
               </Button>
               <Button
-                variant={pathname.startsWith('/bands') ? 'blastActive' : 'blast'}
+                variant={pathname?.startsWith('/bands') ? 'blastActive' : 'blast'}
                 className='w-full justify-start'
                 asChild
               >
@@ -75,7 +75,7 @@ export function Sidebar() {
                 </Link>
               </Button>
               <Button
-                variant={pathname.startsWith('/reservation') ? 'blastActive' : 'blast'}
+                variant={pathname?.startsWith('/reservation') ? 'blastActive' : 'blast'}
                 className='w-full justify-start'
                 asChild
               >
@@ -92,7 +92,7 @@ export function Sidebar() {
             <h2 className='text-xs uppercase text-zinc-400 font-bold mb-2'>Adminisztráció</h2>
             <div className='space-y-2'>
               <Button
-                variant={pathname.startsWith('/stats') ? 'blastActive' : 'blast'}
+                variant={pathname?.startsWith('/stats') ? 'blastActive' : 'blast'}
                 className='w-full justify-start'
                 asChild
               >

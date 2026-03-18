@@ -8,8 +8,11 @@ import { AuthModule } from './auth/auth.module';
 import { BandsModule } from './bands/bandsModule';
 import { CommentsModule } from './comments/comments.module';
 import { MembershipsModule } from './memberships/memberships.module';
+import { PeriodsModule } from './periods/periods.module';
 import { PostsModule } from './posts/posts.module';
 import { ReservationsModule } from './reservations/reservations.module';
+import { SanctionRecordsModule } from './sanction-records/sanction-records.module';
+import { SettingsModule } from './settings/settings.module';
 import { UsersModule } from './users/users.module';
 
 @Module({
@@ -22,6 +25,9 @@ import { UsersModule } from './users/users.module';
     AuthModule,
     MembershipsModule,
     PostsModule,
+    SettingsModule,
+    PeriodsModule,
+    SanctionRecordsModule,
     ConfigModule.forRoot(),
   ],
   controllers: [AppController],

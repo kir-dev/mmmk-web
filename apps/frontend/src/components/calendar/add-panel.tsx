@@ -55,7 +55,7 @@ export function AddPanel(props: AddEventProps) {
               </button>
 
               <h2 className='text-xl font-semibold mb-4 text-black dark:text-zinc-100'>
-                {selected === 'reservation' ? 'Új foglalás létrehozása' : 'Új komment hozzáadása'}
+                {selected === 'reservation' ? 'Új foglalás létrehozása' : 'Új felhívás hozzáadása'}
               </h2>
 
               <div className='flex gap-2 mb-6'>
@@ -77,7 +77,7 @@ export function AddPanel(props: AddEventProps) {
                       : 'bg-white hover:bg-slate-200 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-black dark:text-zinc-200'
                   }`}
                 >
-                  Komment
+                  Felhívás
                 </Button>
               </div>
 

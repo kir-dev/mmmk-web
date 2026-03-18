@@ -8,6 +8,9 @@ export default function collisionWithAdminRes(
   reservationsOfDay: Reservation[]
 ): boolean {
   const adminReservations = reservationsOfDay.filter((res) => {
+    // Skip band reservations (userId is null)
+    if (!res.userId) return false;
+
     getUser(res.userId).then((user) => {
       return user.role === 'ADMIN';
     });

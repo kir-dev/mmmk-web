@@ -7,9 +7,16 @@ export default function validDate(
   reservation: Reservation | undefined,
   reservations: Reservation[]
 ): boolean {
-  if (start > end || end.getHours() - start.getHours() > 3 || end.valueOf() - start.valueOf() < 30 * 60 * 1000) {
-    return false;
-  }
+  const durationMs = end.valueOf() - start.valueOf();
+  const minDurationMs = 30 * 60 * 1000; // 30 minutes
+  const maxDurationMs = 3 * 60 * 60 * 1000; // 3 hours
+
+  // Validate time constraints
+  if (start > end) return false;
+  if (durationMs < minDurationMs || durationMs > maxDurationMs) return false;
+
+  // Validate 15-minute intervals
+  if (start.getMinutes() % 15 !== 0 || end.getMinutes() % 15 !== 0) return false;
   if (reservation) {
     if (
       start.getDate() < new Date(reservation.startTime).getDate() - new Date(reservation.startTime).getDay() ||

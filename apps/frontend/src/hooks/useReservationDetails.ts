@@ -32,13 +32,19 @@ export function useReservationDetails(props: ReservationDetailsProps) {
 
   // User who is the gatekeeper
   const [gateKeeper, setGateKeeper] = useState<User | null>(null);
+  // True while the gatekeeper user data is being fetched (prevents button flash — issue #65)
+  const [gateKeeperLoading, setGateKeeperLoading] = useState(false);
   // Membership id bound to the reservation (what backend expects as gateKeeperId)
   const [gateKeeperMembershipId, setGateKeeperMembershipId] = useState<number | null>(null);
 
   const [gateKeepers, setGateKeepers] = useState<ClubMembership[]>([]);
   const [valid, setValid] = useState(true);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const hasEditRights = useMemo(() => {
+    // ADMINMADE reservations can only be edited by admins (issue #62)
+    if (props.clickedEvent?.status === 'ADMINMADE' && me?.role !== 'ADMIN') return false;
+
     if (me?.role === 'ADMIN') return true;
     if (props.clickedEvent?.userId === me?.id) return true;
 
@@ -54,18 +60,26 @@ export function useReservationDetails(props: ReservationDetailsProps) {
   const getGateKeeper = (membershipId: number | null) => {
     setGateKeeperMembershipId(membershipId);
     if (membershipId) {
+      setGateKeeperLoading(true);
       axiosApi
         .get(`/memberships/${membershipId}`)
         .then((res) => {
-          axiosApi.get(`/users/${res.data.userId}`).then((result) => {
-            setGateKeeper(result.data);
-          });
+          axiosApi
+            .get(`/users/${res.data.userId}`)
+            .then((result) => {
+              setGateKeeper(result.data);
+            })
+            .finally(() => {
+              setGateKeeperLoading(false);
+            });
         })
         .catch(() => {
           setGateKeeper(null);
+          setGateKeeperLoading(false);
         });
     } else {
       setGateKeeper(null);
+      setGateKeeperLoading(false);
     }
   };
 
@@ -92,7 +106,8 @@ export function useReservationDetails(props: ReservationDetailsProps) {
     }
 
     const reservationStart = new Date(props.clickedEvent.startTime);
-    if (reservationStart.getTime() < Date.now()) {
+    // Only prevent non-admins from deleting past reservations
+    if (reservationStart.getTime() < Date.now() && me?.role !== 'ADMIN') {
       //alert('Nem törölhetsz múltbeli foglalást!');
       return;
     }
@@ -128,13 +143,21 @@ export function useReservationDetails(props: ReservationDetailsProps) {
           .then(() => {
             props.onGetData();
             onGetName(props.clickedEvent?.id);
+            setValid(true);
+            setIsEditing(false);
+          })
+          .catch((err) => {
+            const msg = err?.response?.data?.message;
+            setErrorMessage(Array.isArray(msg) ? msg.join(', ') : msg ?? 'Hiba történt a mentés során');
+            setValid(false);
+            // Keep isEditing true so the user can correct and retry
           });
-        setValid(true);
       } else {
         setValid(false);
       }
+      return;
     }
-    setIsEditing((p) => !p);
+    setIsEditing(true);
   };
 
   const onGetName = (id: number | undefined) => {
@@ -190,10 +213,23 @@ export function useReservationDetails(props: ReservationDetailsProps) {
     const myMembership = CurrentUserIsGK();
     if (!myMembership) return;
 
-    let emailUser;
-    await axiosApi.get(`/users/${props.clickedEvent?.userId}`).then((res) => {
-      emailUser = res.data.email;
-    });
+    // Collect email recipients
+    let emailRecipients: string[] = [];
+
+    if (props.clickedEvent.userId) {
+      // Personal reservation - email the user
+      await axiosApi.get(`/users/${props.clickedEvent.userId}`).then((res) => {
+        emailRecipients = [res.data.email];
+      });
+    } else if (props.clickedEvent.bandId && band) {
+      // Band reservation - email all band members
+      if (band.members && band.members.length > 0) {
+        const memberEmails = await Promise.all(
+          band.members.map((member) => axiosApi.get(`/users/${member.userId}`).then((res) => res.data.email))
+        );
+        emailRecipients = memberEmails.filter(Boolean);
+      }
+    }
 
     // Unset if current user already assigned (membership id matches)
     if (gateKeeperMembershipId && gateKeeperMembershipId === myMembership.id) {
@@ -201,22 +237,31 @@ export function useReservationDetails(props: ReservationDetailsProps) {
         setGateKeeper(null);
         setGateKeeperMembershipId(null);
         props.onGetData();
-        handleSubmitMail('A beengedő visszamondta a foglalásod.', emailUser!, me!.email);
+
+        // Send email to all recipients
+        if (emailRecipients.length > 0) {
+          emailRecipients.forEach((email) => {
+            handleSubmitMail('A beengedő visszamondta a foglalásod.', email, me!.email);
+          });
+        }
       });
       return;
     }
 
-    // Set gatekeeper using membership id \*NOT\* user id
+    // Set gatekeeper using membership id *NOT* user id
     if (!gateKeeperMembershipId) {
       axiosApi.patch(`/reservations/${props.clickedEvent.id}`, { gateKeeperId: myMembership.id }).then(() => {
         setGateKeeperMembershipId(myMembership.id);
         axiosApi.get(`/users/${myMembership.userId}`).then((resp) => {
           setGateKeeper(resp.data);
-          handleSubmitMail(
-            `A foglalásodhoz beengedő lett rendelve. Név: ${resp.data.fullName}, e-mail: ${resp.data.email}`,
-            emailUser!,
-            resp.data.email
-          );
+
+          // Send email to all recipients
+          if (emailRecipients.length > 0) {
+            const message = `A foglalásodhoz beengedő lett rendelve. Név: ${resp.data.fullName}, e-mail: ${resp.data.email}`;
+            emailRecipients.forEach((email) => {
+              handleSubmitMail(message, email, resp.data.email);
+            });
+          }
         });
         props.onGetData();
       });
@@ -281,6 +326,7 @@ export function useReservationDetails(props: ReservationDetailsProps) {
       },
       setValid: () => {},
       adminOverride: false,
+      needToBeLetIn: props.clickedEvent?.needToBeLetIn,
     });
   };
 
@@ -295,7 +341,10 @@ export function useReservationDetails(props: ReservationDetailsProps) {
     user,
     band,
     gateKeeper,
+    gateKeeperLoading,
+    gateKeepers,
     valid,
+    errorMessage,
     hasEditRights,
     CurrentUserIsGK,
     currentUserCanBeGateKeeper,
@@ -305,5 +354,6 @@ export function useReservationDetails(props: ReservationDetailsProps) {
     handleCloseModal,
     setAsOvertime,
     requestNormalReservation,
+    me,
   };
 }

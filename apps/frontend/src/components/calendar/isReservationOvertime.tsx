@@ -1,4 +1,3 @@
-import { Band } from '@/types/band';
 import { Reservation } from '@/types/reservation';
 
 export function getFirstDayOfWeek(date: Date = new Date()): Date {
@@ -21,25 +20,47 @@ const now = new Date();
 const startOfWeek = getFirstDayOfWeek(now);
 const endOfWeek = getLastDayOfWeek(now);
 
-export function getReservationsOfWeek(reservations: Reservation[], band: Band): Reservation[] {
+export function getReservationsOfWeek(reservations: Reservation[], bandId?: number, userId?: number): Reservation[] {
   return reservations.filter((reservation) => {
     const reservationStart = new Date(reservation.startTime);
+
+    let matchesIdentifier = false;
+    if (bandId) {
+      matchesIdentifier = reservation.bandId === bandId;
+    } else if (userId) {
+      matchesIdentifier = reservation.userId === userId;
+    }
+
     return (
       reservationStart.getTime() >= startOfWeek.getTime() &&
       reservationStart.getTime() <= endOfWeek.getTime() &&
-      reservation.bandId === band?.id
+      matchesIdentifier
     );
   });
 }
 
-export function getReservationsOfDay(reservations: Reservation[], band: Band, start: Date): Reservation[] {
+export function getReservationsOfDay(
+  reservations: Reservation[],
+  bandId?: number,
+  userId?: number,
+  start?: Date
+): Reservation[] {
+  const dateToCheck = start || new Date();
   return reservations.filter((reservation) => {
     const reservationStart = new Date(reservation.startTime);
+
+    let matchesIdentifier = false;
+    if (bandId) {
+      matchesIdentifier = reservation.bandId === bandId;
+    } else if (userId) {
+      matchesIdentifier = reservation.userId === userId;
+    }
+
     return (
-      reservationStart.getDate() === start.getDate() &&
-      reservationStart.getMonth() === start.getMonth() &&
-      reservationStart.getFullYear() === start.getFullYear() &&
-      reservation.bandId === band?.id
+      reservationStart.getDate() === dateToCheck.getDate() &&
+      reservationStart.getMonth() === dateToCheck.getMonth() &&
+      reservationStart.getFullYear() === dateToCheck.getFullYear() &&
+      matchesIdentifier
     );
   });
 }

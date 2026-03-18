@@ -27,9 +27,10 @@ export default function ReservationDetails(props: EventDetailsProps) {
     user,
     band,
     gateKeeper,
+    gateKeeperLoading,
     valid,
+    errorMessage,
     hasEditRights,
-    CurrentUserIsGK,
     currentUserCanBeGateKeeper,
     onSetGK,
     onDelete,
@@ -37,6 +38,7 @@ export default function ReservationDetails(props: EventDetailsProps) {
     handleCloseModal,
     setAsOvertime,
     requestNormalReservation,
+    me,
   } = useReservationDetails(props);
 
   const statusLabels: Record<string, string> = {
@@ -85,7 +87,7 @@ export default function ReservationDetails(props: EventDetailsProps) {
               {/* Gatekeeper */}
               <div className='space-y-1'>
                 <label className='text-xs font-medium text-slate-500 dark:text-slate-400'>Beengedő</label>
-                <p className='font-medium'>{gateKeeper?.fullName || 'Not assigned'}</p>
+                <p className='font-medium'>{gateKeeper?.fullName || '-'}</p>
               </div>
 
               {/* Gatekeeper Phone */}
@@ -123,6 +125,15 @@ export default function ReservationDetails(props: EventDetailsProps) {
                 </div>
               )}
 
+              <div className='space-y-1 flex flex-row gap-4'>
+                <div className='flex flex-col gap-2'>
+                  <label className='text-xs font-medium text-slate-500 dark:text-slate-400'>Kell-e fogadni</label>
+                  <span className='inline-flex items-center py-0.5 rounded-full text-xs font-medium'>
+                    {props.clickedEvent?.needToBeLetIn ? 'Igen' : 'Nem'}
+                  </span>
+                </div>
+              </div>
+
               {/* Status */}
               <div className='space-y-1 flex flex-row gap-4'>
                 <div className='flex flex-col gap-2'>
@@ -139,10 +150,10 @@ export default function ReservationDetails(props: EventDetailsProps) {
                 </div>
               </div>
 
-              {/* Validation Error */}
+              {/* Validation / save Error */}
               {!valid && (
                 <div className='p-2 text-sm text-red-600 bg-red-100 dark:bg-red-900 dark:text-red-300 rounded-md'>
-                  Invalid time range selected
+                  {errorMessage || 'Érvénytelen időtartam'}
                 </div>
               )}
             </div>
@@ -150,13 +161,23 @@ export default function ReservationDetails(props: EventDetailsProps) {
             {/* Footer with Actions */}
             <div className='p-4 border-t dark:border-slate-700 bg-slate-50 dark:bg-slate-900'>
               <div className='flex flex-wrap items-center justify-between gap-2'>
-                {CurrentUserIsGK() && gateKeeper === null && currentUserCanBeGateKeeper() && (
+                {/* Gatekeeper Sign-up Button — hidden while loading to prevent flash (issue #65) */}
+                {!gateKeeperLoading && gateKeeper === null && currentUserCanBeGateKeeper() && (
                   <button
-                    className={`px-4 py-2 text-sm font-medium text-white rounded-md transition-colors
-                      ${gateKeeper === null ? 'bg-orange-500 hover:bg-orange-600' : 'bg-amber-600 hover:bg-amber-700'}`}
+                    className='px-4 py-2 text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 rounded-md transition-colors'
                     onClick={onSetGK}
                   >
-                    {gateKeeper === null ? 'Jelentkezés beengedőnek' : 'Beengedés leadása'}
+                    Jelentkezés beengedőnek
+                  </button>
+                )}
+
+                {/* Gatekeeper Resign Button - only for assigned gatekeeper */}
+                {gateKeeper !== null && me?.id === gateKeeper.id && (
+                  <button
+                    className='px-4 py-2 text-sm font-medium text-white bg-amber-600 hover:bg-amber-700 rounded-md transition-colors'
+                    onClick={onSetGK}
+                  >
+                    Beengedés leadása
                   </button>
                 )}
 

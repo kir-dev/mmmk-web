@@ -11,12 +11,22 @@ import { Comment } from './entities/comment.entity';
 export class CommentsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  create(createCommentDto: CreateCommentDto) {
-    return this.prisma.comment.create({
+  async create(createCommentDto: CreateCommentDto) {
+    const comment = await this.prisma.comment.create({
       data: {
         ...createCommentDto,
       },
     });
+
+    // If the new comment blocks reservations, delete any that overlap its window
+    if (!createCommentDto.isReservable) {
+      await this.deleteOverlappingReservations(
+        new Date(createCommentDto.startTime),
+        new Date(createCommentDto.endTime)
+      );
+    }
+
+    return comment;
   }
 
   findAll(page?: number, pageSize?: number): Promise<PaginationDto<Comment>> {
@@ -65,7 +75,7 @@ export class CommentsService {
 
   async update(id: number, updateCommentDto: UpdateCommentDto) {
     try {
-      return await this.prisma.comment.update({
+      const updated = await this.prisma.comment.update({
         where: {
           id,
         },
@@ -73,6 +83,13 @@ export class CommentsService {
           ...updateCommentDto,
         },
       });
+
+      // If the updated comment now blocks reservations, purge any overlapping ones
+      if (updated.isReservable === false) {
+        await this.deleteOverlappingReservations(new Date(updated.startTime), new Date(updated.endTime));
+      }
+
+      return updated;
     } catch (e) {
       if (e instanceof Prisma.PrismaClientKnownRequestError) {
         if (e.code === 'P2025') {
@@ -98,5 +115,25 @@ export class CommentsService {
         throw new InternalServerErrorException('An error occurred.');
       }
     }
+  }
+
+  /**
+   * Deletes all reservations whose time window overlaps with [startTime, endTime].
+   * Called automatically when a non-reservable comment is created or updated.
+   * A reservation overlaps if it starts before the window ends AND ends after the window starts.
+   *
+   * @returns the number of reservations deleted
+   */
+  async deleteOverlappingReservations(startTime: Date, endTime: Date): Promise<number> {
+    const { count } = await this.prisma.reservation.deleteMany({
+      where: {
+        AND: [
+          { startTime: { lt: endTime } }, // reservation starts before comment ends
+          { endTime: { gt: startTime } }, // reservation ends after comment starts
+          { status: { not: 'ADMINMADE' } }, // admin reservations are never auto-deleted
+        ],
+      },
+    });
+    return count;
   }
 }
