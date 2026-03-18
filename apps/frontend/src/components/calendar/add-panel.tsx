@@ -31,7 +31,7 @@ export function AddPanel(props: AddEventProps) {
   };
 
   return (
-    <div className='m-2 text-black dark:text-gray-400'>
+    <div className='m-1 md:m-2 text-black dark:text-gray-400 w-full'>
       {isAdd ? (
         <div className='fixed inset-0 bg-black/50 backdrop-blur-sm z-40 flex items-center justify-center overflow-y-auto'>
           <div className='relative w-full max-w-md rounded-xl bg-white border-slate-600 dark:bg-zinc-800 border dark:border-zinc-700 shadow-2xl transform transition-all'>
@@ -95,7 +95,7 @@ export function AddPanel(props: AddEventProps) {
           </div>
         </div>
       ) : (
-        <Button onClick={onAddEvent}>
+        <Button onClick={onAddEvent} className='w-full md:w-auto'>
           <Plus />
         </Button>
       )}
