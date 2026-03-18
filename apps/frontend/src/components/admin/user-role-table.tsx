@@ -1,11 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import axiosApi from '@/lib/apiSetup';
+import { showErrorToast } from '@/lib/errorToast';
 import { Role, User } from '@/types/user';
 
 type Props = {
@@ -34,8 +36,9 @@ export function UserRoleTable({ currentUserId }: Props) {
     try {
       await axiosApi.patch(`/admin/users/${user.id}/role`, { role: newRole });
       setUsers((prev) => prev.map((u) => (u.id === user.id ? { ...u, role: newRole } : u)));
+      toast.success(`${user.fullName} szerepköre megváltozott.`);
     } catch (error) {
-      console.error(error);
+      showErrorToast(error);
     } finally {
       setPendingIds((prev) => {
         const next = new Set(prev);

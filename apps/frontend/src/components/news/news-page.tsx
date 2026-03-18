@@ -2,6 +2,7 @@
 
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 import NewsCard from '@/components/news/news-card';
 import { NewsForm } from '@/components/news/news-form';
@@ -9,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import Pagination from '@/components/ui/pagination';
 import usePosts from '@/hooks/use-post';
 import { useUser } from '@/hooks/useUser';
+import { showErrorToast } from '@/lib/errorToast';
 import { Post } from '@/types/post';
 import { Role } from '@/types/user';
 import api from '@/utils/api-setup';
@@ -24,33 +26,53 @@ export default function News() {
 
   async function handleCreate(post: Omit<Post, 'id' | 'createdAt'>) {
     if (!isAdmin || !currentUser) return;
-    await api.post('/posts', {
-      title: post.title,
-      body: post.body,
-      authorId: currentUser.id,
-    });
-    await mutate();
+    try {
+      await api.post('/posts', {
+        title: post.title,
+        body: post.body,
+        authorId: currentUser.id,
+      });
+      await mutate();
+      toast.success('Bejegyzés sikeresen létrehozva.');
+    } catch (error) {
+      showErrorToast(error);
+    }
   }
 
   async function handleEdit(post: Omit<Post, 'id' | 'createdAt'>) {
     if (!isAdmin || !editing) return;
-    await api.patch(`/posts/${editing.id}`, {
-      title: post.title,
-      body: post.body,
-    });
-    await mutate();
-    setEditing(null);
+    try {
+      await api.patch(`/posts/${editing.id}`, {
+        title: post.title,
+        body: post.body,
+      });
+      await mutate();
+      setEditing(null);
+      toast.success('Bejegyzés sikeresen frissítve.');
+    } catch (error) {
+      showErrorToast(error);
+    }
   }
 
   async function handleDelete(id: string) {
     if (!isAdmin) return;
-    await api.delete(`/posts/${id}`);
-    await mutate();
+    try {
+      await api.delete(`/posts/${id}`);
+      await mutate();
+      toast.success('Bejegyzés sikeresen törölve.');
+    } catch (error) {
+      showErrorToast(error);
+    }
   }
 
   async function handleTogglePin(id: string) {
-    await api.patch(`/posts/${id}/pin`);
-    await mutate();
+    try {
+      await api.patch(`/posts/${id}/pin`);
+      await mutate();
+      toast.success('Bejegyzés rögzítési állapota frissítve.');
+    } catch (error) {
+      showErrorToast(error);
+    }
   }
 
   function openCreateDialog() {
