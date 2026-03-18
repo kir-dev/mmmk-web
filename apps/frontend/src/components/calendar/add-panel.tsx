@@ -37,7 +37,7 @@ export function AddPanel(props: AddEventProps) {
           <div className='relative w-full max-w-md rounded-xl bg-white border-slate-600 dark:bg-zinc-800 border dark:border-zinc-700 shadow-2xl transform transition-all'>
             <div className='p-6'>
               <button
-                className='absolute top-4 right-4 text-black dark:text-zinc-400 hover:text-white transition-colors'
+                className='absolute top-4 right-4 text-black dark:text-zinc-400 hover:text-slate-600 dark:hover:text-white transition-colors'
                 onClick={onAddEvent}
                 aria-label='Close'
               >
@@ -63,7 +63,7 @@ export function AddPanel(props: AddEventProps) {
                   onClick={() => setSelected('reservation')}
                   className={`flex-1 py-2 border-2  ${
                     selected === 'reservation'
-                      ? 'bg-orange-500 hover:bg-orange-600 text-zinc-900'
+                      ? 'bg-primary hover:bg-primary/90 text-primary-foreground'
                       : 'bg-white hover:bg-slate-200 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-black dark:text-zinc-200'
                   }`}
                 >
@@ -73,7 +73,7 @@ export function AddPanel(props: AddEventProps) {
                   onClick={() => setSelected('comment')}
                   className={`flex-1 py-2 border-2 ${
                     selected === 'comment'
-                      ? 'bg-orange-500 hover:bg-orange-600 text-zinc-900'
+                      ? 'bg-primary hover:bg-primary/90 text-primary-foreground'
                       : 'bg-white hover:bg-slate-200 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-black dark:text-zinc-200'
                   }`}
                 >

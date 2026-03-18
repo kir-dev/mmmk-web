@@ -196,6 +196,9 @@ Group components by domain in `src/components/<domain>/`. Shared UI primitives l
 
 Pages live in `src/app/<route>/page.tsx`, following Next.js App Router conventions. The root layout (`src/app/layout.tsx`) wraps child pages with `Header`, `Sidebar`, `RightSidebar`, `Footer`, and `ThemeProvider`.
 
+**Design System:**
+The application uses a sleek, monochromatic design system (based on the standard zinc palette). The `--primary` color maps directly to high-contrast neutrals (e.g. `zinc-900` in light mode, `zinc-50` in dark mode).
+
 ---
 
 ## API Design Patterns
