@@ -1,16 +1,76 @@
-import { Play } from 'lucide-react';
+import { LogOut, Pencil, Play } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 
+import BandFormDialog from '@/components/band/band-form-dialog';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { TableCell, TableRow } from '@/components/ui/table';
-import { Band } from '@/types/band';
+import getUser from '@/hooks/getUser';
+import { useUser } from '@/hooks/useUser';
+import axiosApi from '@/lib/apiSetup';
+import { Band, BandMembership } from '@/types/band';
 
 export default function BandRow({ band }: { band: Band }) {
+  const { user } = useUser();
+  const [memberNames, setMemberNames] = useState<string[]>([]);
+  const isMember = useMemo(() => {
+    if (!user) return false;
+    const m = (band.members || []) as BandMembership[];
+    return m.some((bm) => bm.userId === user.id);
+  }, [user, band.members]);
+
+  const [editOpen, setEditOpen] = useState(false);
+  // edit form is handled by BandFormDialog
+
+  const [users, setUsers] = useState<{ id: number; fullName: string }[]>([]);
+  const [selectedUserId, setSelectedUserId] = useState<number | ''>('');
+  const [addOpen, setAddOpen] = useState(false);
+
+  useEffect(() => {
+    axiosApi.get('/users').then((res) => {
+      const arr = Array.isArray(res.data) ? res.data : res.data.users;
+      setUsers(arr || []);
+    });
+  }, []);
+
+  useEffect(() => {
+    const members = band.members;
+    if (!members || members.length === 0) {
+      setMemberNames([]);
+      return;
+    }
+
+    if (typeof (members as any)[0] === 'string') {
+      setMemberNames(members as unknown as string[]);
+      return;
+    }
+
+    let cancelled = false;
+    const memberships = members as BandMembership[];
+    const userIds = memberships.map((m) => m.userId).filter((id): id is number => typeof id === 'number');
+    Promise.all(
+      userIds.map((id) =>
+        getUser(id)
+          .then((u) => u.fullName)
+          .catch(() => undefined)
+      )
+    )
+      .then((names) => names.filter((n): n is string => Boolean(n)))
+      .then((names) => {
+        if (!cancelled) setMemberNames(names);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [band.members]);
+
   return (
     <Collapsible key={band.id} asChild>
       <>
         <TableRow className='border-0'>
-          <TableCell colSpan={3}>
+          <TableCell colSpan={4}>
             <div>
               <strong className='text-xl'>{band.name}</strong>
               <h1>{band.genres?.join(' ')}</h1>
@@ -29,14 +89,104 @@ export default function BandRow({ band }: { band: Band }) {
             </CollapsibleTrigger>
           </TableCell>
         </TableRow>
-        <TableRow className='border-0 '>
+        <TableRow className='border-0'>
           <CollapsibleContent asChild>
             <TableCell colSpan={7}>
-              <div className='flex flex-row justify-between px-4 gap-8 '>
-                <div>{band.description}</div>
-                <div>
+              <div className='flex flex-col md:flex-row justify-between items-start px-4 gap-4'>
+                <div className='order-1 flex-1 md:pr-4 break-words w-full'>{band.description}</div>
+                <div className='order-2 flex-1 md:pr-4 w-full'>
                   <strong>Tagok: </strong>
-                  {band.members?.join(', ')}
+                  {memberNames.join(', ')}
+                </div>
+                <div className='order-3 md:ml-auto flex flex-row items-center gap-2 shrink-0 flex-wrap w-full md:w-auto'>
+                  {/* Join button removed intentionally */}
+                  {isMember && user && (
+                    <>
+                      <div>
+                        <BandFormDialog
+                          mode='edit'
+                          band={band}
+                          open={editOpen}
+                          onOpenChange={setEditOpen}
+                          onSuccess={() => window.location.reload()}
+                          trigger={
+                            <Button size='sm' variant='secondary'>
+                              <Pencil />
+                            </Button>
+                          }
+                        />
+                      </div>
+                      <div>
+                        <Button
+                          size='sm'
+                          variant='destructive'
+                          onClick={() =>
+                            axiosApi.delete(`/bands/${band.id}/members/${user.id}`).then(() => window.location.reload())
+                          }
+                        >
+                          <LogOut />
+                        </Button>
+                      </div>
+                      <div>
+                        <Dialog
+                          open={addOpen}
+                          onOpenChange={(o) => {
+                            setAddOpen(o);
+                            if (!o) setSelectedUserId('');
+                          }}
+                        >
+                          <DialogTrigger asChild>
+                            <Button size='sm'>Tag hozzáadása</Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Tag hozzáadása</DialogTitle>
+                            </DialogHeader>
+                            <div className='flex flex-col gap-3'>
+                              <select
+                                className='h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground'
+                                value={selectedUserId === '' ? '' : String(selectedUserId)}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setSelectedUserId(val ? Number(val) : '');
+                                }}
+                              >
+                                <option value=''>Válassz felhasználót…</option>
+                                {users
+                                  .filter(
+                                    (u) => !((band.members || []) as BandMembership[]).some((m) => m.userId === u.id)
+                                  )
+                                  .map((u) => (
+                                    <option key={u.id} value={u.id}>
+                                      {u.fullName}
+                                    </option>
+                                  ))}
+                              </select>
+                              <div className='flex justify-end gap-2'>
+                                <Button variant='ghost' onClick={() => setAddOpen(false)}>
+                                  Mégse
+                                </Button>
+                                <Button
+                                  onClick={() => {
+                                    if (selectedUserId === '') return;
+                                    axiosApi
+                                      .post(`/bands/${band.id}/members/${selectedUserId}`)
+                                      .then(() => window.location.reload())
+                                      .catch((e) => {
+                                        if (e?.response?.status === 409) window.location.reload();
+                                      });
+                                  }}
+                                  disabled={selectedUserId === ''}
+                                >
+                                  Hozzáadás
+                                </Button>
+                              </div>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             </TableCell>

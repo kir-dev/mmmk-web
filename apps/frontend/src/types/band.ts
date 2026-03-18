@@ -5,12 +5,12 @@ export type Band = {
   webPage: string;
   description: string;
   genres?: string[];
-  members?: string[];
+  members?: BandMembership[];
 };
 
 export type BandMembership = {
   id: number;
   bandId: number;
   userId: number;
-  role: string;
+  status: string;
 };

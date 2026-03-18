@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { BandMembership, BandMembershipStatus } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 import { User } from 'src/users/entities/user.entity';
@@ -58,11 +58,16 @@ export class BandsService {
 
   async addMember(bandId: number, userId: number): Promise<BandMembership> {
     try {
+      const existing = await this.prisma.bandMembership.findFirst({ where: { bandId, userId } });
+      if (existing) {
+        throw new ConflictException('User is already a member of this band');
+      }
       const res = await this.prisma.bandMembership.create({
         data: { band: { connect: { id: bandId } }, user: { connect: { id: userId } } },
       });
       return res;
     } catch (error) {
+      if (error instanceof ConflictException) throw error;
       throw new NotFoundException('Member could not be added');
     }
   }

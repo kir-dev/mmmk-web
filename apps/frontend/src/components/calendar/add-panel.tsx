@@ -2,7 +2,8 @@
 import AddComment from '@components/calendar/add-comment';
 import AddReservation from '@components/calendar/add-reservation';
 import { Button } from '@components/ui/button';
-import React, { useEffect, useState } from 'react';
+import { Plus } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 import { Reservation } from '@/types/reservation';
 
@@ -30,13 +31,13 @@ export function AddPanel(props: AddEventProps) {
   };
 
   return (
-    <div className='m-2 text-gray-400'>
+    <div className='m-2 text-black dark:text-gray-400'>
       {isAdd ? (
         <div className='fixed inset-0 bg-black/50 backdrop-blur-sm z-40 flex items-center justify-center overflow-y-auto'>
-          <div className='relative w-full max-w-md rounded-xl bg-zinc-800 border border-zinc-700 shadow-2xl transform transition-all'>
+          <div className='relative w-full max-w-md rounded-xl bg-white border-slate-600 dark:bg-zinc-800 border dark:border-zinc-700 shadow-2xl transform transition-all'>
             <div className='p-6'>
               <button
-                className='absolute top-4 right-4 text-zinc-400 hover:text-white transition-colors'
+                className='absolute top-4 right-4 text-black dark:text-zinc-400 hover:text-white transition-colors'
                 onClick={onAddEvent}
                 aria-label='Close'
               >
@@ -53,27 +54,27 @@ export function AddPanel(props: AddEventProps) {
                 </svg>
               </button>
 
-              <h2 className='text-xl font-semibold mb-4 text-zinc-100'>
+              <h2 className='text-xl font-semibold mb-4 text-black dark:text-zinc-100'>
                 {selected === 'reservation' ? 'Új foglalás létrehozása' : 'Új komment hozzáadása'}
               </h2>
 
               <div className='flex gap-2 mb-6'>
                 <Button
                   onClick={() => setSelected('reservation')}
-                  className={`flex-1 py-2 ${
+                  className={`flex-1 py-2 border-2  ${
                     selected === 'reservation'
                       ? 'bg-orange-500 hover:bg-orange-600 text-zinc-900'
-                      : 'bg-zinc-700 hover:bg-zinc-600 text-zinc-200'
+                      : 'bg-white hover:bg-slate-200 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-black dark:text-zinc-200'
                   }`}
                 >
                   Foglalás
                 </Button>
                 <Button
                   onClick={() => setSelected('comment')}
-                  className={`flex-1 py-2 ${
+                  className={`flex-1 py-2 border-2 ${
                     selected === 'comment'
                       ? 'bg-orange-500 hover:bg-orange-600 text-zinc-900'
-                      : 'bg-zinc-700 hover:bg-zinc-600 text-zinc-200'
+                      : 'bg-white hover:bg-slate-200 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-black dark:text-zinc-200'
                   }`}
                 >
                   Komment
@@ -94,22 +95,9 @@ export function AddPanel(props: AddEventProps) {
           </div>
         </div>
       ) : (
-        <button
-          className='h-10 w-10 flex items-center justify-center rounded-full bg-orange-500 hover:bg-orange-600 text-white font-bold shadow-md transition-transform hover:scale-105'
-          onClick={onAddEvent}
-        >
-          <svg
-            xmlns='http://www.w3.org/2000/svg'
-            width='20'
-            height='20'
-            viewBox='0 0 24 24'
-            fill='none'
-            stroke='currentColor'
-            strokeWidth='2'
-          >
-            <path d='M12 5v14M5 12h14' />
-          </svg>
-        </button>
+        <Button onClick={onAddEvent}>
+          <Plus />
+        </Button>
       )}
     </div>
   );

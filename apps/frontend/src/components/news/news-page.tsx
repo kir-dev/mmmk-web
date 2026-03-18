@@ -2,20 +2,22 @@
 
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 import NewsCard from '@/components/news/news-card';
 import { NewsForm } from '@/components/news/news-form';
 import { Button } from '@/components/ui/button';
 import Pagination from '@/components/ui/pagination';
 import usePosts from '@/hooks/use-post';
-import { mockUsers } from '@/mocks/users';
+import { useUser } from '@/hooks/useUser';
+import { showErrorToast } from '@/lib/errorToast';
 import { Post } from '@/types/post';
-import { User } from '@/types/user';
+import { Role } from '@/types/user';
 import api from '@/utils/api-setup';
 
 export default function News() {
-  const currentUser: User = mockUsers[1]; //TODO: replace with real user
-  const isAdmin = currentUser.role === 'ADMIN';
+  const { user: currentUser } = useUser();
+  const isAdmin = currentUser?.role === Role.ADMIN;
   const [page, setPage] = useState(1);
   const { data: posts, isLoading, mutate } = usePosts(page, 10);
   const [editing, setEditing] = useState<Post | null>(null);
@@ -23,32 +25,54 @@ export default function News() {
   const [dialogOpen, setDialogOpen] = useState(false);
 
   async function handleCreate(post: Omit<Post, 'id' | 'createdAt'>) {
-    await api.post('/posts', {
-      title: post.title,
-      body: post.body,
-      authorId: 1,
-    });
-    await mutate();
+    if (!isAdmin || !currentUser) return;
+    try {
+      await api.post('/posts', {
+        title: post.title,
+        body: post.body,
+        authorId: currentUser.id,
+      });
+      await mutate();
+      toast.success('Bejegyzés sikeresen létrehozva.');
+    } catch (error) {
+      showErrorToast(error);
+    }
   }
 
   async function handleEdit(post: Omit<Post, 'id' | 'createdAt'>) {
-    if (!editing) return;
-    await api.patch(`/posts/${editing.id}`, {
-      title: post.title,
-      body: post.body,
-    });
-    await mutate();
-    setEditing(null);
+    if (!isAdmin || !editing) return;
+    try {
+      await api.patch(`/posts/${editing.id}`, {
+        title: post.title,
+        body: post.body,
+      });
+      await mutate();
+      setEditing(null);
+      toast.success('Bejegyzés sikeresen frissítve.');
+    } catch (error) {
+      showErrorToast(error);
+    }
   }
 
   async function handleDelete(id: string) {
-    await api.delete(`/posts/${id}`);
-    await mutate();
+    if (!isAdmin) return;
+    try {
+      await api.delete(`/posts/${id}`);
+      await mutate();
+      toast.success('Bejegyzés sikeresen törölve.');
+    } catch (error) {
+      showErrorToast(error);
+    }
   }
 
   async function handleTogglePin(id: string) {
-    await api.patch(`/posts/${id}/pin`);
-    await mutate();
+    try {
+      await api.patch(`/posts/${id}/pin`);
+      await mutate();
+      toast.success('Bejegyzés rögzítési állapota frissítve.');
+    } catch (error) {
+      showErrorToast(error);
+    }
   }
 
   function openCreateDialog() {
@@ -65,17 +89,17 @@ export default function News() {
 
   return (
     <div className='w-full main-content-scroll h-full'>
-      <div className='flex items-center justify-between flex-row p-4 bg-background sticky top-0 z-10'>
-        <h1 className='text-2xl font-semibold text-primary'>Hírek</h1>
+      <div className='flex items-center justify-between flex-col sm:flex-row gap-3 p-4 bg-background sticky top-0 z-10'>
+        <h1 className='text-2xl font-semibold text-primary w-full sm:w-auto text-center sm:text-left'>Hírek</h1>
         {isAdmin && (
-          <Button onClick={openCreateDialog}>
+          <Button onClick={openCreateDialog} className='w-full sm:w-auto'>
             <Plus />
           </Button>
         )}
       </div>
       <div className='m-4'>
         <div className='space-y-4'>
-          {isLoading && <p>Loading...</p>}
+          {isLoading && <p>Betöltés…</p>}
           {posts?.data &&
             posts.data.map((post: Post) => (
               <NewsCard
@@ -91,16 +115,18 @@ export default function News() {
         </div>
       </div>
 
-      <NewsForm
-        initial={editing || undefined}
-        onSave={creating ? handleCreate : handleEdit}
-        onCancel={() => {
-          setCreating(false);
-          setEditing(null);
-        }}
-        isOpen={dialogOpen}
-        onOpenChange={setDialogOpen}
-      />
+      {isAdmin && (
+        <NewsForm
+          initial={editing || undefined}
+          onSave={creating ? handleCreate : handleEdit}
+          onCancel={() => {
+            setCreating(false);
+            setEditing(null);
+          }}
+          isOpen={dialogOpen}
+          onOpenChange={setDialogOpen}
+        />
+      )}
     </div>
   );
 }

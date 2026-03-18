@@ -36,6 +36,9 @@ export default function AddReservation(props: AddPanelProps) {
   const suggestionRef = useRef<HTMLDivElement>(null);
 
   const [valid, setValid] = useState(true);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const [adminOverride, setAdminOverride] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -52,7 +55,7 @@ export default function AddReservation(props: AddPanelProps) {
   }, []);
 
   useEffect(() => {
-    axiosApi.get('/band').then((res) => {
+    axiosApi.get('/bands').then((res) => {
       setBands(res.data);
     });
     axiosApi.get('/users').then((res) => {
@@ -104,7 +107,7 @@ export default function AddReservation(props: AddPanelProps) {
   };
 
   const handleSubmit = async () => {
-    await submitReservation({
+    const { message } = await submitReservation({
       user,
       band,
       startTime,
@@ -119,10 +122,15 @@ export default function AddReservation(props: AddPanelProps) {
         setUserName('');
         setStartTime(new Date());
         setEndTime(new Date());
+        setAdminOverride(false);
         props.onAddEvent();
       },
       setValid,
+      adminOverride,
     });
+    if (message) {
+      setErrorMessage(message);
+    }
   };
 
   function shiftStart(date: Date) {
@@ -139,41 +147,53 @@ export default function AddReservation(props: AddPanelProps) {
   return (
     <div className='space-y-5'>
       {myUser?.role === 'ADMIN' ? (
-        <div className='relative'>
-          <label htmlFor='name' className='block text-sm font-medium text-zinc-300 mb-1'>
-            Név
-          </label>
+        <>
           <div className='relative'>
-            <Input
-              id='name'
-              value={userName}
-              onChange={handleUserNameChange}
-              required
-              className='bg-zinc-700 border-zinc-600 text-zinc-100 w-full px-3 py-2 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent'
-              placeholder='Válasszon felhasználót...'
-            />
-            {showUserSuggestions && userSuggestions.length > 0 && (
-              <div
-                ref={suggestionRef}
-                className='absolute z-10 w-full mt-1 bg-zinc-700 border border-zinc-600 rounded-md shadow-lg max-h-60 overflow-auto'
-              >
-                {userSuggestions.map((suggestion) => (
-                  <button
-                    key={suggestion.id}
-                    className='px-4 py-2 cursor-pointer hover:bg-zinc-600 w-full text-left text-zinc-200 transition-colors'
-                    onClick={() => handleUserSuggestionClick(suggestion)}
-                  >
-                    {suggestion.fullName}
-                  </button>
-                ))}
-              </div>
-            )}
+            <label htmlFor='name' className='block text-sm font-medium text-zinc-300 mb-1'>
+              Név
+            </label>
+            <div className='relative'>
+              <Input
+                id='name'
+                value={userName}
+                onChange={handleUserNameChange}
+                required
+                className='bg-zinc-700 border-zinc-600 text-zinc-100 w-full px-3 py-2 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent'
+                placeholder='Válasszon felhasználót...'
+              />
+              {showUserSuggestions && userSuggestions.length > 0 && (
+                <div
+                  ref={suggestionRef}
+                  className='absolute z-10 w-full mt-1 bg-zinc-700 border border-zinc-600 rounded-md shadow-lg max-h-60 overflow-auto'
+                >
+                  {userSuggestions.map((suggestion) => (
+                    <button
+                      key={suggestion.id}
+                      className='px-4 py-2 cursor-pointer hover:bg-zinc-600 w-full text-left text-zinc-200 transition-colors'
+                      onClick={() => handleUserSuggestionClick(suggestion)}
+                    >
+                      {suggestion.fullName}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+
+          <div className='flex flex-col'>
+            <label>Admin foglalás</label>
+            <input
+              type='checkbox'
+              checked={adminOverride}
+              onChange={(e) => setAdminOverride(e.target.checked)}
+              className='h-4 w-4 accent-orange-500'
+            />
+          </div>
+        </>
       ) : null}
 
       <div className='relative'>
-        <label htmlFor='band' className='block text-sm font-medium text-zinc-300 mb-1'>
+        <label htmlFor='band' className='block text-sm font-medium text-black dark:text-zinc-300 mb-1'>
           Banda
         </label>
         <div className='relative'>
@@ -182,7 +202,7 @@ export default function AddReservation(props: AddPanelProps) {
             value={bandName}
             onChange={handleBandNameChange}
             required
-            className='bg-zinc-700 border-zinc-600 text-zinc-100 w-full px-3 py-2 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent'
+            className='bg-white hover:bg-slate-200 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-black dark:text-zinc-200 border-zinc-600 w-full px-3 py-2 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent'
             placeholder='Válasszon bandát...'
           />
           {showBandSuggestions && bandSuggestions.length > 0 && (
@@ -206,24 +226,24 @@ export default function AddReservation(props: AddPanelProps) {
 
       <div className='grid grid-cols-2 gap-4'>
         <div className='flex flex-col'>
-          <label htmlFor='begin' className='block text-sm font-medium text-zinc-300 mb-1'>
+          <label htmlFor='begin' className='block text-sm font-medium text-black dark:text-zinc-300 mb-1'>
             Kezdés
           </label>
           <input
             id='begin'
-            className='bg-zinc-700 rounded-md border border-zinc-600 text-zinc-100 px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-transparent'
+            className='bg-white hover:bg-slate-200 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-black dark:text-zinc-200 rounded-md border border-zinc-600 px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-transparent'
             type='datetime-local'
             onChange={(e) => shiftStart(new Date(e.target.value))}
           />
         </div>
 
         <div className='flex flex-col'>
-          <label htmlFor='end' className='block text-sm font-medium text-zinc-300 mb-1'>
+          <label htmlFor='end' className='block text-sm font-medium text-black dark:text-zinc-300 mb-1'>
             Vége
           </label>
           <input
             id='end'
-            className='bg-zinc-700 rounded-md border border-zinc-600 text-zinc-100 px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-transparent'
+            className='bg-white hover:bg-slate-200 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-black dark:text-zinc-200 rounded-md border border-zinc-600 px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-transparent'
             type='datetime-local'
             onChange={(e) => shiftEnd(new Date(e.target.value))}
           />
@@ -241,7 +261,7 @@ export default function AddReservation(props: AddPanelProps) {
               strokeLinejoin='round'
             />
           </svg>
-          Hibás időpont - kérjük válasszon másik időpontot
+          {errorMessage}
         </div>
       )}
 

@@ -9,6 +9,7 @@ interface DWViewProps {
   reservations: Reservation[];
   comments: Comment[];
   onEventClick: (id: number) => void;
+  onCommentClick: (id: number) => void;
   currentDate: Date;
   setCurrentDate: (date: Date) => void;
 }
@@ -181,6 +182,7 @@ export default function DWView(props: DWViewProps) {
                 reservations={props.reservations}
                 comments={props.comments}
                 onEventClick={props.onEventClick}
+                onCommentClick={props.onCommentClick}
               />
             </div>
           ))}

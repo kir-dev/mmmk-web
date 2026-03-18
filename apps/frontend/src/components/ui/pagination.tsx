@@ -14,33 +14,31 @@ export default function Pagination({
   posts: PaginatedPosts;
 }) {
   return (
-    <div className='flex justify-center gap-2 mt-8'>
-      <Button className='pr-5' variant='secondary' disabled={page === 1} onClick={() => setPage(1)}>
+    <div className='flex justify-center gap-2 mt-8 flex-wrap'>
+      <Button className='pr-4' variant='secondary' disabled={page === 1} onClick={() => setPage(1)}>
         <ChevronFirst />
-        Első
       </Button>
-      <Button className='pr-5' variant='secondary' disabled={page === 1} onClick={() => setPage(page - 1)}>
+      <Button className='pr-4' variant='secondary' disabled={page === 1} onClick={() => setPage(page - 1)}>
         <ChevronLeft />
-        Előző
       </Button>
-      <span className='px-2 py-1'>
+      <span className='px-2 py-2 text-sm'>
         {page}. oldal / {Math.ceil(posts.count / 10)}
       </span>
       <Button
-        className='pl-5'
+        className='pl-4'
         variant='secondary'
         disabled={page === Math.ceil(posts.count / 10)}
         onClick={() => setPage(page + 1)}
       >
-        Következő <ChevronRight />
+        <ChevronRight />
       </Button>
       <Button
-        className='pl-5'
+        className='pl-4'
         variant='secondary'
         disabled={page === Math.ceil(posts.count / 10)}
         onClick={() => setPage(Math.ceil(posts.count / 10))}
       >
-        Utolsó <ChevronLast />
+        <ChevronLast />
       </Button>
     </div>
   );

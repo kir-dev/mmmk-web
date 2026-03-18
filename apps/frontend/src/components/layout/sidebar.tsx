@@ -1,15 +1,5 @@
 'use client';
-import {
-  BarChart3,
-  BookAudio,
-  CalendarPlus,
-  Heart,
-  ListMusic,
-  MicVocal,
-  Radio,
-  ShieldCheck,
-  Users2,
-} from 'lucide-react';
+import { BookAudio, CalendarPlus, Heart, ListMusic, MicVocal, ShieldCheck, Users2 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -23,25 +13,6 @@ export function Sidebar() {
   return (
     <div className='w-64 p-4 flex flex-col'>
       <div className='mt-10 space-y-10'>
-        <div className='space-y-2'>
-          <Button variant={pathname === '/' ? 'blastActive' : 'blast'} className='w-full justify-start' asChild>
-            <Link href='/'>
-              <Radio className='mr-2 h-4 w-4' />
-              Hírek
-            </Link>
-          </Button>
-          <Button
-            variant={pathname.startsWith('/bands') ? 'blastActive' : 'blast'}
-            className='w-full justify-start'
-            asChild
-          >
-            <Link href='/bands'>
-              <ListMusic className='mr-2 h-4 w-4' />
-              Zenekarok
-            </Link>
-          </Button>
-        </div>
-
         <div className='pt-4'>
           <h2 className='text-xs uppercase text-zinc-400 font-bold mb-2'>Rólunk</h2>
           <div className='space-y-2'>
@@ -77,42 +48,43 @@ export function Sidebar() {
             </Button>
           </div>
         </div>
-
-        <div className='pt-4'>
-          <h2 className='text-xs uppercase text-zinc-400 font-bold mb-2'>Tagoknak</h2>
-          <div className='space-y-2'>
-            <Button
-              variant={pathname.startsWith('/reservation') ? 'blastActive' : 'blast'}
-              className='w-full justify-start'
-              asChild
-            >
-              <Link href='/reservation'>
-                <CalendarPlus className='mr-2 h-4 w-4' />
-                Foglalás
-              </Link>
-            </Button>
-            <Button
-              variant={pathname.startsWith('/members') ? 'blastActive' : 'blast'}
-              className='w-full justify-start'
-              asChild
-            >
-              <Link href='/members'>
-                <Users2 className='mr-2 h-4 w-4' />
-                Felhasználók
-              </Link>
-            </Button>
-            <Button
-              variant={pathname.startsWith('/stats') ? 'blastActive' : 'blast'}
-              className='w-full justify-start'
-              asChild
-            >
-              <Link href='/stats'>
-                <BarChart3 className='mr-2 h-4 w-4' />
-                Statisztika
-              </Link>
-            </Button>
+        {user && (
+          <div className='pt-4'>
+            <h2 className='text-xs uppercase text-zinc-400 font-bold mb-2'>Tagoknak</h2>
+            <div className='space-y-2'>
+              <Button
+                variant={pathname.startsWith('/members') ? 'blastActive' : 'blast'}
+                className='w-full justify-start'
+                asChild
+              >
+                <Link href='/members'>
+                  <Users2 className='mr-2 h-4 w-4' />
+                  Felhasználók
+                </Link>
+              </Button>
+              <Button
+                variant={pathname.startsWith('/bands') ? 'blastActive' : 'blast'}
+                className='w-full justify-start'
+                asChild
+              >
+                <Link href='/bands'>
+                  <ListMusic className='mr-2 h-4 w-4' />
+                  Zenekarok
+                </Link>
+              </Button>
+              <Button
+                variant={pathname.startsWith('/reservation') ? 'blastActive' : 'blast'}
+                className='w-full justify-start'
+                asChild
+              >
+                <Link href='/reservation'>
+                  <CalendarPlus className='mr-2 h-4 w-4' />
+                  Foglalás
+                </Link>
+              </Button>
+            </div>
           </div>
-        </div>
+        )}
 
         {user?.role === Role.ADMIN && (
           <div className='pt-4'>

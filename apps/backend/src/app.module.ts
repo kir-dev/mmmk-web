@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from 'nestjs-prisma';
 
 import { AdminModule } from './admin/admin.module';
@@ -22,6 +23,7 @@ import { UsersModule } from './users/users.module';
     AuthModule,
     MembershipsModule,
     PostsModule,
+    ConfigModule.forRoot(),
     AdminModule,
   ],
   controllers: [AppController],

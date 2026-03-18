@@ -1,4 +1,3 @@
-// apps/frontend/src/components/calendar/day/day-reservation.tsx
 import { useEffect, useState } from 'react';
 
 import axiosApi from '@/lib/apiSetup';
@@ -53,16 +52,26 @@ export default function DayReservation(props: DayEventProps) {
         className={`
           flex flex-row
           ${
+            // eslint-disable-next-line no-nested-ternary
             props.reservation.status === 'OVERTIME'
               ? 'bg-gradient-to-r from-blue-500 to-blue-400'
-              : 'bg-gradient-to-r from-emerald-600 to-emerald-500'
+              : props.reservation.status === 'ADMINMADE'
+                ? 'bg-gradient-to-r from-orange-600 to-orange-400'
+                : 'bg-gradient-to-r from-emerald-600 to-emerald-400'
           }
           justify-start
           overflow-hidden
           rounded-md
           shadow-md
           border-l-4
-          ${props.reservation.status === 'OVERTIME' ? 'border-blue-600' : 'border-emerald-700'}
+          ${
+            // eslint-disable-next-line no-nested-ternary
+            props.reservation.status === 'OVERTIME'
+              ? 'border-blue-600'
+              : props.reservation.status === 'ADMINMADE'
+                ? 'border-orange-700'
+                : 'border-emerald-700'
+          }
           transition-all
           duration-200
           hover:shadow-lg

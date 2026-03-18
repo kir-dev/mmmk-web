@@ -1,8 +1,6 @@
-import { CurrentUser } from '@kir-dev/passport-authsch';
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { User } from '@prisma/client';
 
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { UpdateReservationDto } from './dto/update-reservation.dto';
@@ -15,8 +13,8 @@ export class ReservationsController {
   @Post()
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
-  create(@Body() createReservationDto: CreateReservationDto, @CurrentUser() user: User) {
-    return this.reservationsService.create(createReservationDto, user);
+  create(@Body() createReservationDto: CreateReservationDto) {
+    return this.reservationsService.create(createReservationDto);
   }
 
   @Get()

@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { TextArea } from '@/components/ui/textarea';
+import { useUser } from '@/hooks/useUser';
+import { sanitizeUtfInput } from '@/lib/sanitize';
 import { Post } from '@/types/post';
 
 export function NewsForm({
@@ -19,8 +21,11 @@ export function NewsForm({
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  const TITLE_MAX = 120;
+  const BODY_MAX = 4000;
   const [title, setTitle] = useState(initial?.title || '');
   const [body, setBody] = useState(initial?.body || '');
+  const { user } = useUser();
 
   useEffect(() => {
     setTitle(initial?.title || '');
@@ -29,7 +34,8 @@ export function NewsForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave({ title, body, authorId: '1' }); //TODO: replace with real authorId
+    if (title.length > TITLE_MAX || body.length > BODY_MAX) return;
+    onSave({ title, body, authorId: `${user?.id}` });
     onOpenChange(false);
     setTitle('');
     setBody('');
@@ -46,16 +52,29 @@ export function NewsForm({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{initial ? 'Edit Post' : 'Create New Post'}</DialogTitle>
+          <DialogTitle>{initial ? 'Szerkesztés' : 'Új bejegyzés'}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className='space-y-4'>
-          <Input placeholder='Title' value={title} onChange={(e) => setTitle(e.target.value)} required />
-          <TextArea placeholder='Body' value={body} onChange={(e) => setBody(e.target.value)} required rows={6} />
+          <Input
+            placeholder='Cím'
+            value={title}
+            onChange={(e) => setTitle(sanitizeUtfInput(e.target.value))}
+            required
+            maxLength={TITLE_MAX}
+          />
+          <TextArea
+            placeholder='Tartalom'
+            value={body}
+            onChange={(e) => setBody(sanitizeUtfInput(e.target.value))}
+            required
+            rows={6}
+            maxLength={BODY_MAX}
+          />
           <div className='flex gap-2 justify-end'>
             <Button type='button' variant='secondary' onClick={handleCancel}>
-              Cancel
+              Mégse
             </Button>
-            <Button type='submit'>Save</Button>
+            <Button type='submit'>Mentés</Button>
           </div>
         </form>
       </DialogContent>

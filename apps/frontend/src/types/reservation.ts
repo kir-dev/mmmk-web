@@ -5,6 +5,7 @@ import { User } from '@/types/user';
 export enum ReservationStatus {
   OVERTIME = 'OVERTIME',
   NORMAL = 'NORMAL',
+  ADMINMADE = 'ADMINMADE',
 }
 
 export type Reservation = {

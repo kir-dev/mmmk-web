@@ -35,13 +35,19 @@ export default function validDate(
       (endTime > resStartTime && endTime <= resEndTime) ||
       (startTime <= resStartTime && endTime >= resEndTime)
     ) {
-      if (res.status === 'OVERTIME') {
+      if (res.id === reservation?.id) {
+        return true;
+      } else if (res.status === 'OVERTIME') {
         deleteReservation(res.id).then(() => {
           return true;
         });
-      } else if (res.id === reservation?.id) {
-        return true;
-      } else {
+      } /*else if (me) {
+        if (me.role === 'ADMIN') {
+          deleteReservation(res.id).then(() => {
+            return true;
+          });
+        }
+      }*/ else {
         return false;
       }
     }
