@@ -8,7 +8,7 @@ including shadcn/ui, ESLint, Prettier, and GitHub Actions.
 
 ### Prerequisites
 
-- Node.js 20
+- Node.js 22
 - Yarn 1.22
 
 ### Installation
