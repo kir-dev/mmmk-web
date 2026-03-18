@@ -27,6 +27,7 @@ This document captures the conventions, patterns, and standards used across the 
 ESLint is enforced across the entire monorepo (`apps/**/*.ts,tsx`) and **zero warnings are tolerated** (`--max-warnings 0`). The CI pipeline blocks merges if linting fails.
 
 **Root-level rules (both apps):**
+
 - `camelcase` — all variable and function names must be camelCase (`properties: 'never'` relaxes object key enforcement)
 - `eqeqeq` — always use `===` / `!==`; never `==`
 - `prefer-const` — use `const` by default; only use `let` when reassignment is necessary
@@ -41,6 +42,7 @@ ESLint is enforced across the entire monorepo (`apps/**/*.ts,tsx`) and **zero wa
 - `simple-import-sort` — imports and exports must be sorted (enforced by plugin)
 
 **Frontend-only React rules:**
+
 - `react/hook-use-state` — hooks must follow naming conventions
 - `react/jsx-pascal-case` — component names must be PascalCase
 - `react/jsx-no-useless-fragment` — remove redundant `<>` wrappers
@@ -70,6 +72,7 @@ Prettier is the single source of truth for formatting. Configuration (`.prettier
 ```
 
 Run before committing:
+
 ```bash
 yarn format        # fix
 yarn format:check  # verify (used in CI)
@@ -118,6 +121,7 @@ async findOne(id: number) {
 Always re-throw as a typed NestJS exception — never let raw Prisma errors surface to the client.
 
 Use `Promise.all` for parallel database queries and wrap with a single try/catch:
+
 ```ts
 const [data, count] = await Promise.all([this.prisma.model.findMany(...), this.prisma.model.count()]);
 ```
@@ -257,11 +261,13 @@ Always import `axiosApi` from `@/lib/apiSetup` — never create ad-hoc axios ins
 ### Backend
 
 **Dependency injection via constructor:**
+
 ```ts
 constructor(private readonly prisma: PrismaService) {}
 ```
 
 **Guard application order** — authentication first, then authorization:
+
 ```ts
 @UseGuards(AuthGuard('jwt'), RolesGuard)
 @Roles(Role.ADMIN)
@@ -270,6 +276,7 @@ protectedRoute() { ... }
 ```
 
 **Upsert pattern for membership sync:**
+
 ```ts
 await this.prisma.model.upsert({
   where: { userId: user.id },
@@ -281,6 +288,7 @@ await this.prisma.model.upsert({
 ### Frontend
 
 **`cn` utility for conditional Tailwind classes:**
+
 ```ts
 import { cn } from '@/lib/utils';
 // cn() merges clsx + tailwind-merge to avoid class conflicts
@@ -288,14 +296,19 @@ import { cn } from '@/lib/utils';
 ```
 
 **TypeScript path aliases:** Use `@/` as the root alias for `src/`:
+
 ```ts
 import { User } from '@/types/user';
 import axiosApi from '@/lib/apiSetup';
 ```
 
 **Enum-based roles mirror the backend exactly:**
+
 ```ts
-export enum Role { USER = 'USER', ADMIN = 'ADMIN' }
+export enum Role {
+  USER = 'USER',
+  ADMIN = 'ADMIN',
+}
 ```
 
 ---
@@ -323,7 +336,9 @@ export function useResource() {
     }
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   return { data, loading, refetch: fetchData };
 }
@@ -351,8 +366,12 @@ export class FeatureService {
     }
   }
 
-  async update(id: number, dto: UpdateFeatureDto) { /* same pattern */ }
-  async remove(id: number) { /* same pattern */ }
+  async update(id: number, dto: UpdateFeatureDto) {
+    /* same pattern */
+  }
+  async remove(id: number) {
+    /* same pattern */
+  }
 }
 ```
 
@@ -371,30 +390,34 @@ export class FeatureService {
 
 All secrets are consumed via `process.env.*` in services and `main.ts`. No `.env` file is committed. Required variables:
 
-| Variable | Purpose |
-|---|---|
-| `DATABASE_URL` | PostgreSQL connection string |
-| `JWT_SECRET` | Secret used to sign/verify JWT tokens |
-| `AUTHSCH_CLIENT_ID` | AuthSch OAuth client ID |
-| `AUTHSCH_CLIENT_SECRET` | AuthSch OAuth client secret |
-| `FRONTEND_URL` | Allowed CORS origin |
-| `FRONTEND_CALLBACK_URL` | URL to redirect to after OAuth login |
-| `PORT` | Server listen port (default: `3030`) |
-| `PEK_GROUP_NAME` | PEK group identifier for active membership check |
-| `MMMK_GROUP_NAME` | Group name for alumni/executive membership check |
-| `PEK_NEWBIE_TITLE` | PEK title string for newcomers |
-| `PEK_MEMBER_TITLE` | PEK title string for regular members |
-| `PEK_GATEKEEPER_TITLE` | PEK title string for gatekeepers |
+| Variable                | Purpose                                          |
+| ----------------------- | ------------------------------------------------ |
+| `DATABASE_URL`          | PostgreSQL connection string                     |
+| `JWT_SECRET`            | Secret used to sign/verify JWT tokens            |
+| `AUTHSCH_CLIENT_ID`     | AuthSch OAuth client ID                          |
+| `AUTHSCH_CLIENT_SECRET` | AuthSch OAuth client secret                      |
+| `FRONTEND_URL`          | Allowed CORS origin                              |
+| `FRONTEND_CALLBACK_URL` | URL to redirect to after OAuth login             |
+| `PORT`                  | Server listen port (default: `3030`)             |
+| `PEK_GROUP_NAME`        | PEK group identifier for active membership check |
+| `MMMK_GROUP_NAME`       | Group name for alumni/executive membership check |
+| `PEK_NEWBIE_TITLE`      | PEK title string for newcomers                   |
+| `PEK_MEMBER_TITLE`      | PEK title string for regular members             |
+| `PEK_GATEKEEPER_TITLE`  | PEK title string for gatekeepers                 |
 
 ### Frontend Environment Variables
 
 Prefix public variables with `NEXT_PUBLIC_`. Set in `.env.local` (never committed).
 
-| Variable | Purpose |
-|---|---|
-| `NEXT_PUBLIC_API_URL` | Base URL for backend API |
+| Variable              | Purpose                                                     |
+| --------------------- | ----------------------------------------------------------- |
+| `NEXT_PUBLIC_API_URL` | Base URL for backend API                                    |
+| `KIR_MAIL_URL`        | Base URL of the kir-mail mailing service (server-side only) |
+| `KIR_MAIL_TOKEN`      | API key for authenticating with kir-mail (server-side only) |
 
 Reference `.env.example` for a template of required variables.
+
+> **Note:** `KIR_MAIL_URL` and `KIR_MAIL_TOKEN` are intentionally **not** prefixed with `NEXT_PUBLIC_` — they are consumed exclusively in the Next.js API route (`src/app/api/kir-mail/route.ts`) and are never exposed to the browser.
 
 ### Runtime Config vs. Build Config
 
@@ -439,6 +462,7 @@ ESLint forbids `console.log` in backend code — only `console.warn` and `consol
 ### Package Versions
 
 The project uses **Yarn 1 (Classic)** as the package manager. The exact version is pinned in `package.json`:
+
 ```json
 "packageManager": "yarn@1.22.22+sha512..."
 ```
@@ -452,6 +476,7 @@ The CI pipeline targets **Node.js 20** (LTS). Use the same version locally.
 ### Dependency Resolutions
 
 Two packages are pinned via Yarn `resolutions` to avoid version conflicts:
+
 ```json
 "resolutions": {
   "wrap-ansi": "7.0.0",
@@ -468,6 +493,7 @@ Both `apps/backend` and `apps/frontend` are pinned at `0.0.0` — versioning is 
 ### Database Migrations
 
 Prisma migrations live in `apps/backend/prisma/migrations/`. Always generate and apply migrations before building:
+
 ```bash
 yarn prisma migrate dev    # development
 yarn prisma migrate deploy # production
@@ -489,6 +515,7 @@ The CI checks for unapplied migrations via `.github/workflows/prisma-migrations-
 ### Authorization
 
 Apply guards in this order on protected endpoints:
+
 1. `@UseGuards(AuthGuard('jwt'))` — verifies the JWT and populates `req.user`
 2. `@UseGuards(RolesGuard)` paired with `@Roles(Role.ADMIN)` — checks the user's role
 
@@ -497,6 +524,7 @@ Apply guards in this order on protected endpoints:
 ### Input Validation
 
 Global `ValidationPipe` is applied with:
+
 - `whitelist: true` — strips any properties not declared in the DTO
 - `transform: true` — auto-transforms plain objects into DTO class instances
 - `enableImplicitConversion: true` — converts query param strings to the correct primitive types

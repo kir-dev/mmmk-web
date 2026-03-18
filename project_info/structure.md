@@ -10,7 +10,9 @@ mmmk-web/                             # Yarn workspace monorepo root
 ├── apps/
 │   ├── backend/                      # NestJS application
 │   │   ├── prisma/
-│   │   │   ├── schema.prisma         # Database schema + enum definitions
+│   │   │   ├── schema.prisma         # Database schema + enum/model definitions
+│   │   │   │                         #   Enums: Role, ClubMembershipStatus, ReservationStatus (NORMAL/OVERTIME/ADMINMADE), BandMembershipStatus
+│   │   │   │                         #   New models: ReservationConfig, SanctionTier, Period
 │   │   │   └── migrations/           # Auto-generated Prisma migration history
 │   │   └── src/
 │   │       ├── main.ts               # Bootstrap: CORS, validation pipe, Swagger, port
@@ -28,6 +30,12 @@ mmmk-web/                             # Yarn workspace monorepo root
 │   │       │   ├── roles.guard.ts       # Role-based access guard
 │   │       │   └── decorators/
 │   │       │       └── Roles.decorator.ts
+│   │       ├── admin/                # Admin module
+│   │       │   ├── dto/              # UpdateConfigDto (reservation limits + sanction tiers), SetRoleDto
+│   │       │   ├── entities/         # ReservationConfig entity
+│   │       │   ├── admin.controller.ts
+│   │       │   ├── admin.module.ts
+│   │       │   └── admin.service.ts
 │   │       ├── users/
 │   │       ├── bands/
 │   │       ├── memberships/
@@ -45,6 +53,10 @@ mmmk-web/                             # Yarn workspace monorepo root
 │           │   ├── layout.tsx        # Root layout (Header+Sidebar+Footer shell)
 │           │   ├── page.tsx          # Home page (redirects)
 │           │   ├── globals.css       # Global Tailwind base styles
+│           │   ├── admin/            # Admin panel (role mgmt + reservation config)
+│           │   ├── api/
+│           │   │   └── kir-mail/     # POST /api/kir-mail — proxies to kir-mail service
+│           │   │       └── route.ts
 │           │   ├── bands/            # Band management page
 │           │   ├── callback/         # OAuth callback (stores JWT cookie)
 │           │   ├── logout/           # Logout handler
@@ -79,6 +91,9 @@ mmmk-web/                             # Yarn workspace monorepo root
 │           │   │   ├── news-form.tsx
 │           │   │   └── news-page.tsx
 │           │   ├── band/             # Band-related components
+│           │   ├── admin/            # Admin page components
+│           │   │   ├── user-role-table.tsx       # Table for managing user roles
+│           │   │   └── reservation-limits-form.tsx # Form to configure booking limits & sanction tiers
 │           │   ├── member/           # Member tile and detail components
 │           │   ├── ui/               # shadcn/ui primitives (owned, not node_modules)
 │           │   │   ├── button.tsx, card.tsx, dialog.tsx, input.tsx …
@@ -89,6 +104,7 @@ mmmk-web/                             # Yarn workspace monorepo root
 │           ├── hooks/                # Data fetching and business logic hooks
 │           │   ├── useProfile.ts     # Current user profile + logout
 │           │   ├── useUser.tsx       # Current user (lightweight)
+│           │   ├── useAdminConfig.ts # Fetch & update ReservationConfig (admin only)
 │           │   ├── use-post.tsx      # Single post
 │           │   ├── useReservationDetails.ts
 │           │   ├── useResrvationsThisWeek.tsx
@@ -105,6 +121,7 @@ mmmk-web/                             # Yarn workspace monorepo root
 │           ├── types/                # TypeScript interface/type definitions
 │           │   ├── user.ts, band.ts, member.ts, post.ts,
 │           │   ├── reservation.ts, comment.ts, gatekeeping.ts
+│           │   └── admin.ts          # ReservationConfig, SanctionTier, UpdateConfigInput types
 │           └── utils/                # Pure utility functions
 ├── .eslintrc.js                      # Root ESLint config (extends to both apps)
 ├── .prettierrc.js                    # Shared Prettier config
@@ -140,9 +157,12 @@ AppModule
 ├── CommentsModule
 │   ├── CommentsService
 │   └── CommentsController  ← CRUD /comments
-└── PostsModule
-    ├── PostsService
-    └── PostsController     ← CRUD /posts + PATCH /posts/:id/pin
+├── PostsModule
+│   ├── PostsService
+│   └── PostsController     ← CRUD /posts + PATCH /posts/:id/pin
+└── AdminModule
+    ├── AdminService        ← getConfig, updateConfig (with upsert + transaction), setUserRole
+    └── AdminController     ← GET /admin/config, PATCH /admin/config, PATCH /admin/users/:id/role (ADMIN only)
 ```
 
 ### Frontend Component Hierarchy
@@ -258,9 +278,19 @@ The `cn()` utility (`lib/utils.ts`) merges Tailwind classes safely using `clsx` 
 ### Database: Prisma Schema as the Canonical Data Model
 
 The Prisma schema (`prisma/schema.prisma`) is the authoritative definition for all data shapes. Backend entity classes mirror schema models to add runtime validation, but the schema drives:
+
 - **Migrations** (via `prisma migrate`)
 - **Type generation** (via `prisma generate` → `@prisma/client`)
 - **Enum definitions** shared across the application (`Role`, `ClubMembershipStatus`, `ReservationStatus`, `BandMembershipStatus`)
+
+**New models added in this merge:**
+| Model | Purpose |
+|---|---|
+| `ReservationConfig` | Singleton config record (id=1): default daily/weekly hour caps for users and bands |
+| `SanctionTier` | Linked to `ReservationConfig`; defines tighter caps for users with ≥ N sanction points |
+| `Period` | Date range record (start/end dates); used for scheduling periods |
+
+The `ReservationStatus` enum was extended with a third value: `ADMINMADE` — for reservations created by admins outside normal booking rules.
 
 Frontend type definitions in `src/types/` are manually maintained TypeScript mirrors of the Prisma models, keeping the frontend decoupled from the backend's generated client.
 
