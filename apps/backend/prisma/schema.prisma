@@ -127,3 +127,23 @@ enum BandMembershipStatus {
   PENDING
   ACCEPTED
 }
+
+model ReservationConfig {
+  id              Int            @id @default(autoincrement())
+  userDailyHours  Float          @default(4)
+  userWeeklyHours Float          @default(8)
+  bandDailyHours  Float          @default(6)
+  bandWeeklyHours Float          @default(12)
+  sanctionTiers   SanctionTier[]
+}
+
+model SanctionTier {
+  id              Int               @id @default(autoincrement())
+  configId        Int
+  config          ReservationConfig @relation(fields: [configId], references: [id])
+  minPoints       Int
+  userDailyHours  Float
+  userWeeklyHours Float
+  bandDailyHours  Float
+  bandWeeklyHours Float
+}
