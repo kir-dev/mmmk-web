@@ -75,11 +75,6 @@ export default function News() {
     }
   }
 
-  async function handleTogglePin(id: string) {
-    await api.patch(`/posts/${id}/pin`);
-    await mutate();
-  }
-
   function openCreateDialog() {
     setCreating(true);
     setEditing(null);
