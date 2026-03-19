@@ -79,6 +79,7 @@ model Band {
   webPage      String?
   description  String?
   genres       String[]
+  isApproved   Boolean          @default(false)
   members      BandMembership[]
   reservations Reservation[]
 }

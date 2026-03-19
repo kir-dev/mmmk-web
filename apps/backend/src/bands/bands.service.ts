@@ -15,8 +15,20 @@ export class BandsService {
     return await this.prisma.band.create({ data: createBandDto });
   }
 
-  async findAll(): Promise<Band[]> {
+  async findAll(user?: User): Promise<Band[]> {
+    let where: any = { isApproved: true };
+
+    if (user?.role === 'ADMIN') {
+      where = {}; // Admins see all bands, approved or not
+    } else if (user?.id) {
+      // Normal users see approved bands OR bands where they are a member
+      where = {
+        OR: [{ isApproved: true }, { members: { some: { userId: user.id } } }],
+      };
+    }
+
     const res = await this.prisma.band.findMany({
+      where,
       include: { members: { include: { user: { select: { fullName: true } } } } },
     });
     return res;
