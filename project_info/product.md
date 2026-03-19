@@ -34,7 +34,9 @@ The platform replaces manual coordination (e.g. scheduling rehearsal room usage 
 
 ### 🎸 Band Management
 
-- Members can **create and manage bands**, including name, email, website, description, and genre tags
+- Members can **create bands**, including name, email, website, description, and genre tags (with real-time autocomplete suggestions based on existing bands)
+- Newly created bands require **Admin approval** (`isApproved` flag) to become public. Until approved, they are only visible to band members and admins.
+- Admins can **approve, edit, and fully manage members** for any band on the platform.
 - Band membership with approval flow: `PENDING` → `ACCEPTED`
 - Bands can be linked to rehearsal reservations
 
