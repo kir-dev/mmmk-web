@@ -102,7 +102,7 @@ export default function DayReservation(props: DayEventProps) {
   const colors = getReservationColor();
 
   const height =
-    (endDate.getHours() - startDate.getHours() + (endDate.getMinutes() - startDate.getMinutes()) / 60) * 78;
+    (endDate.getHours() - startDate.getHours() + (endDate.getMinutes() - startDate.getMinutes()) / 60) * 80;
 
   return (
     <div

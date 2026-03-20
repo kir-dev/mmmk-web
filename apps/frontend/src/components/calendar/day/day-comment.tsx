@@ -10,7 +10,7 @@ export default function DayComment(props: DayEventProps) {
   const startDate = new Date(props.comment.startTime);
   const endDate = new Date(props.comment.endTime);
 
-  const offset = (startDate.getMinutes() / 60) * 39;
+  const offset = (startDate.getMinutes() / 60) * 80;
 
   // Format time to always show with leading zeros
   const formatTime = (date: Date) => {
@@ -18,7 +18,7 @@ export default function DayComment(props: DayEventProps) {
   };
 
   const height =
-    (endDate.getHours() - startDate.getHours() + (endDate.getMinutes() - startDate.getMinutes()) / 60) * 78;
+    (endDate.getHours() - startDate.getHours() + (endDate.getMinutes() - startDate.getMinutes()) / 60) * 80;
 
   return (
     <div
