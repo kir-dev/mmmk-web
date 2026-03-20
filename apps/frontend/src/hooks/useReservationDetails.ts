@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import validDate from '@components/calendar/validDate';
 import { useEffect, useMemo, useState } from 'react';
 
@@ -5,7 +6,7 @@ import axiosApi from '@/lib/apiSetup';
 import { submitReservation } from '@/lib/reservationSubmitter';
 import { Band } from '@/types/band';
 import { ClubMembership } from '@/types/member';
-import { Reservation } from '@/types/reservation';
+import { GateKeeperPriority, Reservation } from '@/types/reservation';
 import { User } from '@/types/user';
 
 import { useUser } from './useUser';
@@ -36,6 +37,8 @@ export function useReservationDetails(props: ReservationDetailsProps) {
   const [gateKeeperLoading, setGateKeeperLoading] = useState(false);
   // Membership id bound to the reservation (what backend expects as gateKeeperId)
   const [gateKeeperMembershipId, setGateKeeperMembershipId] = useState<number | null>(null);
+  // Priority for the gatekeeper
+  const [gateKeeperPriority, setGateKeeperPriority] = useState<GateKeeperPriority | null>(null);
 
   const [gateKeepers, setGateKeepers] = useState<ClubMembership[]>([]);
   const [valid, setValid] = useState(true);
@@ -57,8 +60,9 @@ export function useReservationDetails(props: ReservationDetailsProps) {
     return false;
   }, [me, props.clickedEvent, band]);
 
-  const getGateKeeper = (membershipId: number | null) => {
+  const getGateKeeper = (membershipId: number | null, priority?: GateKeeperPriority | null) => {
     setGateKeeperMembershipId(membershipId);
+    setGateKeeperPriority(priority || null);
     if (membershipId) {
       setGateKeeperLoading(true);
       axiosApi
@@ -208,7 +212,7 @@ export function useReservationDetails(props: ReservationDetailsProps) {
     });
   };
 
-  const onSetGK = async () => {
+  const onSetGK = async (priority: GateKeeperPriority | null) => {
     if (!props.clickedEvent) return;
     const myMembership = CurrentUserIsGK();
     if (!myMembership) return;
@@ -231,11 +235,12 @@ export function useReservationDetails(props: ReservationDetailsProps) {
       }
     }
 
-    // Unset if current user already assigned (membership id matches)
-    if (gateKeeperMembershipId && gateKeeperMembershipId === myMembership.id) {
+    // Unset if current user already assigned (membership id matches) and priority is null
+    if (priority === null && gateKeeperMembershipId && gateKeeperMembershipId === myMembership.id) {
       axiosApi.patch(`/reservations/${props.clickedEvent.id}`, { gateKeeperId: null }).then(() => {
         setGateKeeper(null);
         setGateKeeperMembershipId(null);
+        setGateKeeperPriority(null);
         props.onGetData();
 
         // Send email to all recipients
@@ -248,23 +253,34 @@ export function useReservationDetails(props: ReservationDetailsProps) {
       return;
     }
 
-    // Set gatekeeper using membership id *NOT* user id
-    if (!gateKeeperMembershipId) {
-      axiosApi.patch(`/reservations/${props.clickedEvent.id}`, { gateKeeperId: myMembership.id }).then(() => {
-        setGateKeeperMembershipId(myMembership.id);
-        axiosApi.get(`/users/${myMembership.userId}`).then((resp) => {
-          setGateKeeper(resp.data);
+    // Set gatekeeper using membership id and priority
+    if (priority) {
+      axiosApi
+        .patch(`/reservations/${props.clickedEvent.id}`, {
+          gateKeeperId: myMembership.id,
+          gateKeeperPriority: priority,
+        })
+        .then(() => {
+          setGateKeeperMembershipId(myMembership.id);
+          setGateKeeperPriority(priority);
+          axiosApi.get(`/users/${myMembership.userId}`).then((resp) => {
+            setGateKeeper(resp.data);
 
-          // Send email to all recipients
-          if (emailRecipients.length > 0) {
-            const message = `A foglalásodhoz beengedő lett rendelve. Név: ${resp.data.fullName}, e-mail: ${resp.data.email}`;
-            emailRecipients.forEach((email) => {
-              handleSubmitMail(message, email, resp.data.email);
-            });
-          }
+            // Send email to all recipients
+            if (emailRecipients.length > 0) {
+              const message = `A foglalásodhoz beengedő lett rendelve. Név: ${resp.data.fullName}, e-mail: ${resp.data.email}`;
+              emailRecipients.forEach((email) => {
+                handleSubmitMail(message, email, resp.data.email);
+              });
+            }
+          });
+          props.onGetData();
+        })
+        .catch((err) => {
+          const msg = err?.response?.data?.message;
+          setErrorMessage(Array.isArray(msg) ? msg.join(', ') : msg ?? 'Hiba történt a mentés során');
+          setValid(false);
         });
-        props.onGetData();
-      });
     }
   };
 
@@ -276,10 +292,11 @@ export function useReservationDetails(props: ReservationDetailsProps) {
       setEditNameValue('');
       if (props.clickedEvent.userId) getUser(props.clickedEvent.userId);
       if (props.clickedEvent.bandId) getBand(props.clickedEvent.bandId);
-      getGateKeeper(props.clickedEvent.gateKeeperId || null);
+      getGateKeeper(props.clickedEvent.gateKeeperId || null, props.clickedEvent.gateKeeperPriority);
     } else {
       setGateKeeper(null);
       setGateKeeperMembershipId(null);
+      setGateKeeperPriority(null);
     }
     refetchUser();
     getGKs();
@@ -342,6 +359,7 @@ export function useReservationDetails(props: ReservationDetailsProps) {
     band,
     gateKeeper,
     gateKeeperLoading,
+    gateKeeperPriority,
     gateKeepers,
     valid,
     errorMessage,

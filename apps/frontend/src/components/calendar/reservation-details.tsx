@@ -2,7 +2,7 @@
 import { useMemo } from 'react';
 
 import { useReservationDetails } from '@/hooks/useReservationDetails';
-import { Reservation } from '@/types/reservation';
+import { GateKeeperPriority, Reservation } from '@/types/reservation';
 
 import { TimePicker } from './time-picker';
 
@@ -28,6 +28,7 @@ export default function ReservationDetails(props: EventDetailsProps) {
     band,
     gateKeeper,
     gateKeeperLoading,
+    gateKeeperPriority,
     valid,
     errorMessage,
     hasEditRights,
@@ -161,21 +162,43 @@ export default function ReservationDetails(props: EventDetailsProps) {
             {/* Footer with Actions */}
             <div className='p-4 border-t dark:border-slate-700 bg-slate-50 dark:bg-slate-900'>
               <div className='flex flex-wrap items-center justify-between gap-2'>
-                {/* Gatekeeper Sign-up Button — hidden while loading to prevent flash (issue #65) */}
+                {/* Gatekeeper Sign-up Buttons — hidden while loading to prevent flash */}
                 {!gateKeeperLoading && gateKeeper === null && currentUserCanBeGateKeeper() && (
-                  <button
-                    className='px-4 py-2 text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 rounded-md transition-colors'
-                    onClick={onSetGK}
-                  >
-                    Jelentkezés beengedőnek
-                  </button>
+                  <div className='flex flex-row gap-2'>
+                    <button
+                      className='px-4 py-2 text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 rounded-md transition-colors'
+                      onClick={() => onSetGK(GateKeeperPriority.PRIMARY)}
+                    >
+                      Beengedem
+                    </button>
+                    <button
+                      className='px-4 py-2 text-sm font-medium text-white bg-orange-400 hover:bg-orange-500 rounded-md transition-colors'
+                      onClick={() => onSetGK(GateKeeperPriority.SECONDARY)}
+                    >
+                      Beengedem, ha nincs más
+                    </button>
+                  </div>
                 )}
+
+                {/* Gatekeeper Override Button - if currently secondary and I can be primary */}
+                {!gateKeeperLoading &&
+                  gateKeeper !== null &&
+                  me?.id !== gateKeeper.id &&
+                  gateKeeperPriority === GateKeeperPriority.SECONDARY &&
+                  currentUserCanBeGateKeeper() && (
+                    <button
+                      className='px-4 py-2 text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 rounded-md transition-colors'
+                      onClick={() => onSetGK(GateKeeperPriority.PRIMARY)}
+                    >
+                      Beengedem (felülbírálás)
+                    </button>
+                  )}
 
                 {/* Gatekeeper Resign Button - only for assigned gatekeeper */}
                 {gateKeeper !== null && me?.id === gateKeeper.id && (
                   <button
                     className='px-4 py-2 text-sm font-medium text-white bg-amber-600 hover:bg-amber-700 rounded-md transition-colors'
-                    onClick={onSetGK}
+                    onClick={() => onSetGK(null)}
                   >
                     Beengedés leadása
                   </button>

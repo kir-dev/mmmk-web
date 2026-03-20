@@ -11,17 +11,19 @@ import { User } from '@/types/user';
 
 export default function ProfilePageComponent() {
   const [user, setUser] = useState<User>();
-  const { id: userId } = useParams<{ id: string }>();
+  const params = useParams();
+  const userId = params?.id as string;
 
   const getUser = async () => {
+    if (!userId) return;
     axiosApi.get<User>(`/users/${userId}`).then((res) => {
       setUser(res.data);
     });
   };
 
   useEffect(() => {
-    getUser();
-  }, []);
+    if (userId) getUser();
+  }, [userId]);
 
   return (
     <div className='container mx-auto p-4'>

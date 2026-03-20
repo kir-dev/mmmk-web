@@ -30,6 +30,11 @@ enum BandMembershipStatus {
   ACCEPTED
 }
 
+enum GateKeeperPriority {
+  PRIMARY
+  SECONDARY
+}
+
 model User {
   id                      Int               @id @default(autoincrement())
   email                   String            @unique
@@ -99,17 +104,18 @@ model BandMembership {
 }
 
 model Reservation {
-  id           Int               @id @default(autoincrement())
+  id           Int                @id @default(autoincrement())
   userId       Int?
   bandId       Int?
   startTime    DateTime
   endTime      DateTime
-  gateKeeperId Int?
-  status       ReservationStatus
+  gateKeeperId       Int?
+  gateKeeperPriority GateKeeperPriority?
+  status             ReservationStatus
   needToBeLetIn Boolean @default(false)
-  band         Band?             @relation(fields: [bandId], references: [id])
-  gateKeeper   ClubMembership?   @relation("GateKeeping", fields: [gateKeeperId], references: [id])
-  user         User?             @relation("Reservations", fields: [userId], references: [id])
+  band         Band?              @relation(fields: [bandId], references: [id])
+  gateKeeper   ClubMembership?    @relation("GateKeeping", fields: [gateKeeperId], references: [id])
+  user         User?              @relation("Reservations", fields: [userId], references: [id])
 }
 
 model Comment {

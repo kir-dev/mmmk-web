@@ -1,4 +1,4 @@
-import { ReservationStatus } from '@prisma/client';
+import { GateKeeperPriority, ReservationStatus } from '@prisma/client';
 import { IsBoolean, IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
 
 export class Reservation {
@@ -25,6 +25,10 @@ export class Reservation {
   @IsNumber()
   @IsOptional()
   gateKeeperId: number;
+
+  @IsOptional()
+  @IsEnum(GateKeeperPriority)
+  gateKeeperPriority: GateKeeperPriority;
 
   @IsOptional()
   @IsEnum(ReservationStatus)

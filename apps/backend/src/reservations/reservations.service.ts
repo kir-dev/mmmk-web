@@ -1,5 +1,11 @@
-import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
-import { Prisma, ReservationStatus } from '@prisma/client';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
+import { GateKeeperPriority, Prisma, ReservationStatus } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 
 import { PaginationDto } from '../dto/pagination.dto';
@@ -213,7 +219,38 @@ export class ReservationsService {
   }
 
   async update(id: number, updateReservationDto: UpdateReservationDto) {
-    const existing = await this.findOne(id);
+    const existing = await this.prisma.reservation.findUniqueOrThrow({
+      where: { id },
+      include: { gateKeeper: { include: { user: true } } },
+    });
+
+    // Handle gatekeeper priority and override logic
+    if (updateReservationDto.gateKeeperId !== undefined) {
+      // If clearing gatekeeper, also clear priority
+      if (updateReservationDto.gateKeeperId === null) {
+        updateReservationDto.gateKeeperPriority = null;
+      } else {
+        // If assigning a new gatekeeper
+        if (!updateReservationDto.gateKeeperPriority) {
+          throw new BadRequestException('Beengedő mellé prioritás megadása kötelező');
+        }
+
+        if (existing.gateKeeperId && existing.gateKeeperId !== updateReservationDto.gateKeeperId) {
+          if (existing.gateKeeperPriority === GateKeeperPriority.PRIMARY) {
+            throw new ForbiddenException('Ezt a foglalást már egy elsődleges beengedő elvállalta');
+          }
+
+          if (updateReservationDto.gateKeeperPriority !== GateKeeperPriority.PRIMARY) {
+            throw new BadRequestException('Csak elsődleges prioritással lehet felülbírálni egy meglévő beengedőt');
+          }
+
+          // Override logic: PRIMARY overrides SECONDARY
+          // TODO: Send email to the overridden gatekeeper if possible
+          // In a real scenario, we'd inject an EmailService here
+          console.log(`Gatekeeper ${existing.gateKeeperId} was overridden by ${updateReservationDto.gateKeeperId}`);
+        }
+      }
+    }
 
     // Validate if time fields are being updated
     if (updateReservationDto.startTime || updateReservationDto.endTime) {
