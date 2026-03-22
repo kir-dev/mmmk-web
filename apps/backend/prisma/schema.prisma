@@ -138,6 +138,7 @@ model Post {
   body      String
   createdAt DateTime @default(now())
   authorId  Int
+  isPinned  Boolean  @default(false)
   User      User     @relation(fields: [authorId], references: [id])
 }
 
@@ -173,3 +174,22 @@ model SanctionRecord {
   gateKeeper   ClubMembership   @relation("GateKeeperSanctions", fields: [awardedBy], references: [id])
 }
 
+model ReservationConfig {
+  id              Int            @id @default(autoincrement())
+  userDailyHours  Float          @default(4)
+  userWeeklyHours Float          @default(8)
+  bandDailyHours  Float          @default(6)
+  bandWeeklyHours Float          @default(12)
+  sanctionTiers   SanctionTier[]
+}
+
+model SanctionTier {
+  id              Int               @id @default(autoincrement())
+  configId        Int
+  config          ReservationConfig @relation(fields: [configId], references: [id])
+  minPoints       Int
+  userDailyHours  Float
+  userWeeklyHours Float
+  bandDailyHours  Float
+  bandWeeklyHours Float
+}

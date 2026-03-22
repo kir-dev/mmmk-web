@@ -10,6 +10,7 @@ import { Header } from '@/components/layout/header';
 import { RightSidebar } from '@/components/layout/right-sidebar';
 import { Sidebar } from '@/components/layout/sidebar';
 import { ThemeProvider } from '@/components/theme-provider';
+import { Toaster } from '@/components/ui/sonner';
 
 export default function RootLayout({
   children,
@@ -19,7 +20,7 @@ export default function RootLayout({
   const [open, setOpen] = useState(false);
 
   return (
-    <html lang='hu'>
+    <html lang='hu' suppressHydrationWarning>
       <body className={`${GeistSans.className}`}>
         <ThemeProvider attribute='class' defaultTheme='dark' enableSystem>
           <div className='h-screen flex flex-col'>
@@ -80,6 +81,7 @@ export default function RootLayout({
             </div>
             <Footer />
           </div>
+          <Toaster richColors closeButton />
         </ThemeProvider>
       </body>
     </html>

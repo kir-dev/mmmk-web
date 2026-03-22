@@ -1,6 +1,7 @@
 'use client';
 
 import { ReactNode, useEffect, useMemo, useState } from 'react';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -8,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { TextArea } from '@/components/ui/textarea';
 import { useUser } from '@/hooks/useUser';
 import axiosApi from '@/lib/apiSetup';
+import { showErrorToast } from '@/lib/errorToast';
 import { sanitizeUtfInput } from '@/lib/sanitize';
 import { Band } from '@/types/band';
 
@@ -81,6 +83,7 @@ export default function BandFormDialog({ mode, band, open, onOpenChange, onSucce
         const updated: Band = res.data ?? { ...(band as Band), ...payload };
         onSuccess?.(updated);
         onOpenChange(false);
+        toast.success('Zenekar sikeresen szerkesztve!');
       } else {
         const payload = {
           name,
@@ -102,11 +105,14 @@ export default function BandFormDialog({ mode, band, open, onOpenChange, onSucce
 
         onSuccess?.(created);
         onOpenChange(false);
+        toast.success('Zenekar sikeresen létrehozva!');
       }
     } catch (e: any) {
       if (e?.response?.status === 401) {
         window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/login`;
+        return;
       }
+      showErrorToast(e);
     } finally {
       setSubmitting(false);
     }
