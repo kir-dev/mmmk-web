@@ -132,7 +132,6 @@ function MyReservationsPage() {
       NORMAL: 'Normál',
       OVERTIME: 'Túlóra',
       ADMINMADE: 'Admin által létrehozva',
-      SANCTIONED: 'Szankcionált',
     };
     return labels[status] || status;
   };

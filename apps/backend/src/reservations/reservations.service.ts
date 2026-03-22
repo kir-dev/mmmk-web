@@ -72,7 +72,7 @@ export class ReservationsService {
     }
   }
 
-  private async determineReservationStatus(dto: CreateReservationDto): Promise<ReservationStatus> {
+  private async determineReservationStatus(dto: CreateReservationDto, excludeId?: number): Promise<ReservationStatus> {
     // Admin-made reservations keep their ADMINMADE status
     if (dto.status === ReservationStatus.ADMINMADE) {
       return ReservationStatus.ADMINMADE;
@@ -97,10 +97,6 @@ export class ReservationsService {
     // Calculate total sanction points from records
     const sanctionPoints = user.sanctionRecords.reduce((sum, record) => sum + record.points, 0);
 
-    if (sanctionPoints > 0) {
-      return ReservationStatus.SANCTIONED;
-    }
-
     // Check quota for overtime
     const settings = await this.prisma.settings.findFirst();
     if (!settings) {
@@ -124,6 +120,7 @@ export class ReservationsService {
 
     const weeklyReservations = await this.prisma.reservation.findMany({
       where: {
+        id: excludeId ? { not: excludeId } : undefined,
         userId: dto.userId,
         startTime: { gte: weekStart, lt: weekEnd },
         status: { not: ReservationStatus.OVERTIME },
@@ -132,6 +129,7 @@ export class ReservationsService {
 
     const dailyReservations = await this.prisma.reservation.findMany({
       where: {
+        id: excludeId ? { not: excludeId } : undefined,
         userId: dto.userId,
         startTime: { gte: dayStart, lt: dayEnd },
         status: { not: ReservationStatus.OVERTIME },
@@ -255,16 +253,18 @@ export class ReservationsService {
     // Validate if time fields are being updated
     if (updateReservationDto.startTime || updateReservationDto.endTime) {
       const dto = {
-        ...existing,
+        userId: existing.userId,
+        bandId: existing.bandId,
+        startTime: existing.startTime,
+        endTime: existing.endTime,
+        status: existing.status,
         ...updateReservationDto,
       };
-      await this.validateReservation(dto);
+      await this.validateReservation(dto as any);
 
       // Recalculate status if time or user/band changes
-      if (dto.userId) {
-        const newStatus = await this.determineReservationStatus(dto as CreateReservationDto);
-        updateReservationDto.status = newStatus;
-      }
+      const newStatus = await this.determineReservationStatus(dto as any, id);
+      updateReservationDto.status = newStatus;
     }
 
     try {

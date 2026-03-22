@@ -22,7 +22,6 @@ enum ReservationStatus {
   NORMAL
   OVERTIME
   ADMINMADE
-  SANCTIONED
 }
 
 enum BandMembershipStatus {

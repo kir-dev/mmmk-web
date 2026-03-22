@@ -6,7 +6,6 @@ export enum ReservationStatus {
   OVERTIME = 'OVERTIME',
   NORMAL = 'NORMAL',
   ADMINMADE = 'ADMINMADE',
-  SANCTIONED = 'SANCTIONED',
 }
 
 export enum GateKeeperPriority {

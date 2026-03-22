@@ -63,14 +63,6 @@ export default function DayReservation(props: DayEventProps) {
       };
     }
 
-    // Priority 3: Sanctioned user reservations (yellow)
-    if (props.reservation.status === 'SANCTIONED') {
-      return {
-        bg: 'bg-gradient-to-r from-yellow-500 to-yellow-400',
-        border: 'border-yellow-600',
-      };
-    }
-
     // Normal reservations: differentiate by band/user and gatekeeper status
     if (props.reservation.bandId) {
       // Band reservations (green)

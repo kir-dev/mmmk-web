@@ -89,7 +89,7 @@ export default function IsOvertime(
       minutesReserved += (endTime.getTime() - startTime.getTime()) / (1000 * 60);
     }
   }
-  const remainingMinutes = 360 - minutesReserved;
+  const remainingMinutes = 480 - minutesReserved; // 8 hours default limit
 
   let minutesReservedThatDay = 0;
   for (const reservation of reservationsOfDay) {
@@ -102,8 +102,8 @@ export default function IsOvertime(
   // If the remaining regular time is less than padding, treat the whole as overtime
   if (
     (reservationMinutes > remainingMinutes && remainingMinutes < paddingMinutes) ||
-    (reservationMinutes > 180 && 180 - minutesReservedThatDay < paddingMinutes) ||
-    (reservationMinutes + minutesReservedThatDay > 180 && 180 - minutesReservedThatDay < paddingMinutes)
+    (reservationMinutes > 240 && 240 - minutesReservedThatDay < paddingMinutes) || // 4 hours default limit
+    (reservationMinutes + minutesReservedThatDay > 240 && 240 - minutesReservedThatDay < paddingMinutes)
   ) {
     normalStart = startTime;
     normalEnd = startTime; // No regular part
@@ -114,14 +114,14 @@ export default function IsOvertime(
     normalEnd = new Date(startTime.getTime() + remainingMinutes * 60 * 1000);
     overtimeStart = new Date(normalEnd.getTime() + 60 * 1000);
     overtimeEnd = endTime;
-  } else if (reservationMinutes > 180) {
+  } else if (reservationMinutes > 240) {
     normalStart = startTime;
-    normalEnd = new Date(startTime.getTime() + 180 * 60 * 1000);
+    normalEnd = new Date(startTime.getTime() + 240 * 60 * 1000);
     overtimeStart = new Date(normalEnd.getTime() + 60 * 1000);
     overtimeEnd = endTime;
-  } else if (reservationMinutes + minutesReservedThatDay > 180) {
+  } else if (reservationMinutes + minutesReservedThatDay > 240) {
     normalStart = startTime;
-    normalEnd = new Date(startTime.getTime() + (180 - minutesReservedThatDay) * 60 * 1000);
+    normalEnd = new Date(startTime.getTime() + (240 - minutesReservedThatDay) * 60 * 1000);
     overtimeStart = new Date(normalEnd.getTime() + 60 * 1000);
     overtimeEnd = endTime;
   } else {

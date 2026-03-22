@@ -143,6 +143,8 @@ export function useReservationDetails(props: ReservationDetailsProps) {
           .patch(`/reservations/${props.clickedEvent.id}`, {
             startTime: editStartTimeValue.toISOString(),
             endTime: editEndTimeValue.toISOString(),
+            userId: props.clickedEvent.userId,
+            bandId: props.clickedEvent.bandId,
           })
           .then(() => {
             props.onGetData();
