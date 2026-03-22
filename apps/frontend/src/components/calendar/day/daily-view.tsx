@@ -1,16 +1,20 @@
+/* eslint-disable no-negated-condition */
 import DayComment from '@components/calendar/day/day-comment';
 import Line from '@components/calendar/Line';
 import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
 
 import ActualReservationForTheDay from '@/hooks/check-actuality-day';
 import { Comment } from '@/types/comment';
+import { OpenedWeek } from '@/types/openedWeek';
 import { Reservation } from '@/types/reservation';
 
+import { getFirstDayOfWeek } from '../isReservationOvertime';
 import DayReservation from './day-reservation';
 
 interface DailyViewProps {
   reservations: Reservation[];
   comments: Comment[];
+  openedWeeks: OpenedWeek[];
   currentDate: Date;
   onEventClick: (id: number) => void;
   onCommentClick: (id: number) => void;
@@ -23,7 +27,28 @@ export default function DailyView(props: DailyViewProps) {
       new Date(props.currentDate.getFullYear(), props.currentDate.getMonth(), props.currentDate.getDate() - 1)
     );
   };
+
+  const isNextDayOpen = () => {
+    const nextDay = new Date(
+      props.currentDate.getFullYear(),
+      props.currentDate.getMonth(),
+      props.currentDate.getDate() + 1
+    );
+    const nextDayMonday = getFirstDayOfWeek(nextDay);
+
+    // If the next day is in the past or today, we consider it "open" for viewing purposes
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (nextDay.getTime() <= today.getTime()) return true;
+
+    return props.openedWeeks.some((w) => {
+      const wDate = new Date(w.monday);
+      return wDate.getTime() === nextDayMonday.getTime() && w.isOpen;
+    });
+  };
+
   const handleNextDay = () => {
+    if (!isNextDayOpen()) return;
     props.setCurrentDate(
       new Date(props.currentDate.getFullYear(), props.currentDate.getMonth(), props.currentDate.getDate() + 1)
     );
@@ -44,7 +69,8 @@ export default function DailyView(props: DailyViewProps) {
           </div>
           <button
             onClick={handleNextDay}
-            className='p-2 rounded-full hover:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-foreground text-slate-800 dark:text-white'
+            disabled={!isNextDayOpen()}
+            className={`p-2 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-foreground text-slate-800 dark:text-white ${!isNextDayOpen() ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'}`}
           >
             <ChevronRightIcon className='w-6 h-6' />
           </button>

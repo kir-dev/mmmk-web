@@ -26,6 +26,9 @@ export class SettingsService {
           minReservationMinutes: 30,
           maxReservationMinutes: 180,
           sanctionHourPenaltyPerPoint: 1.0,
+          maxTotalHoursPerWeek: 12.0,
+          sanctionTotalHourPenaltyPerPoint: 2.0,
+          banSanctionPointThreshold: 5,
         },
       });
     }

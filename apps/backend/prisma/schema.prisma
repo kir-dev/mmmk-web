@@ -142,12 +142,21 @@ model Post {
 }
 
 model Settings {
-  id                          Int   @id @default(autoincrement())
-  maxHoursPerWeek             Float @default(8.0)
-  maxHoursPerDay              Float @default(4.0)
-  minReservationMinutes       Int   @default(30)
-  maxReservationMinutes       Int   @default(180)
-  sanctionHourPenaltyPerPoint Float @default(1.0)
+  id                               Int   @id @default(autoincrement())
+  maxHoursPerWeek                  Float @default(8.0)
+  maxHoursPerDay                   Float @default(4.0)
+  minReservationMinutes            Int   @default(30)
+  maxReservationMinutes            Int   @default(180)
+  sanctionHourPenaltyPerPoint      Float @default(1.0)
+  maxTotalHoursPerWeek             Float @default(12.0)
+  sanctionTotalHourPenaltyPerPoint Float @default(2.0)
+  banSanctionPointThreshold        Int   @default(5)
+}
+
+model OpenedWeek {
+  id        Int      @id @default(autoincrement())
+  monday    DateTime @unique
+  isOpen    Boolean  @default(false)
 }
 
 model SanctionRecord {

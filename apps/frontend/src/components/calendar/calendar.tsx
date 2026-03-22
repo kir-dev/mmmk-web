@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 
 import axiosApi from '@/lib/apiSetup';
 import { Comment } from '@/types/comment';
+import { OpenedWeek } from '@/types/openedWeek';
 import { Reservation } from '@/types/reservation';
 
 import DailyView from './day/daily-view';
@@ -25,6 +26,7 @@ export default function Calendar() {
   const [isReservationDetails, setIsReservationDetails] = useState(false);
   const [clickedReservation, setClickedReservation] = useState<Reservation>();
   const [comments, setComments] = useState<Comment[]>([]);
+  const [openedWeeks, setOpenedWeeks] = useState<OpenedWeek[]>([]);
   const [isCommentDetails, setIsCommentDetails] = useState(false);
   const [clickedComment, setClickedComment] = useState<Comment>();
   const [view, setView] = useState<View>(View.Day);
@@ -53,6 +55,13 @@ export default function Calendar() {
       .then((res) => {
         setComments(res.data.data);
       });
+
+    axiosApi
+      .get('/opened-weeks')
+      .then((res) => {
+        setOpenedWeeks(res.data);
+      })
+      .catch(() => {});
   };
 
   const onEventClick = (id: number) => {
@@ -93,6 +102,7 @@ export default function Calendar() {
         <DWView
           reservations={reservations}
           comments={comments}
+          openedWeeks={openedWeeks}
           onEventClick={onEventClick}
           onCommentClick={onCommentClick}
           currentDate={currentDate}
@@ -103,6 +113,7 @@ export default function Calendar() {
           currentDate={currentDate}
           reservations={reservations}
           comments={comments}
+          openedWeeks={openedWeeks}
           onEventClick={onEventClick}
           onCommentClick={onCommentClick}
           setCurrentDate={setCurrentDate}

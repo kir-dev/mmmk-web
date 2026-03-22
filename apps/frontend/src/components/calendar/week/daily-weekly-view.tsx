@@ -1,6 +1,8 @@
+/* eslint-disable no-negated-condition */
 import { useState } from 'react';
 
 import { Comment } from '@/types/comment';
+import { OpenedWeek } from '@/types/openedWeek';
 import { Reservation } from '@/types/reservation';
 
 import DailyViewWO from '../day/daily-view-without-date';
@@ -8,6 +10,7 @@ import DailyViewWO from '../day/daily-view-without-date';
 interface DWViewProps {
   reservations: Reservation[];
   comments: Comment[];
+  openedWeeks: OpenedWeek[];
   onEventClick: (id: number) => void;
   onCommentClick: (id: number) => void;
   currentDate: Date;
@@ -47,7 +50,20 @@ export default function DWView(props: DWViewProps) {
     );
   };
 
+  const isNextWeekOpen = () => {
+    const nextWeekMonday = new Date(firstDayOfWeek);
+    nextWeekMonday.setDate(nextWeekMonday.getDate() + 7);
+    nextWeekMonday.setHours(0, 0, 0, 0);
+
+    return props.openedWeeks.some((w) => {
+      const wDate = new Date(w.monday);
+      return wDate.getTime() === nextWeekMonday.getTime() && w.isOpen;
+    });
+  };
+
   const handleNextWeek = () => {
+    if (!isNextWeekOpen()) return;
+
     const newDate = new Date(
       props.currentDate.getFullYear(),
       props.currentDate.getMonth(),
@@ -105,7 +121,8 @@ export default function DWView(props: DWViewProps) {
 
           <button
             onClick={handleNextWeek}
-            className='p-2 rounded-full hover:bg-white/30 dark:hover:bg-slate-600/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-colors duration-200 text-slate-700 dark:text-slate-200'
+            disabled={!isNextWeekOpen()}
+            className={`p-2 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-colors duration-200 text-slate-700 dark:text-slate-200 ${!isNextWeekOpen() ? 'opacity-50 cursor-not-allowed' : 'hover:bg-white/30 dark:hover:bg-slate-600/50'}`}
           >
             <ChevronRightIcon className='w-5 h-5' />
           </button>

@@ -1,3 +1,5 @@
+/* eslint-disable max-lines */
+/* eslint-disable no-console */
 import {
   BadRequestException,
   ForbiddenException,
@@ -70,6 +72,34 @@ export class ReservationsService {
     if (hasUserId && hasBandId) {
       throw new BadRequestException('Csak felhasználó VAGY banda adható meg, nem mindkettő');
     }
+
+    // 4. Check if Period is open
+    const openPeriod = await this.prisma.period.findFirst({
+      where: {
+        isOpen: true,
+        startDate: { lte: startTime },
+        endDate: { gte: endTime },
+      },
+    });
+
+    if (!openPeriod && dto.status !== ReservationStatus.ADMINMADE) {
+      throw new BadRequestException('A kiválasztott időpont nem esik egyetlen nyitott félévbe/időszakba sem.');
+    }
+
+    // 5. Check if Week is open
+    // Find the Monday of the week for startTime
+    const dayOfWeek = (startTime.getDay() + 6) % 7; // Monday = 0
+    const weekStart = new Date(startTime);
+    weekStart.setDate(startTime.getDate() - dayOfWeek);
+    weekStart.setHours(0, 0, 0, 0);
+
+    const openedWeek = await this.prisma.openedWeek.findUnique({
+      where: { monday: weekStart },
+    });
+
+    if ((!openedWeek || !openedWeek.isOpen) && dto.status !== ReservationStatus.ADMINMADE) {
+      throw new BadRequestException('Ez a hét még nem lett megnyitva a foglalások számára.');
+    }
   }
 
   private async determineReservationStatus(dto: CreateReservationDto, excludeId?: number): Promise<ReservationStatus> {
@@ -103,6 +133,12 @@ export class ReservationsService {
       return ReservationStatus.NORMAL;
     }
 
+    if (sanctionPoints >= settings.banSanctionPointThreshold) {
+      throw new ForbiddenException(
+        `A foglalás megtagadva: Elérted a tiltási küszöböt (${settings.banSanctionPointThreshold} pont).`
+      );
+    }
+
     // Get user's reservations this week
     const now = new Date(dto.startTime);
     const dayOfWeek = (now.getDay() + 6) % 7; // Monday = 0
@@ -118,14 +154,33 @@ export class ReservationsService {
     const dayEnd = new Date(dayStart);
     dayEnd.setDate(dayStart.getDate() + 1);
 
-    const weeklyReservations = await this.prisma.reservation.findMany({
+    // Calculate total weekly hours (both NORMAL and OVERTIME)
+    const allWeeklyReservations = await this.prisma.reservation.findMany({
       where: {
         id: excludeId ? { not: excludeId } : undefined,
         userId: dto.userId,
         startTime: { gte: weekStart, lt: weekEnd },
-        status: { not: ReservationStatus.OVERTIME },
       },
     });
+
+    const totalWeeklyHours = allWeeklyReservations.reduce((total, r) => {
+      const duration = new Date(r.endTime).getTime() - new Date(r.startTime).getTime();
+      return total + duration / (1000 * 60 * 60);
+    }, 0);
+
+    const newDuration = (new Date(dto.endTime).getTime() - new Date(dto.startTime).getTime()) / (1000 * 60 * 60);
+    const adjustedTotalWeeklyLimit = Math.max(
+      0,
+      settings.maxTotalHoursPerWeek - sanctionPoints * settings.sanctionTotalHourPenaltyPerPoint
+    );
+
+    if (totalWeeklyHours + newDuration > adjustedTotalWeeklyLimit) {
+      throw new ForbiddenException(
+        `A foglalás megtagadva: Túllépted a maximális heti limitet (${adjustedTotalWeeklyLimit} óra a szankciókkal együtt).`
+      );
+    }
+
+    const weeklyReservations = allWeeklyReservations.filter((r) => r.status !== ReservationStatus.OVERTIME);
 
     const dailyReservations = await this.prisma.reservation.findMany({
       where: {
@@ -154,9 +209,8 @@ export class ReservationsService {
       0,
       settings.maxHoursPerDay - (sanctionPoints * settings.sanctionHourPenaltyPerPoint) / 2
     );
-    const newDuration = (new Date(dto.endTime).getTime() - new Date(dto.startTime).getTime()) / (1000 * 60 * 60);
 
-    // Check both weekly AND daily limits
+    // Check both weekly AND daily limits for OVERTIME
     if (weeklyHours + newDuration > adjustedWeeklyLimit || dailyHours + newDuration > adjustedDailyLimit) {
       return ReservationStatus.OVERTIME;
     }

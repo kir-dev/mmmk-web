@@ -25,4 +25,19 @@ export class UpdateSettingsDto {
   @IsNumber()
   @Min(0)
   sanctionHourPenaltyPerPoint?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  maxTotalHoursPerWeek?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  sanctionTotalHourPenaltyPerPoint?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  banSanctionPointThreshold?: number;
 }
