@@ -3,6 +3,7 @@ import validDate from '@components/calendar/validDate';
 import { useEffect, useMemo, useState } from 'react';
 
 import axiosApi from '@/lib/apiSetup';
+import { showErrorToast } from '@/lib/errorToast';
 import { submitReservation } from '@/lib/reservationSubmitter';
 import { Band } from '@/types/band';
 import { ClubMembership } from '@/types/member';
@@ -112,7 +113,7 @@ export function useReservationDetails(props: ReservationDetailsProps) {
     const reservationStart = new Date(props.clickedEvent.startTime);
     // Only prevent non-admins from deleting past reservations
     if (reservationStart.getTime() < Date.now() && me?.role !== 'ADMIN') {
-      //alert('Nem törölhetsz múltbeli foglalást!');
+      showErrorToast(new Error('Nem törölhetsz múltbeli foglalást!'));
       return;
     }
 
@@ -128,10 +129,9 @@ export function useReservationDetails(props: ReservationDetailsProps) {
 
       // Then refresh data
       props.onGetData();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error deleting reservation:', error);
-      //const errorMessage = error.response?.data?.message || error.message || 'Ismeretlen hiba történt';
-      //alert(`Hiba történt a foglalás törlése közben: ${errorMessage}`);
+      showErrorToast(error);
     }
   };
 
@@ -152,14 +152,14 @@ export function useReservationDetails(props: ReservationDetailsProps) {
             setValid(true);
             setIsEditing(false);
           })
-          .catch((err) => {
-            const msg = err?.response?.data?.message;
-            setErrorMessage(Array.isArray(msg) ? msg.join(', ') : msg ?? 'Hiba történt a mentés során');
+          .catch((err: unknown) => {
+            showErrorToast(err);
             setValid(false);
             // Keep isEditing true so the user can correct and retry
           });
       } else {
         setValid(false);
+        showErrorToast(new Error('Érvénytelen időtartam vagy ütközés egy másik foglalással.'));
       }
       return;
     }
@@ -278,9 +278,8 @@ export function useReservationDetails(props: ReservationDetailsProps) {
           });
           props.onGetData();
         })
-        .catch((err) => {
-          const msg = err?.response?.data?.message;
-          setErrorMessage(Array.isArray(msg) ? msg.join(', ') : msg ?? 'Hiba történt a mentés során');
+        .catch((err: unknown) => {
+          showErrorToast(err);
           setValid(false);
         });
     }

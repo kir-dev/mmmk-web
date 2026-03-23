@@ -3,6 +3,7 @@ import IsOvertime, { getReservationsOfDay, getReservationsOfWeek } from '@compon
 import validDate from '@components/calendar/validDate';
 
 import collisionWithAdminRes from '@/hooks/collisionWithAdminRes';
+import { showErrorToast } from '@/lib/errorToast';
 import axiosApi from '@/lib/apiSetup';
 import { Band } from '@/types/band';
 import { Comment } from '@/types/comment';
@@ -76,7 +77,8 @@ export async function submitReservation(params: {
       onSuccess();
       setValid(true);
       return { success: true, message: 'Sikerült a foglalás létrehozása' };
-    } catch (error) {
+    } catch (error: unknown) {
+      showErrorToast(error);
       setValid(false);
       return { success: false, message: 'Nem sikerült a foglalás létrehozása' };
     }
@@ -140,7 +142,8 @@ export async function submitReservation(params: {
         }
 
         onSuccess();
-      } catch (error) {
+      } catch (error: unknown) {
+        showErrorToast(error);
         setValid(false);
         return { success: false, message: 'Nem sikerült a foglalás létrehozása' };
       }
@@ -155,7 +158,8 @@ export async function submitReservation(params: {
         });
 
         onSuccess();
-      } catch (error) {
+      } catch (error: unknown) {
+        showErrorToast(error);
         console.error('Nem sikerült a foglalás létrehozása', error);
       }
     }
