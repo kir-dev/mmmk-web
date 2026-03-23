@@ -124,7 +124,7 @@ export default function AddReservation(props: AddPanelProps) {
           id='selection'
           value={selectedValue}
           onChange={handleSelectionChange}
-          className='bg-white hover:bg-slate-200 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-black dark:text-zinc-200 border-zinc-600 w-full px-3 py-2 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent'
+          className='bg-white hover:bg-slate-200 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-black dark:text-zinc-200 border-zinc-600 w-full px-3 py-2 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent'
         >
           <option value=''>-- Válasszon --</option>
           {myUser?.role === 'ADMIN' && (
@@ -159,7 +159,7 @@ export default function AddReservation(props: AddPanelProps) {
             type='checkbox'
             checked={adminOverride}
             onChange={(e) => setAdminOverride(e.target.checked)}
-            className='h-4 w-4 accent-orange-500 rounded'
+            className='h-4 w-4 accent-primary rounded'
           />
           <label htmlFor='adminOverride' className='text-sm font-medium text-black dark:text-zinc-300'>
             Admin foglalás
@@ -173,7 +173,7 @@ export default function AddReservation(props: AddPanelProps) {
           type='checkbox'
           checked={needToBeLetIn}
           onChange={(e) => setNeedToBeLetIn(e.target.checked)}
-          className='h-4 w-4 accent-orange-500 rounded'
+          className='h-4 w-4 accent-primary rounded'
         />
         <label htmlFor='needToBeLetIn' className='text-sm font-medium text-black dark:text-zinc-300'>
           Kérek kolis fogadást
@@ -220,7 +220,7 @@ export default function AddReservation(props: AddPanelProps) {
       <button
         onClick={handleSubmit}
         disabled={weekIsLocked}
-        className='w-full rounded-md bg-orange-500 hover:bg-orange-600 disabled:bg-zinc-400 disabled:cursor-not-allowed text-zinc-900 font-semibold py-3 mt-4 transition-colors shadow-lg'
+        className='w-full rounded-md bg-primary hover:bg-primary/90 disabled:bg-zinc-400 disabled:cursor-not-allowed text-primary-foreground font-semibold py-3 mt-4 transition-colors shadow-lg'
       >
         Foglalás hozzáadása
       </button>

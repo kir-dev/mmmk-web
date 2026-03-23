@@ -166,13 +166,13 @@ export default function ReservationDetails(props: EventDetailsProps) {
                 {!gateKeeperLoading && gateKeeper === null && currentUserCanBeGateKeeper() && (
                   <div className='flex flex-row gap-2'>
                     <button
-                      className='px-4 py-2 text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 rounded-md transition-colors'
+                      className='px-4 py-2 text-sm font-medium text-primary-foreground bg-primary hover:bg-primary/90 rounded-md transition-colors'
                       onClick={() => onSetGK(GateKeeperPriority.PRIMARY)}
                     >
                       Beengedem
                     </button>
                     <button
-                      className='px-4 py-2 text-sm font-medium text-white bg-orange-400 hover:bg-orange-500 rounded-md transition-colors'
+                      className='px-4 py-2 text-sm font-medium text-secondary-foreground bg-secondary hover:bg-secondary/80 rounded-md transition-colors'
                       onClick={() => onSetGK(GateKeeperPriority.SECONDARY)}
                     >
                       Beengedem, ha nincs más
@@ -187,7 +187,7 @@ export default function ReservationDetails(props: EventDetailsProps) {
                   gateKeeperPriority === GateKeeperPriority.SECONDARY &&
                   currentUserCanBeGateKeeper() && (
                     <button
-                      className='px-4 py-2 text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 rounded-md transition-colors'
+                      className='px-4 py-2 text-sm font-medium text-primary-foreground bg-primary hover:bg-primary/90 rounded-md transition-colors'
                       onClick={() => onSetGK(GateKeeperPriority.PRIMARY)}
                     >
                       Beengedem (felülbírálás)
@@ -199,7 +199,7 @@ export default function ReservationDetails(props: EventDetailsProps) {
                   <button
                     className={`px-4 py-2 text-sm font-medium text-white rounded-md transition-colors
                       ${gateKeeper === null ? 'bg-primary hover:bg-primary/90 text-primary-foreground' : 'bg-secondary hover:bg-secondary/80 text-secondary-foreground'}`}
-                    onClick={onSetGK}
+                    onClick={() => onSetGK(null)}
                   >
                     Beengedés leadása
                   </button>

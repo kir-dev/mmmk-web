@@ -6,9 +6,10 @@ import { useEffect } from 'react';
 import { UserRoleTable } from '@/components/admin/user-role-table';
 import { useProfile } from '@/hooks/useProfile';
 import { Role } from '@/types/user';
-import OpenedWeeksPanel from '../admin_panel/components/OpenedWeeksPanel';
-import PeriodsPanel from '../admin_panel/components/PeriodsPanel';
-import SettingsPanel from '../admin_panel/components/SettingsPanel';
+
+import OpenedWeeksPanel from '../../components/admin/OpenedWeeksPanel';
+import PeriodsPanel from '../../components/admin/PeriodsPanel';
+import SettingsPanel from '../../components/admin/SettingsPanel';
 
 export default function AdminPage() {
   const router = useRouter();
@@ -40,19 +41,19 @@ export default function AdminPage() {
 
         <section className='space-y-3'>
           <h2 className='text-lg font-semibold'>Megnyitott hetek</h2>
-          <p className='text-sm text-muted-foreground'></p>
+          <p className='text-sm text-muted-foreground' />
           <OpenedWeeksPanel />
         </section>
 
         <section className='space-y-3'>
           <h2 className='text-lg font-semibold'>Félévek</h2>
-          <p className='text-sm text-muted-foreground'></p>
+          <p className='text-sm text-muted-foreground' />
           <PeriodsPanel />
         </section>
 
         <section className='space-y-3'>
           <h2 className='text-lg font-semibold'>Beállítások</h2>
-          <p className='text-sm text-muted-foreground'></p>
+          <p className='text-sm text-muted-foreground' />
           <SettingsPanel />
         </section>
       </div>

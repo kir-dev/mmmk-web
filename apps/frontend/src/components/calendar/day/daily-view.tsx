@@ -76,6 +76,7 @@ export default function DailyView(props: DailyViewProps) {
 
           <button
             onClick={handleNextDay}
+            disabled={!isNextDayOpen()}
             className='p-1.5 sm:p-2 flex-shrink-0 rounded-full hover:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-colors duration-200 text-muted-foreground hover:text-foreground'
           >
             <ChevronRightIcon className='w-5 h-5' />

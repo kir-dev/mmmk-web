@@ -76,7 +76,7 @@ export function TimePicker({ label, value, onChange, className = '' }: TimePicke
           type='date'
           value={formatDate(selectedDate)}
           onChange={handleDateChange}
-          className='flex-1 bg-white hover:bg-slate-200 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-black dark:text-zinc-200 rounded-md border border-zinc-600 px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-transparent'
+          className='flex-1 bg-white hover:bg-slate-200 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-black dark:text-zinc-200 rounded-md border border-zinc-600 px-3 py-2 focus:ring-2 focus:ring-primary focus:border-transparent'
         />
 
         {/* Hour picker */}
@@ -98,7 +98,7 @@ export function TimePicker({ label, value, onChange, className = '' }: TimePicke
         <select
           value={selectedMinute}
           onChange={handleMinuteChange}
-          className='w-20 bg-white hover:bg-slate-200 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-black dark:text-zinc-200 rounded-md border border-zinc-600 px-2 py-2 focus:ring-2 focus:ring-orange-500 focus:border-transparent'
+          className='w-20 bg-white hover:bg-slate-200 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-black dark:text-zinc-200 rounded-md border border-zinc-600 px-2 py-2 focus:ring-2 focus:ring-primary focus:border-transparent'
         >
           {minutes.map((minute) => (
             <option key={minute} value={minute}>

@@ -110,33 +110,14 @@
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
     scroll-behavior: auto;
-    overscroll-behavior: contain;
-    will-change: scroll-position;
-    transform: translateZ(0);
-    backface-visibility: hidden;
-    isolation: isolate;
-    contain: layout style paint;
     scroll-padding-top: 0;
     scroll-padding-bottom: 0;
-  }
-
-  /* Ensure smooth scrolling within the container */
-  .main-content-scroll * {
-    transform: translateZ(0);
   }
 
   /* Prevent scroll momentum issues */
   .main-content-scroll {
     -webkit-overflow-scrolling: auto;
     scroll-behavior: auto;
-  }
-
-  /* Force hardware acceleration for smooth scrolling */
-  .main-content-scroll {
-    -webkit-transform: translate3d(0, 0, 0);
-    -moz-transform: translate3d(0, 0, 0);
-    -ms-transform: translate3d(0, 0, 0);
-    transform: translate3d(0, 0, 0);
   }
 
   /* Sticky header within scroll container */
@@ -147,11 +128,5 @@
     background: hsl(var(--background));
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-  }
-
-  /* Ensure sticky elements don't interfere with scroll */
-  .main-content-scroll .sticky {
-    transform: translateZ(0);
-    will-change: transform;
   }
 }

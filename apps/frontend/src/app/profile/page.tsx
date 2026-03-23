@@ -101,20 +101,16 @@ function ProfilePage() {
           </CardHeader>
           <CardContent>
             <div className='grid grid-cols-1 sm:grid-cols-3 gap-4'>
-              <div className='text-center p-4 bg-orange-500/10 rounded-lg'>
-                <p className='text-3xl font-bold text-orange-600 dark:text-orange-400'>
-                  {sanctionData?.totalUserPoints || 0}
-                </p>
+              <div className='text-center p-4 bg-primary/10 rounded-lg'>
+                <p className='text-3xl font-bold text-primary'>{sanctionData?.totalUserPoints || 0}</p>
                 <p className='text-sm text-muted-foreground'>Saját szankciós pont</p>
               </div>
-              <div className='text-center p-4 bg-orange-500/10 rounded-lg'>
-                <p className='text-3xl font-bold text-orange-600 dark:text-orange-400'>
-                  {sanctionData?.totalBandPoints || 0}
-                </p>
+              <div className='text-center p-4 bg-primary/10 rounded-lg'>
+                <p className='text-3xl font-bold text-primary'>{sanctionData?.totalBandPoints || 0}</p>
                 <p className='text-sm text-muted-foreground'>Banda szankciós pont</p>
               </div>
-              <div className='text-center p-4 bg-orange-600/20 rounded-lg'>
-                <p className='text-3xl font-bold text-orange-700 dark:text-orange-300'>{totalPoints}</p>
+              <div className='text-center p-4 bg-secondary rounded-lg'>
+                <p className='text-3xl font-bold text-secondary-foreground'>{totalPoints}</p>
                 <p className='text-sm text-muted-foreground'>Összes pont</p>
               </div>
             </div>

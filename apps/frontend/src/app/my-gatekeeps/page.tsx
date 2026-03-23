@@ -1,8 +1,7 @@
-/* eslint-disable no-alert */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,7 +11,7 @@ import { ClubMembership } from '@/types/member';
 import { Reservation } from '@/types/reservation';
 import { withGatekeeperAuth } from '@/utils/withAuth';
 
-function MyReservationsPage() {
+function MyGatekeepsPage() {
   const { user } = useUser();
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [loading, setLoading] = useState(true);
@@ -35,10 +34,13 @@ function MyReservationsPage() {
       const myGatekeeper = memberships.find((membership: ClubMembership) => membership.userId === user?.id);
       setMyGatekeeperId(myGatekeeper?.id || null);
 
+
       // Filter for reservations where current user is the gatekeeper
-      const gateKeeperReservations = allReservations.filter(
-        (reservation) => reservation.gateKeeper?.id === myGatekeeper?.id
-      );
+      const gateKeeperReservations = allReservations.filter((reservation) => {
+        const matches =
+          reservation.gateKeeperId === myGatekeeper?.id;
+        return matches;
+      });
 
       setReservations(gateKeeperReservations);
     } catch (err) {
@@ -67,17 +69,17 @@ function MyReservationsPage() {
     const reason = sanctionReasons[reservation.id] || '';
 
     if (isNaN(pointsToAdd) || pointsToAdd <= 0) {
-      alert('Kérlek adj meg egy pozitív egész számot!');
+      toast.error('Kérlek adj meg egy pozitív egész számot!');
       return;
     }
 
     if (!reason.trim()) {
-      alert('Kérlek add meg az indoklást!');
+      toast.error('Kérlek add meg az indoklást!');
       return;
     }
 
     if (!myGatekeeperId) {
-      alert('Nem található a beengedő azonosító');
+      toast.error('Nem található a beengedő azonosító');
       return;
     }
 
@@ -86,7 +88,7 @@ function MyReservationsPage() {
     const isBandReservation = Boolean(reservation.band?.id);
 
     if (!isUserReservation && !isBandReservation) {
-      alert('Nem található felhasználó vagy banda a foglaláshoz');
+      toast.error('Nem található felhasználó vagy banda a foglaláshoz');
       return;
     }
 
@@ -108,10 +110,10 @@ function MyReservationsPage() {
       await fetchReservations();
 
       const targetName = isUserReservation ? reservation.user?.fullName : reservation.band?.name;
-      alert(`Sikeresen ${pointsToAdd} szankciós pontot adtál ${targetName} számára!\nIndoklás: ${reason}`);
+      toast.success(`Sikeresen ${pointsToAdd} szankciós pontot adtál ${targetName} számára!`);
     } catch (err) {
       console.error('Error awarding sanction points:', err);
-      alert('Hiba történt a szankciós pontok hozzáadása során');
+      toast.error('Hiba történt a szankciós pontok hozzáadása során');
     } finally {
       setUpdatingReservation(null);
     }
@@ -167,14 +169,13 @@ function MyReservationsPage() {
           <div className='flex flex-col gap-4 max-w-4xl mx-auto'>
             {reservations.map((reservation) => {
               const reserverName = reservation.user?.fullName || reservation.band?.name || 'Ismeretlen';
-              const isBandReservation = !reservation.user;
 
               return (
                 <Card key={reservation.id}>
                   <CardHeader>
                     <CardTitle className='text-lg'>{reserverName}</CardTitle>
                     <CardDescription>
-                      <span className='inline-block px-2 py-1 text-xs rounded bg-orange-500/10 text-orange-600 dark:text-orange-400'>
+                      <span className='inline-block px-2 py-1 text-xs rounded bg-primary/10 text-primary'>
                         {getStatusLabel(reservation.status)}
                       </span>
                     </CardDescription>
@@ -199,15 +200,15 @@ function MyReservationsPage() {
                         placeholder='Pontok száma'
                         value={sanctionInputs[reservation.id] || ''}
                         onChange={(e) => handleSanctionInputChange(reservation.id, e.target.value)}
-                        className='w-32 px-3 py-2 text-sm border border-orange-500 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 dark:bg-zinc-800'
+                        className='w-32 px-3 py-2 text-sm border border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-primary dark:bg-zinc-800'
                         disabled={updatingReservation === reservation.id}
                       />
                       <input
                         type='text'
-                        placeholder='Indoklás (pl. késés, nem takarított)'
+                        placeholder='Indoklás'
                         value={sanctionReasons[reservation.id] || ''}
                         onChange={(e) => handleReasonChange(reservation.id, e.target.value)}
-                        className='flex-1 px-3 py-2 text-sm border border-orange-500 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 dark:bg-zinc-800'
+                        className='flex-1 px-3 py-2 text-sm border border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-primary dark:bg-zinc-800'
                         disabled={updatingReservation === reservation.id}
                       />
                       <Button
@@ -233,4 +234,4 @@ function MyReservationsPage() {
   );
 }
 
-export default withGatekeeperAuth(MyReservationsPage);
+export default withGatekeeperAuth(MyGatekeepsPage);

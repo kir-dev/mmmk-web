@@ -226,6 +226,7 @@ export class ReservationsService {
       include: {
         user: true,
         band: true,
+        gateKeeper: { include: { user: true } }
       },
       orderBy: {
         startTime: 'asc',

@@ -50,16 +50,16 @@ export default function DayReservation(props: DayEventProps) {
     // Priority 1: Admin-made reservations (purple)
     if (props.reservation.status === 'ADMINMADE') {
       return {
-        bg: 'bg-gradient-to-r from-purple-600 to-purple-400',
-        border: 'border-purple-700',
+        bg: 'bg-gradient-to-r from-primary to-primary/80',
+        border: 'border-primary',
       };
     }
 
     // Priority 2: Overtime reservations (blue)
     if (props.reservation.status === 'OVERTIME') {
       return {
-        bg: 'bg-gradient-to-r from-blue-500 to-blue-400',
-        border: 'border-blue-600',
+        bg: 'bg-gradient-to-r from-secondary to-secondary/80',
+        border: 'border-secondary-foreground/20',
       };
     }
 
@@ -68,26 +68,26 @@ export default function DayReservation(props: DayEventProps) {
       // Band reservations (green)
       if (needsGatekeeper) {
         return {
-          bg: 'bg-gradient-to-r from-green-400 to-green-300',
-          border: 'border-green-500',
+          bg: 'bg-gradient-to-r from-muted to-muted/80',
+          border: 'border-muted-foreground',
         };
       }
       return {
-        bg: 'bg-gradient-to-r from-green-600 to-green-500',
-        border: 'border-green-700',
+        bg: 'bg-gradient-to-r from-accent to-accent/80',
+        border: 'border-accent-foreground',
       };
     }
 
     // User reservations (orange)
     if (needsGatekeeper) {
       return {
-        bg: 'bg-gradient-to-r from-orange-400 to-orange-300',
-        border: 'border-orange-500',
+        bg: 'bg-gradient-to-r from-muted to-muted/80',
+        border: 'border-muted-foreground',
       };
     }
     return {
-      bg: 'bg-gradient-to-r from-orange-600 to-orange-500',
-      border: 'border-orange-700',
+      bg: 'bg-gradient-to-r from-primary to-primary/80',
+      border: 'border-primary',
     };
   };
 
@@ -106,27 +106,13 @@ export default function DayReservation(props: DayEventProps) {
       <div
         className={`
           flex flex-row
-          ${
-            // eslint-disable-next-line no-nested-ternary
-            props.reservation.status === 'OVERTIME'
-              ? 'bg-gradient-to-r from-blue-500 to-blue-400'
-              : props.reservation.status === 'ADMINMADE'
-                ? 'bg-gradient-to-r from-primary to-primary/80 text-primary-foreground'
-                : 'bg-gradient-to-r from-emerald-600 to-emerald-400'
-          }
+          ${colors.bg}
           justify-start
           overflow-hidden
           rounded-md
           shadow-md
           border-l-4
-          ${
-            // eslint-disable-next-line no-nested-ternary
-            props.reservation.status === 'OVERTIME'
-              ? 'border-blue-600'
-              : props.reservation.status === 'ADMINMADE'
-                ? 'border-primary'
-                : 'border-emerald-700'
-          }
+          ${colors.border}
           transition-all
           duration-200
           hover:shadow-lg
