@@ -20,8 +20,13 @@ export class ReservationsController {
   @Get()
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
-  async findAll(@Query('page', ParseIntPipe) page: number, @Query('page_size', ParseIntPipe) pageSize: number) {
-    return this.reservationsService.findAll(page, pageSize);
+  async findAll(
+    @Query('page', ParseIntPipe) page: number,
+    @Query('page_size', ParseIntPipe) pageSize: number,
+    @Query('gateKeeperId') gateKeeperId?: string
+  ) {
+    const parsedGateKeeperId = gateKeeperId ? parseInt(gateKeeperId, 10) : undefined;
+    return this.reservationsService.findAll(page, pageSize, parsedGateKeeperId);
   }
 
   @Get(':id')

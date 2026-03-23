@@ -120,14 +120,16 @@ export default function Calendar() {
         />
       )}
 
-      <ReservationDetails
-        isEventDetails={isReservationDetails}
-        setIsEventDetails={setIsReservationDetails}
-        clickedEvent={clickedReservation}
-        setClickedEvent={setClickedReservation}
-        onGetData={onGetData}
-        reservations={reservations}
-      />
+      {isReservationDetails && (
+        <ReservationDetails
+          isEventDetails={isReservationDetails}
+          setIsEventDetails={setIsReservationDetails}
+          clickedEvent={clickedReservation}
+          setClickedEvent={setClickedReservation}
+          onGetData={onGetData}
+          reservations={reservations}
+        />
+      )}
 
       <CommentDetails
         isCommentDetails={isCommentDetails}

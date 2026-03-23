@@ -45,49 +45,26 @@ export default function DayReservation(props: DayEventProps) {
 
   // Get color based on reservation type
   const getReservationColor = (): { bg: string; border: string } => {
-    const needsGatekeeper = !props.reservation.gateKeeperId;
-
-    // Priority 1: Admin-made reservations (purple)
+    // 1. Admin-made reservations (purple)
     if (props.reservation.status === 'ADMINMADE') {
       return {
-        bg: 'bg-gradient-to-r from-primary to-primary/80',
-        border: 'border-primary',
+        bg: 'bg-gradient-to-r from-violet-600 to-violet-500',
+        border: 'border-violet-700',
       };
     }
 
-    // Priority 2: Overtime reservations (blue)
+    // 2. Overtime reservations (blue)
     if (props.reservation.status === 'OVERTIME') {
       return {
-        bg: 'bg-gradient-to-r from-secondary to-secondary/80',
-        border: 'border-secondary-foreground/20',
+        bg: 'bg-gradient-to-r from-blue-600 to-blue-500',
+        border: 'border-blue-700',
       };
     }
 
-    // Normal reservations: differentiate by band/user and gatekeeper status
-    if (props.reservation.bandId) {
-      // Band reservations (green)
-      if (needsGatekeeper) {
-        return {
-          bg: 'bg-gradient-to-r from-muted to-muted/80',
-          border: 'border-muted-foreground',
-        };
-      }
-      return {
-        bg: 'bg-gradient-to-r from-accent to-accent/80',
-        border: 'border-accent-foreground',
-      };
-    }
-
-    // User reservations (orange)
-    if (needsGatekeeper) {
-      return {
-        bg: 'bg-gradient-to-r from-muted to-muted/80',
-        border: 'border-muted-foreground',
-      };
-    }
+    // 3. Normal reservations (emerald/green)
     return {
-      bg: 'bg-gradient-to-r from-primary to-primary/80',
-      border: 'border-primary',
+      bg: 'bg-gradient-to-r from-emerald-600 to-emerald-500',
+      border: 'border-emerald-700',
     };
   };
 

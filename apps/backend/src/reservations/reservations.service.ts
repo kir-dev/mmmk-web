@@ -56,10 +56,10 @@ export class ReservationsService {
     const maxDuration = 3 * 60 * 60 * 1000;
 
     if (durationMs < minDuration) {
-      throw new BadRequestException('Foglalás minimum 30 perc hosszú kell legyen');
+      throw new BadRequestException('A foglalás túl rövid. Kérlek, adj meg legalább 30 perces idősávot.');
     }
     if (durationMs > maxDuration) {
-      throw new BadRequestException('Foglalás maximum 3 óra hosszú lehet');
+      throw new BadRequestException('A foglalás túl hosszú. A maximálisan foglalható időtartam 3 óra.');
     }
 
     // 3. Validate exclusive user OR band (only check for CreateReservationDto)
@@ -98,7 +98,7 @@ export class ReservationsService {
     });
 
     if ((!openedWeek || !openedWeek.isOpen) && dto.status !== ReservationStatus.ADMINMADE) {
-      throw new BadRequestException('Ez a hét még nem lett megnyitva a foglalások számára.');
+      throw new BadRequestException('Sajnáljuk, de erre a hétre még nem nyitottuk meg a foglalási lehetőséget.');
     }
   }
 
@@ -135,7 +135,7 @@ export class ReservationsService {
 
     if (sanctionPoints >= settings.banSanctionPointThreshold) {
       throw new ForbiddenException(
-        `A foglalás megtagadva: Elérted a tiltási küszöböt (${settings.banSanctionPointThreshold} pont).`
+        `A foglalás megtagadva: Elérted a szankciós küszöböt. Jelenleg ${sanctionPoints} pontod van, a megengedett maximum ${settings.banSanctionPointThreshold}.`
       );
     }
 
@@ -176,7 +176,7 @@ export class ReservationsService {
 
     if (totalWeeklyHours + newDuration > adjustedTotalWeeklyLimit) {
       throw new ForbiddenException(
-        `A foglalás megtagadva: Túllépted a maximális heti limitet (${adjustedTotalWeeklyLimit} óra a szankciókkal együtt).`
+        `A foglalás nem hozható létre: Túllépted a heti időkeretet. (Elérhető: ${adjustedTotalWeeklyLimit} óra, Szankciós pontjaid: ${sanctionPoints})`
       );
     }
 
@@ -218,7 +218,7 @@ export class ReservationsService {
     return ReservationStatus.NORMAL;
   }
 
-  findAll(page?: number, pageSize?: number): Promise<PaginationDto<Reservation>> {
+  findAll(page?: number, pageSize?: number, gateKeeperId?: number): Promise<PaginationDto<Reservation>> {
     const hasPagination = page !== -1 && pageSize !== -1;
     const reservations = this.prisma.reservation.findMany({
       skip: hasPagination ? (page - 1) * pageSize : undefined,
@@ -226,7 +226,7 @@ export class ReservationsService {
       include: {
         user: true,
         band: true,
-        gateKeeper: { include: { user: true } }
+        gateKeeper: { include: { user: true } },
       },
       orderBy: {
         startTime: 'asc',

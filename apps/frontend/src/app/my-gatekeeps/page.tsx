@@ -12,7 +12,7 @@ import { Reservation } from '@/types/reservation';
 import { withGatekeeperAuth } from '@/utils/withAuth';
 
 function MyGatekeepsPage() {
-  const { user } = useUser();
+  const { user, loading: userLoading } = useUser();
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -22,6 +22,8 @@ function MyGatekeepsPage() {
   const [myGatekeeperId, setMyGatekeeperId] = useState<number | null>(null);
 
   const fetchReservations = async () => {
+    if (userLoading) return;
+
     try {
       setLoading(true);
       setError(null);
@@ -32,15 +34,21 @@ function MyGatekeepsPage() {
       // Memberships endpoint returns a plain array directly
       const memberships = gateKeeperQuery.data || [];
       const myGatekeeper = memberships.find((membership: ClubMembership) => membership.userId === user?.id);
+      console.log('User ID:', user?.id);
+      console.log('Memberships:', memberships);
+      console.log('Found myGatekeeper:', myGatekeeper);
       setMyGatekeeperId(myGatekeeper?.id || null);
 
-
       // Filter for reservations where current user is the gatekeeper
+      console.log('All Reservations:', allReservations);
       const gateKeeperReservations = allReservations.filter((reservation) => {
-        const matches =
-          reservation.gateKeeperId === myGatekeeper?.id;
+        const matches = reservation.gateKeeperId === myGatekeeper?.id;
+        if (matches) {
+          console.log('Matched reservation:', reservation);
+        }
         return matches;
       });
+      console.log('Filtered Reservations:', gateKeeperReservations);
 
       setReservations(gateKeeperReservations);
     } catch (err) {
@@ -52,8 +60,10 @@ function MyGatekeepsPage() {
   };
 
   useEffect(() => {
-    fetchReservations();
-  }, []);
+    if (!userLoading) {
+      fetchReservations();
+    }
+  }, [userLoading]);
 
   const handleSanctionInputChange = (reservationId: number, value: string) => {
     setSanctionInputs((prev) => ({ ...prev, [reservationId]: value }));

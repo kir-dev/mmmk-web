@@ -38,7 +38,7 @@ export function Header() {
 
         {user ? (
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+            <DropdownMenuTrigger asChild id='header-user-menu-trigger'>
               <Button variant='outline' className='relative h-10 w-10 rounded-full'>
                 <Avatar className='h-8 w-8 items-center justify-center'>
                   <AvatarFallback>{user.fullName.charAt(0)}</AvatarFallback>

@@ -1,7 +1,7 @@
-/* eslint-disable no-alert */
 'use client';
 
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -40,10 +40,10 @@ export default function SettingsPanel() {
         sanctionTotalHourPenaltyPerPoint: Number(settings.sanctionTotalHourPenaltyPerPoint),
         banSanctionPointThreshold: Number(settings.banSanctionPointThreshold),
       });
-      alert('Beállítások sikeresen elmentve!');
+      toast.success('Beállítások sikeresen elmentve!');
     } catch (error) {
       console.error('Failed to save settings:', error);
-      alert('Hiba történt a mentés során.');
+      toast.error('Hiba történt a mentés során.');
     }
   };
 
