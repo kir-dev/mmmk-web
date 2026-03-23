@@ -149,7 +149,7 @@ export default function CommentDetails(props: EventDetailsProps) {
                   <>
                     <input
                       id='reservable'
-                      className='h-5 w-5 text-orange-500 border-zinc-600 rounded focus:ring-orange-500 bg-zinc-700'
+                      className='h-5 w-5 text-primary border-zinc-600 rounded focus:ring-ring bg-zinc-700'
                       type='checkbox'
                       onChange={(e) => setIsReservable(e.target.checked)}
                       checked={isReservable}

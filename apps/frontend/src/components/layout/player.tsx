@@ -37,7 +37,7 @@ export function Player() {
           <Button size='icon' variant='ghost'>
             <SkipBack className='h-4 w-4' />
           </Button>
-          <Button size='icon' className='h-8 w-8 bg-orange-500 hover:bg-orange-600'>
+          <Button size='icon' className='h-8 w-8 bg-primary hover:bg-primary/90 text-primary-foreground'>
             <Play className='h-4 w-4' />
           </Button>
           <Button size='icon' variant='ghost'>
@@ -50,7 +50,7 @@ export function Player() {
         <div className='flex items-center space-x-2 text-sm text-zinc-400'>
           <span>1:55</span>
           <div className='w-96 h-1 bg-zinc-800 rounded-full'>
-            <div className='w-1/3 h-full bg-orange-500 rounded-full' />
+            <div className='w-1/3 h-full bg-primary rounded-full' />
           </div>
           <span>3:47</span>
         </div>

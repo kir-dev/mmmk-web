@@ -106,13 +106,27 @@ export default function DayReservation(props: DayEventProps) {
       <div
         className={`
           flex flex-row
-          ${colors.bg}
+          ${
+            // eslint-disable-next-line no-nested-ternary
+            props.reservation.status === 'OVERTIME'
+              ? 'bg-gradient-to-r from-blue-500 to-blue-400'
+              : props.reservation.status === 'ADMINMADE'
+                ? 'bg-gradient-to-r from-primary to-primary/80 text-primary-foreground'
+                : 'bg-gradient-to-r from-emerald-600 to-emerald-400'
+          }
           justify-start
           overflow-hidden
           rounded-md
           shadow-md
           border-l-4
-          ${colors.border}
+          ${
+            // eslint-disable-next-line no-nested-ternary
+            props.reservation.status === 'OVERTIME'
+              ? 'border-blue-600'
+              : props.reservation.status === 'ADMINMADE'
+                ? 'border-primary'
+                : 'border-emerald-700'
+          }
           transition-all
           duration-200
           hover:shadow-lg

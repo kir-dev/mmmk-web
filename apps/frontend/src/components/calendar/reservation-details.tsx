@@ -197,8 +197,9 @@ export default function ReservationDetails(props: EventDetailsProps) {
                 {/* Gatekeeper Resign Button - only for assigned gatekeeper */}
                 {gateKeeper !== null && me?.id === gateKeeper.id && (
                   <button
-                    className='px-4 py-2 text-sm font-medium text-white bg-amber-600 hover:bg-amber-700 rounded-md transition-colors'
-                    onClick={() => onSetGK(null)}
+                    className={`px-4 py-2 text-sm font-medium text-white rounded-md transition-colors
+                      ${gateKeeper === null ? 'bg-primary hover:bg-primary/90 text-primary-foreground' : 'bg-secondary hover:bg-secondary/80 text-secondary-foreground'}`}
+                    onClick={onSetGK}
                   >
                     Beengedés leadása
                   </button>
