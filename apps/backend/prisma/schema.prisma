@@ -85,12 +85,13 @@ model Band {
 }
 
 model BandMembership {
-  id     Int                  @id @default(autoincrement())
-  userId Int?
-  bandId Int?
-  status BandMembershipStatus @default(PENDING)
-  band   Band?                @relation(fields: [bandId], references: [id])
-  user   User?                @relation(fields: [userId], references: [id])
+  id        Int                  @id @default(autoincrement())
+  userId    Int?
+  bandId    Int?
+  status    BandMembershipStatus @default(PENDING)
+  createdAt DateTime             @default(now())
+  band      Band?                @relation(fields: [bandId], references: [id])
+  user      User?                @relation(fields: [userId], references: [id])
 
   @@unique([bandId, userId])
 }

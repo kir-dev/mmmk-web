@@ -18,7 +18,13 @@ export default function BandRow({ band, knownGenres }: { band: Band; knownGenres
   const isMember = useMemo(() => {
     if (!user) return false;
     const m = (band.members || []) as BandMembership[];
-    return m.some((bm) => bm.userId === user.id);
+    return m.some((bm) => bm.userId === user.id && bm.status === 'ACCEPTED');
+  }, [user, band.members]);
+
+  const isPending = useMemo(() => {
+    if (!user) return false;
+    const m = (band.members || []) as BandMembership[];
+    return m.some((bm) => bm.userId === user.id && bm.status === 'PENDING');
   }, [user, band.members]);
 
   const [editOpen, setEditOpen] = useState(false);
@@ -49,7 +55,10 @@ export default function BandRow({ band, knownGenres }: { band: Band; knownGenres
 
     let cancelled = false;
     const memberships = members as BandMembership[];
-    const userIds = memberships.map((m) => m.userId).filter((id): id is number => typeof id === 'number');
+    const userIds = memberships
+      .filter((m) => m.status === 'ACCEPTED')
+      .map((m) => m.userId)
+      .filter((id): id is number => typeof id === 'number');
     Promise.all(
       userIds.map((id) =>
         getUser(id)
@@ -86,7 +95,9 @@ export default function BandRow({ band, knownGenres }: { band: Band; knownGenres
           <TableCell>
             <a href={`mailto:${band.email}`}>{band.email}</a>
           </TableCell>
-          <TableCell>{band.members?.length || 0} tag</TableCell>
+          <TableCell>
+            {band.members?.filter((m: any) => typeof m === 'string' || m.status === 'ACCEPTED').length || 0} tag
+          </TableCell>
           <TableCell>
             <CollapsibleTrigger asChild className='data-[state=open]:rotate-90 transition-all duration-300'>
               <Button size='icon' variant='ghost'>
@@ -121,6 +132,33 @@ export default function BandRow({ band, knownGenres }: { band: Band; knownGenres
                   </div>
                 </div>
                 <div className='order-3 md:ml-auto flex flex-row items-center gap-2 shrink-0 flex-wrap w-full md:w-auto'>
+                  {isPending && (
+                    <div className='flex gap-2 mb-4 w-full bg-accent p-3 rounded-md items-center justify-between'>
+                      <span className='text-sm font-semibold'>Meghívásod van ebbe a zenekarba!</span>
+                      <div className='flex gap-2'>
+                        <Button
+                          size='sm'
+                          className='bg-green-600 hover:bg-green-700'
+                          onClick={() =>
+                            axiosApi.patch(`/bands/${band.id}/members/${user?.id}`).then(() => window.location.reload())
+                          }
+                        >
+                          Elfogadás
+                        </Button>
+                        <Button
+                          size='sm'
+                          variant='destructive'
+                          onClick={() =>
+                            axiosApi
+                              .delete(`/bands/${band.id}/members/${user?.id}`)
+                              .then(() => window.location.reload())
+                          }
+                        >
+                          Elutasítás
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                   {/* Approve button for admins */}
                   {user?.role === 'ADMIN' && !band.isApproved && (
                     <Button
@@ -175,11 +213,11 @@ export default function BandRow({ band, knownGenres }: { band: Band; knownGenres
                           }}
                         >
                           <DialogTrigger asChild>
-                            <Button size='sm'>Tag hozzáadása</Button>
+                            <Button size='sm'>Tag meghívása</Button>
                           </DialogTrigger>
                           <DialogContent>
                             <DialogHeader>
-                              <DialogTitle>Tag hozzáadása</DialogTitle>
+                              <DialogTitle>Tag meghívása</DialogTitle>
                             </DialogHeader>
                             <div className='flex flex-col gap-3'>
                               <select
@@ -217,7 +255,7 @@ export default function BandRow({ band, knownGenres }: { band: Band; knownGenres
                                   }}
                                   disabled={selectedUserId === ''}
                                 >
-                                  Hozzáadás
+                                  Meghívás
                                 </Button>
                               </div>
                             </div>

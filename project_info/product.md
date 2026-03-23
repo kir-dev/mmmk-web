@@ -37,7 +37,9 @@ The platform replaces manual coordination (e.g. scheduling rehearsal room usage 
 - Members can **create bands**, including name, email, website, description, and genre tags (with real-time autocomplete suggestions based on existing bands)
 - Newly created bands require **Admin approval** (`isApproved` flag) to become public. Until approved, they are only visible to band members and admins.
 - Admins can **approve, edit, and fully manage members** for any band on the platform.
-- Band membership with approval flow: `PENDING` → `ACCEPTED`
+- Band members and Admins can **invite new users** to their band.
+- Band membership invitations start in a `PENDING` state and automatically expire after 7 days.
+- Invited users must explicitly **Accept** or **Reject** the invitation; accepted users are officially added to the band.
 - Bands can be linked to rehearsal reservations
 
 ### 👥 Member Directory

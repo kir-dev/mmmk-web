@@ -11,25 +11,59 @@ import { Band } from './entities/band.entity';
 export class BandsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createBandDto: CreateBandDto): Promise<Band> {
+  async create(createBandDto: CreateBandDto, userId?: number): Promise<Band> {
+    if (userId) {
+      return await this.prisma.band.create({
+        data: {
+          ...createBandDto,
+          members: {
+            create: {
+              userId,
+              status: BandMembershipStatus.ACCEPTED,
+            },
+          },
+        },
+      });
+    }
     return await this.prisma.band.create({ data: createBandDto });
   }
 
   async findAll(user?: User): Promise<Band[]> {
     let where: any = { isApproved: true };
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
     if (user?.role === 'ADMIN') {
       where = {}; // Admins see all bands, approved or not
     } else if (user?.id) {
       // Normal users see approved bands OR bands where they are a member
       where = {
-        OR: [{ isApproved: true }, { members: { some: { userId: user.id } } }],
+        OR: [
+          { isApproved: true },
+          {
+            members: {
+              some: {
+                userId: user.id,
+                OR: [
+                  { status: BandMembershipStatus.ACCEPTED },
+                  { status: BandMembershipStatus.PENDING, createdAt: { gte: sevenDaysAgo } },
+                ],
+              },
+            },
+          },
+        ],
       };
     }
 
     const res = await this.prisma.band.findMany({
       where,
-      include: { members: { include: { user: { select: { fullName: true } } } } },
+      include: {
+        members: {
+          where: {
+            OR: [{ status: 'ACCEPTED' }, { status: 'PENDING', createdAt: { gte: sevenDaysAgo } }],
+          },
+          include: { user: { select: { fullName: true } } },
+        },
+      },
     });
     return res;
   }
@@ -58,8 +92,15 @@ export class BandsService {
 
   async findMembers(id: number): Promise<User[]> {
     try {
+      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
       const bandmemberships = await this.prisma.bandMembership.findMany({
-        where: { bandId: id },
+        where: {
+          bandId: id,
+          OR: [
+            { status: BandMembershipStatus.ACCEPTED },
+            { status: BandMembershipStatus.PENDING, createdAt: { gte: sevenDaysAgo } },
+          ],
+        },
         include: { user: true },
       });
       return bandmemberships.map((membership) => membership.user);
