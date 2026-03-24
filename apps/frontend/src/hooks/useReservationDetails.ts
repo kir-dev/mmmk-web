@@ -106,7 +106,8 @@ export function useReservationDetails(props: ReservationDetailsProps) {
 
   const onDelete = async () => {
     if (!props.clickedEvent) {
-      console.error('No clicked event to delete');
+      setErrorMessage('No clicked event to delete');
+      showErrorToast(new Error('No clicked event to delete'));
       return;
     }
 
@@ -159,6 +160,7 @@ export function useReservationDetails(props: ReservationDetailsProps) {
           });
       } else {
         setValid(false);
+        setErrorMessage('Érvénytelen időtartam vagy ütközés egy másik foglalással.');
         showErrorToast(new Error('Érvénytelen időtartam vagy ütközés egy másik foglalással.'));
       }
       return;

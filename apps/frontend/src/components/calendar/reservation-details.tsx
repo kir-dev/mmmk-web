@@ -16,7 +16,7 @@ interface EventDetailsProps {
 }
 
 export default function ReservationDetails(props: EventDetailsProps) {
-  if (!props.clickedEvent) return <></>;
+  if (!props.clickedEvent) return;
 
   const {
     isEditing,

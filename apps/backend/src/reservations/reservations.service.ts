@@ -218,7 +218,7 @@ export class ReservationsService {
     return ReservationStatus.NORMAL;
   }
 
-  findAll(page?: number, pageSize?: number, gateKeeperId?: number): Promise<PaginationDto<Reservation>> {
+  findAll(page?: number, pageSize?: number): Promise<PaginationDto<Reservation>> {
     const hasPagination = page !== -1 && pageSize !== -1;
     const reservations = this.prisma.reservation.findMany({
       skip: hasPagination ? (page - 1) * pageSize : undefined,

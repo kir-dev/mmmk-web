@@ -26,7 +26,7 @@ export class ReservationsController {
     @Query('gateKeeperId') gateKeeperId?: string
   ) {
     const parsedGateKeeperId = gateKeeperId ? parseInt(gateKeeperId, 10) : undefined;
-    return this.reservationsService.findAll(page, pageSize, parsedGateKeeperId);
+    return this.reservationsService.findAll(page, pageSize);
   }
 
   @Get(':id')

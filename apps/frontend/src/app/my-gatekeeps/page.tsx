@@ -34,21 +34,13 @@ function MyGatekeepsPage() {
       // Memberships endpoint returns a plain array directly
       const memberships = gateKeeperQuery.data || [];
       const myGatekeeper = memberships.find((membership: ClubMembership) => membership.userId === user?.id);
-      console.log('User ID:', user?.id);
-      console.log('Memberships:', memberships);
-      console.log('Found myGatekeeper:', myGatekeeper);
       setMyGatekeeperId(myGatekeeper?.id || null);
 
       // Filter for reservations where current user is the gatekeeper
-      console.log('All Reservations:', allReservations);
       const gateKeeperReservations = allReservations.filter((reservation) => {
         const matches = reservation.gateKeeperId === myGatekeeper?.id;
-        if (matches) {
-          console.log('Matched reservation:', reservation);
-        }
         return matches;
       });
-      console.log('Filtered Reservations:', gateKeeperReservations);
 
       setReservations(gateKeeperReservations);
     } catch (err) {
