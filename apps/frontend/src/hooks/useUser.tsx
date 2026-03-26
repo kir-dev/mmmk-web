@@ -5,10 +5,14 @@ import { User } from '@/types/user';
 
 export function useUser() {
   const [user, setUser] = useState<User>();
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     fetchUser();
   }, []);
+
   const fetchUser = async () => {
+    setLoading(true);
     try {
       const response = await axiosApi.get('/users/me');
       let me: any = response.data;
@@ -32,8 +36,11 @@ export function useUser() {
       setUser(me as User);
     } catch (error) {
       console.error(error);
+      setUser(undefined);
+    } finally {
+      setLoading(false);
     }
   };
 
-  return { user, refetch: fetchUser };
+  return { user, loading, refetch: fetchUser };
 }

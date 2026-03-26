@@ -1,5 +1,5 @@
 'use client';
-import { BookAudio, CalendarPlus, Heart, ListMusic, MicVocal, ShieldCheck, Users2 } from 'lucide-react';
+import { BarChart3, BookAudio, CalendarPlus, Heart, ListMusic, MicVocal, ShieldCheck, Users2 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -10,6 +10,8 @@ import { Role } from '@/types/user';
 export function Sidebar() {
   const pathname = usePathname();
   const { user } = useUser();
+  const isAdmin = user?.role === Role.ADMIN;
+  const isGateKeeper = user?.clubMembership?.isGateKeeper;
   return (
     <div className='w-64 p-4 flex flex-col'>
       <div className='mt-10 space-y-10'>
@@ -17,7 +19,7 @@ export function Sidebar() {
           <h2 className='text-xs uppercase text-zinc-400 font-bold mb-2'>Rólunk</h2>
           <div className='space-y-2'>
             <Button
-              variant={pathname.startsWith('/mmmk') ? 'blastActive' : 'blast'}
+              variant={pathname?.startsWith('/mmmk') ? 'blastActive' : 'blast'}
               className='w-full justify-start'
               asChild
             >
@@ -27,7 +29,7 @@ export function Sidebar() {
               </Link>
             </Button>
             <Button
-              variant={pathname.startsWith('/room') ? 'blastActive' : 'blast'}
+              variant={pathname?.startsWith('/room') ? 'blastActive' : 'blast'}
               className='w-full justify-start'
               asChild
             >
@@ -37,7 +39,7 @@ export function Sidebar() {
               </Link>
             </Button>
             <Button
-              variant={pathname.startsWith('/rules') ? 'blastActive' : 'blast'}
+              variant={pathname?.startsWith('/rules') ? 'blastActive' : 'blast'}
               className='w-full justify-start'
               asChild
             >
@@ -53,7 +55,7 @@ export function Sidebar() {
             <h2 className='text-xs uppercase text-zinc-400 font-bold mb-2'>Tagoknak</h2>
             <div className='space-y-2'>
               <Button
-                variant={pathname.startsWith('/members') ? 'blastActive' : 'blast'}
+                variant={pathname?.startsWith('/members') ? 'blastActive' : 'blast'}
                 className='w-full justify-start'
                 asChild
               >
@@ -63,7 +65,7 @@ export function Sidebar() {
                 </Link>
               </Button>
               <Button
-                variant={pathname.startsWith('/bands') ? 'blastActive' : 'blast'}
+                variant={pathname?.startsWith('/bands') ? 'blastActive' : 'blast'}
                 className='w-full justify-start'
                 asChild
               >
@@ -73,7 +75,7 @@ export function Sidebar() {
                 </Link>
               </Button>
               <Button
-                variant={pathname.startsWith('/reservation') ? 'blastActive' : 'blast'}
+                variant={pathname?.startsWith('/reservation') ? 'blastActive' : 'blast'}
                 className='w-full justify-start'
                 asChild
               >
@@ -86,20 +88,32 @@ export function Sidebar() {
           </div>
         )}
 
-        {user?.role === Role.ADMIN && (
+        {(isAdmin || isGateKeeper) && (
           <div className='pt-4'>
             <h2 className='text-xs uppercase text-zinc-400 font-bold mb-2'>Adminisztráció</h2>
             <div className='space-y-2'>
               <Button
-                variant={pathname.startsWith('/admin') ? 'blastActive' : 'blast'}
+                variant={pathname?.startsWith('/stats') ? 'blastActive' : 'blast'}
                 className='w-full justify-start'
                 asChild
               >
-                <Link href='/admin'>
-                  <ShieldCheck className='mr-2 h-4 w-4' />
-                  Admin panel
+                <Link href='/stats'>
+                  <BarChart3 className='mr-2 h-4 w-4' />
+                  Statisztika
                 </Link>
               </Button>
+              {isAdmin && (
+                <Button
+                  variant={pathname?.startsWith('/admin') ? 'blastActive' : 'blast'}
+                  className='w-full justify-start'
+                  asChild
+                >
+                  <Link href='/admin'>
+                    <ShieldCheck className='mr-2 h-4 w-4' />
+                    Admin panel
+                  </Link>
+                </Button>
+              )}
             </div>
           </div>
         )}

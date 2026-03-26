@@ -1,4 +1,3 @@
-import { Band } from '@/types/band';
 import { Reservation } from '@/types/reservation';
 
 export function getFirstDayOfWeek(date: Date = new Date()): Date {
@@ -21,25 +20,47 @@ const now = new Date();
 const startOfWeek = getFirstDayOfWeek(now);
 const endOfWeek = getLastDayOfWeek(now);
 
-export function getReservationsOfWeek(reservations: Reservation[], band: Band): Reservation[] {
+export function getReservationsOfWeek(reservations: Reservation[], bandId?: number, userId?: number): Reservation[] {
   return reservations.filter((reservation) => {
     const reservationStart = new Date(reservation.startTime);
+
+    let matchesIdentifier = false;
+    if (bandId) {
+      matchesIdentifier = reservation.bandId === bandId;
+    } else if (userId) {
+      matchesIdentifier = reservation.userId === userId;
+    }
+
     return (
       reservationStart.getTime() >= startOfWeek.getTime() &&
       reservationStart.getTime() <= endOfWeek.getTime() &&
-      reservation.bandId === band?.id
+      matchesIdentifier
     );
   });
 }
 
-export function getReservationsOfDay(reservations: Reservation[], band: Band, start: Date): Reservation[] {
+export function getReservationsOfDay(
+  reservations: Reservation[],
+  bandId?: number,
+  userId?: number,
+  start?: Date
+): Reservation[] {
+  const dateToCheck = start || new Date();
   return reservations.filter((reservation) => {
     const reservationStart = new Date(reservation.startTime);
+
+    let matchesIdentifier = false;
+    if (bandId) {
+      matchesIdentifier = reservation.bandId === bandId;
+    } else if (userId) {
+      matchesIdentifier = reservation.userId === userId;
+    }
+
     return (
-      reservationStart.getDate() === start.getDate() &&
-      reservationStart.getMonth() === start.getMonth() &&
-      reservationStart.getFullYear() === start.getFullYear() &&
-      reservation.bandId === band?.id
+      reservationStart.getDate() === dateToCheck.getDate() &&
+      reservationStart.getMonth() === dateToCheck.getMonth() &&
+      reservationStart.getFullYear() === dateToCheck.getFullYear() &&
+      matchesIdentifier
     );
   });
 }
@@ -68,7 +89,7 @@ export default function IsOvertime(
       minutesReserved += (endTime.getTime() - startTime.getTime()) / (1000 * 60);
     }
   }
-  const remainingMinutes = 360 - minutesReserved;
+  const remainingMinutes = 480 - minutesReserved; // 8 hours default limit
 
   let minutesReservedThatDay = 0;
   for (const reservation of reservationsOfDay) {
@@ -81,8 +102,8 @@ export default function IsOvertime(
   // If the remaining regular time is less than padding, treat the whole as overtime
   if (
     (reservationMinutes > remainingMinutes && remainingMinutes < paddingMinutes) ||
-    (reservationMinutes > 180 && 180 - minutesReservedThatDay < paddingMinutes) ||
-    (reservationMinutes + minutesReservedThatDay > 180 && 180 - minutesReservedThatDay < paddingMinutes)
+    (reservationMinutes > 240 && 240 - minutesReservedThatDay < paddingMinutes) || // 4 hours default limit
+    (reservationMinutes + minutesReservedThatDay > 240 && 240 - minutesReservedThatDay < paddingMinutes)
   ) {
     normalStart = startTime;
     normalEnd = startTime; // No regular part
@@ -93,14 +114,14 @@ export default function IsOvertime(
     normalEnd = new Date(startTime.getTime() + remainingMinutes * 60 * 1000);
     overtimeStart = new Date(normalEnd.getTime() + 60 * 1000);
     overtimeEnd = endTime;
-  } else if (reservationMinutes > 180) {
+  } else if (reservationMinutes > 240) {
     normalStart = startTime;
-    normalEnd = new Date(startTime.getTime() + 180 * 60 * 1000);
+    normalEnd = new Date(startTime.getTime() + 240 * 60 * 1000);
     overtimeStart = new Date(normalEnd.getTime() + 60 * 1000);
     overtimeEnd = endTime;
-  } else if (reservationMinutes + minutesReservedThatDay > 180) {
+  } else if (reservationMinutes + minutesReservedThatDay > 240) {
     normalStart = startTime;
-    normalEnd = new Date(startTime.getTime() + (180 - minutesReservedThatDay) * 60 * 1000);
+    normalEnd = new Date(startTime.getTime() + (240 - minutesReservedThatDay) * 60 * 1000);
     overtimeStart = new Date(normalEnd.getTime() + 60 * 1000);
     overtimeEnd = endTime;
   } else {

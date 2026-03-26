@@ -4,6 +4,7 @@ import validDate from '@components/calendar/validDate';
 
 import collisionWithAdminRes from '@/hooks/collisionWithAdminRes';
 import axiosApi from '@/lib/apiSetup';
+import { showErrorToast } from '@/lib/errorToast';
 import { Band } from '@/types/band';
 import { Comment } from '@/types/comment';
 import { Reservation } from '@/types/reservation';
@@ -25,29 +26,35 @@ export async function submitReservation(params: {
   onSuccess: () => void;
   setValid: (valid: boolean) => void;
   adminOverride: boolean;
+  needToBeLetIn: boolean;
 }): Promise<ReservationSubmitResult> {
-  const { user, band, startTime, endTime, myUser, reservations, onSuccess, setValid, adminOverride } = params;
+  const { user, band, startTime, endTime, myUser, reservations, onSuccess, setValid, adminOverride, needToBeLetIn } =
+    params;
 
   if (!myUser) {
     setValid(false);
     return { success: false, message: 'Nincs bejelentkezett felhasználó' };
   }
 
-  if (!band?.id || !startTime || !endTime) {
-    return { success: false, message: 'Band, start time and end time are required.' };
+  // Require either user OR band (exclusive)
+  if ((!band?.id && !user?.id) || !startTime || !endTime) {
+    setValid(false);
+    return { success: false, message: 'Felhasználó vagy banda, valamint kezdő és befejező időpont szükséges.' };
+  }
+
+  // Ensure exclusive selection (not both)
+  if (band?.id && user?.id) {
+    setValid(false);
+    return { success: false, message: 'Csak felhasználó VAGY banda választható, nem mindkettő.' };
   }
 
   // Create copies to avoid mutating the original dates
   const start = new Date(startTime);
   const end = new Date(endTime);
 
-  // Adjust time zone
-  start.setHours(start.getHours() - 1);
-  end.setHours(end.getHours() - 1);
+  const reservationsOfWeek = getReservationsOfWeek(reservations, band?.id, user?.id);
 
-  const reservationsOfWeek = getReservationsOfWeek(reservations, band);
-
-  const reservationsOfDay = getReservationsOfDay(reservations, band, start);
+  const reservationsOfDay = getReservationsOfDay(reservations, band?.id, user?.id, start);
 
   let submissionUserId: number;
   if (myUser?.role === 'ADMIN') {
@@ -60,31 +67,33 @@ export async function submitReservation(params: {
   if (myUser?.role === 'ADMIN' && !collisionWithAdminRes(start, end, reservationsOfDay) && adminOverride) {
     try {
       await axiosApi.post('/reservations', {
-        userId: user?.id,
-        bandId: band?.id,
+        ...(band?.id ? { bandId: band.id } : { userId: user?.id }),
         startTime: start.toISOString(),
         endTime: end.toISOString(),
         status: 'ADMINMADE',
+        needToBeLetIn: needToBeLetIn,
       });
 
       onSuccess();
       setValid(true);
-      return { success: true };
-    } catch (error) {
-      return { success: false, message: 'Failed to create reservation' };
+      return { success: true, message: 'Sikerült a foglalás létrehozása' };
+    } catch (error: unknown) {
+      showErrorToast(error);
+      setValid(false);
+      return { success: false, message: 'Nem sikerült a foglalás létrehozása' };
     }
   }
 
   let comments: Comment[] = [];
   try {
+    // Fetch ALL comments (page: -1) so no non-reservable comment is silently missed
     const res = await axiosApi.get('/comments', {
       params: {
-        page: 1,
-        page_size: 10,
-        limit: 10,
+        page: -1,
+        page_size: -1,
       },
     });
-    comments = res.data.data;
+    comments = res.data.data ?? [];
   } catch (e) {
     // If comments can't be loaded, fail safe and allow reservation
     comments = [];
@@ -101,7 +110,7 @@ export async function submitReservation(params: {
 
   if (hasNonReservable) {
     setValid(false);
-    return { success: false, message: 'The room is not reservable during the selected time.' };
+    return { success: false, message: 'A terem nem foglalható a kiválasztott időpontban.' };
   }
 
   if (validDate(start, end, undefined, reservations)) {
@@ -112,50 +121,53 @@ export async function submitReservation(params: {
     if (reservationTimes[1].getTime() - reservationTimes[0].getTime() > minimumReservationTime) {
       try {
         await axiosApi.post('/reservations', {
-          userId: submissionUserId,
-          bandId: band?.id,
+          ...(band?.id ? { bandId: band.id } : { userId: submissionUserId }),
           startTime: reservationTimes[0].toISOString(),
           endTime: reservationTimes[1].toISOString(),
           status: 'NORMAL',
+          needToBeLetIn: needToBeLetIn,
         });
 
         // Handle overtime reservation if needed
         if (reservationTimes[2] && reservationTimes[3]) {
           await axiosApi.post('http://localhost:3030/reservations', {
-            userId: submissionUserId,
-            bandId: band?.id,
+            ...(band?.id ? { bandId: band.id } : { userId: submissionUserId }),
             startTime: reservationTimes[2].toISOString(),
             endTime: reservationTimes[3].toISOString(),
             status: 'OVERTIME',
+            needToBeLetIn: needToBeLetIn,
           });
 
           onSuccess();
         }
 
         onSuccess();
-      } catch (error) {
-        return { success: false, message: 'Failed to create reservation' };
+      } catch (error: unknown) {
+        showErrorToast(error);
+        setValid(false);
+        return { success: false, message: 'Nem sikerült a foglalás létrehozása' };
       }
     } else if (reservationTimes[2] && reservationTimes[3]) {
       try {
         await axiosApi.post('/reservations', {
-          userId: submissionUserId,
-          bandId: band?.id,
+          ...(band?.id ? { bandId: band.id } : { userId: submissionUserId }),
           startTime: reservationTimes[0].toISOString(),
           endTime: reservationTimes[3].toISOString(),
           status: 'OVERTIME',
+          needToBeLetIn: needToBeLetIn,
         });
 
         onSuccess();
-      } catch (error) {
-        console.error('Failed to create overtime reservation', error);
+      } catch (error: unknown) {
+        showErrorToast(error);
+        console.error('Nem sikerült a foglalás létrehozása', error);
       }
     }
 
     setValid(true);
-    return { success: true };
+    return { success: true, message: 'Sikerült a foglalás létrehozása' };
   } else {
     setValid(false);
-    return { success: false, message: 'Invalid date range' };
+    return { success: false, message: 'Érvénytelen idősáv' };
   }
 }

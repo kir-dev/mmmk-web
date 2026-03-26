@@ -3,10 +3,13 @@
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
-import { ReservationLimitsForm } from '@/components/admin/reservation-limits-form';
 import { UserRoleTable } from '@/components/admin/user-role-table';
 import { useProfile } from '@/hooks/useProfile';
 import { Role } from '@/types/user';
+
+import OpenedWeeksPanel from '../../components/admin/OpenedWeeksPanel';
+import PeriodsPanel from '../../components/admin/PeriodsPanel';
+import SettingsPanel from '../../components/admin/SettingsPanel';
 
 export default function AdminPage() {
   const router = useRouter();
@@ -37,12 +40,21 @@ export default function AdminPage() {
         </section>
 
         <section className='space-y-3'>
-          <h2 className='text-lg font-semibold'>Foglalási korlátok</h2>
-          <p className='text-sm text-muted-foreground'>
-            Felhasználók és zenekarok maximálisan foglalható óráinak beállítása, valamint szankciópont-alapú
-            korlátozások.
-          </p>
-          <ReservationLimitsForm />
+          <h2 className='text-lg font-semibold'>Megnyitott hetek</h2>
+          <p className='text-sm text-muted-foreground' />
+          <OpenedWeeksPanel />
+        </section>
+
+        <section className='space-y-3'>
+          <h2 className='text-lg font-semibold'>Félévek</h2>
+          <p className='text-sm text-muted-foreground' />
+          <PeriodsPanel />
+        </section>
+
+        <section className='space-y-3'>
+          <h2 className='text-lg font-semibold'>Beállítások</h2>
+          <p className='text-sm text-muted-foreground' />
+          <SettingsPanel />
         </section>
       </div>
     </div>

@@ -7,6 +7,14 @@ function getErrorMessage(error: unknown): { message: string; isServerError: bool
   if (axios.isAxiosError(error)) {
     const status = error.response?.status;
 
+    // Try to get message from response data first
+    const raw = error.response?.data?.message;
+    const serverMsg: string = Array.isArray(raw) ? raw[0] : raw;
+
+    if (serverMsg) {
+      return { message: serverMsg, isServerError: false };
+    }
+
     if (status === 401) {
       return { message: 'Nincs jogosultságod ehhez a művelethez.', isServerError: false };
     }
@@ -17,13 +25,10 @@ function getErrorMessage(error: unknown): { message: string; isServerError: bool
       return { message: 'A keresett tartalom nem található.', isServerError: false };
     }
     if (status === 409) {
-      const serverMsg: string = error.response?.data?.message || 'Az erőforrás már létezik.';
-      return { message: serverMsg, isServerError: false };
+      return { message: 'Az erőforrás már létezik.', isServerError: false };
     }
     if (status === 400 || status === 422) {
-      const raw = error.response?.data?.message;
-      const serverMsg: string = Array.isArray(raw) ? raw[0] : raw ?? 'Érvénytelen kérés.';
-      return { message: serverMsg, isServerError: false };
+      return { message: 'Érvénytelen kérés.', isServerError: false };
     }
     if (!error.response) {
       return { message: 'Nem sikerült kapcsolódni a szerverhez.', isServerError: true };

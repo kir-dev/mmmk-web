@@ -8,13 +8,14 @@ import axiosApi from '@/lib/apiSetup';
 import { ClubMembership } from '@/types/member';
 import { Reservation } from '@/types/reservation';
 import { User } from '@/types/user';
+import { withGatekeeperAuth } from '@/utils/withAuth';
 
 function getCurrentPeriodStart() {
   const now = new Date();
   return new Date(now.getFullYear(), now.getMonth(), 1);
 }
 
-export default function Stats() {
+function Stats() {
   const { user: me } = useUser();
 
   const [loading, setLoading] = useState(true);
@@ -153,3 +154,5 @@ export default function Stats() {
     </div>
   );
 }
+
+export default withGatekeeperAuth(Stats);

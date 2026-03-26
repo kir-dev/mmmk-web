@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 
 import axiosApi from '@/lib/apiSetup';
 import { Comment } from '@/types/comment';
+import { OpenedWeek } from '@/types/openedWeek';
 import { Reservation } from '@/types/reservation';
 
 import DailyView from './day/daily-view';
@@ -25,6 +26,7 @@ export default function Calendar() {
   const [isReservationDetails, setIsReservationDetails] = useState(false);
   const [clickedReservation, setClickedReservation] = useState<Reservation>();
   const [comments, setComments] = useState<Comment[]>([]);
+  const [openedWeeks, setOpenedWeeks] = useState<OpenedWeek[]>([]);
   const [isCommentDetails, setIsCommentDetails] = useState(false);
   const [clickedComment, setClickedComment] = useState<Comment>();
   const [view, setView] = useState<View>(View.Day);
@@ -53,6 +55,13 @@ export default function Calendar() {
       .then((res) => {
         setComments(res.data.data);
       });
+
+    axiosApi
+      .get('/opened-weeks')
+      .then((res) => {
+        setOpenedWeeks(res.data);
+      })
+      .catch(() => {});
   };
 
   const onEventClick = (id: number) => {
@@ -71,20 +80,20 @@ export default function Calendar() {
 
   return (
     <div className='w-full container mx-auto'>
-      <div className='flex flex-row gap-2'>
+      <div className='flex flex-row gap-2 mb-1'>
         <button
-          className={`m - 1 border-2 border-orange-500 dark:hover:bg-orange-500 dark:text-slate-50 font-bold py-1 px-2 rounded-lg hidden md:block ${view === View.Week ? 'bg-orange-500 text-slate-50 dark:bg-orange-600' : ''}`}
+          className={`m-1 border-2 border-primary dark:hover:bg-primary/10 dark:text-slate-50 font-bold py-1 px-2 rounded-lg hidden md:block ${view === View.Week ? 'bg-white text-primary dark:bg-white dark:text-black dark:hover:bg-white' : ''}`}
           onClick={() => setView(View.Week)}
         >
           Heti nézet
         </button>
         <button
-          className={`m - 1 border-2 border-orange-500 dark:hover:bg-orange-500 dark:text-slate-50 font-bold py-1 px-2 rounded-lg ${view === View.Day ? 'bg-orange-500 text-slate-50 dark:bg-orange-600' : ''}`}
+          className={`m-1 border-2 border-primary dark:hover:bg-primary/10 dark:text-slate-50 font-bold py-1 px-2 rounded-lg hidden md:block ${view === View.Day ? 'bg-white text-primary dark:bg-white dark:text-black dark:hover:bg-white' : ''}`}
           onClick={() => setView(View.Day)}
         >
           Napi nézet
         </button>
-        <div className='ml-auto'>
+        <div className='w-full md:w-auto md:ml-auto flex'>
           <AddPanel onGetData={onGetData} currentDate={currentDate} reservations={reservations} />
         </div>
       </div>
@@ -93,6 +102,7 @@ export default function Calendar() {
         <DWView
           reservations={reservations}
           comments={comments}
+          openedWeeks={openedWeeks}
           onEventClick={onEventClick}
           onCommentClick={onCommentClick}
           currentDate={currentDate}
@@ -103,20 +113,23 @@ export default function Calendar() {
           currentDate={currentDate}
           reservations={reservations}
           comments={comments}
+          openedWeeks={openedWeeks}
           onEventClick={onEventClick}
           onCommentClick={onCommentClick}
           setCurrentDate={setCurrentDate}
         />
       )}
 
-      <ReservationDetails
-        isEventDetails={isReservationDetails}
-        setIsEventDetails={setIsReservationDetails}
-        clickedEvent={clickedReservation}
-        setClickedEvent={setClickedReservation}
-        onGetData={onGetData}
-        reservations={reservations}
-      />
+      {isReservationDetails && (
+        <ReservationDetails
+          isEventDetails={isReservationDetails}
+          setIsEventDetails={setIsReservationDetails}
+          clickedEvent={clickedReservation}
+          setClickedEvent={setClickedReservation}
+          onGetData={onGetData}
+          reservations={reservations}
+        />
+      )}
 
       <CommentDetails
         isCommentDetails={isCommentDetails}

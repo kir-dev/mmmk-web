@@ -1,5 +1,5 @@
-import { ReservationStatus } from '@prisma/client';
-import { IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
+import { GateKeeperPriority, ReservationStatus } from '@prisma/client';
+import { IsBoolean, IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
 
 export class Reservation {
   @IsNotEmpty()
@@ -7,8 +7,10 @@ export class Reservation {
   id: number;
 
   @IsNumber()
+  @IsOptional()
   userId: number;
 
+  @IsOptional()
   @IsNumber()
   bandId: number;
 
@@ -24,7 +26,14 @@ export class Reservation {
   @IsOptional()
   gateKeeperId: number;
 
-  @IsNotEmpty()
+  @IsOptional()
+  @IsEnum(GateKeeperPriority)
+  gateKeeperPriority: GateKeeperPriority;
+
+  @IsOptional()
   @IsEnum(ReservationStatus)
   status: ReservationStatus;
+
+  @IsBoolean()
+  needToBeLetIn: boolean;
 }

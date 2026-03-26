@@ -1,6 +1,8 @@
+/* eslint-disable no-negated-condition */
 import { useState } from 'react';
 
 import { Comment } from '@/types/comment';
+import { OpenedWeek } from '@/types/openedWeek';
 import { Reservation } from '@/types/reservation';
 
 import DailyViewWO from '../day/daily-view-without-date';
@@ -8,6 +10,7 @@ import DailyViewWO from '../day/daily-view-without-date';
 interface DWViewProps {
   reservations: Reservation[];
   comments: Comment[];
+  openedWeeks: OpenedWeek[];
   onEventClick: (id: number) => void;
   onCommentClick: (id: number) => void;
   currentDate: Date;
@@ -47,7 +50,20 @@ export default function DWView(props: DWViewProps) {
     );
   };
 
+  const isNextWeekOpen = () => {
+    const nextWeekMonday = new Date(firstDayOfWeek);
+    nextWeekMonday.setDate(nextWeekMonday.getDate() + 7);
+    nextWeekMonday.setHours(0, 0, 0, 0);
+
+    return props.openedWeeks.some((w) => {
+      const wDate = new Date(w.monday);
+      return wDate.getTime() === nextWeekMonday.getTime() && w.isOpen;
+    });
+  };
+
   const handleNextWeek = () => {
+    if (!isNextWeekOpen()) return;
+
     const newDate = new Date(
       props.currentDate.getFullYear(),
       props.currentDate.getMonth(),
@@ -83,40 +99,42 @@ export default function DWView(props: DWViewProps) {
   const weekDays = getDays();
 
   return (
-    <div className='w-full h-full'>
-      <div className='bg-background shadow-lg bg-calendarBg bg-opacity-80 text-white w-full h-full'>
+    <div className='w-full h-full p-2 md:p-4'>
+      <div className='bg-background shadow-xl rounded-2xl border border-border overflow-hidden text-foreground w-full h-full flex flex-col'>
         {/* Header with month/year and navigation */}
-        <div className='flex items-center justify-between px-4 py-3 border-b border-slate-300/20 bg-gradient-to-r from-slate-100/90 to-slate-200/90 dark:from-slate-800/90 dark:to-slate-700/90'>
+        <div className='flex items-center justify-between px-6 py-4 border-b border-border bg-card'>
           <button
             onClick={handlePreviousWeek}
-            className='p-2 rounded-full hover:bg-white/30 dark:hover:bg-slate-600/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-colors duration-200 text-slate-700 dark:text-slate-200'
+            className='p-2 rounded-full hover:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-colors duration-200 text-muted-foreground hover:text-foreground'
           >
             <ChevronLeftIcon className='w-5 h-5' />
           </button>
 
           <div className='flex flex-col items-center'>
-            <div className='text-xl font-semibold text-slate-800 dark:text-white tracking-wide'>
-              {props.currentDate.toLocaleString('hu', { month: 'long' })} {props.currentDate.getFullYear()}
+            <div className='text-xl flex items-baseline gap-2 font-bold text-foreground tracking-tight'>
+              <span className='text-muted-foreground font-medium text-lg'>{props.currentDate.getFullYear()}.</span>
+              {props.currentDate.toLocaleString('hu', { month: 'long' })}
             </div>
-            <div className='text-xs text-slate-500 dark:text-slate-400 mt-0.5'>
-              Week {Math.ceil((props.currentDate.getDate() + firstDayOfWeek.getDay()) / 7)}
+            <div className='text-xs font-medium text-muted-foreground mt-1 bg-muted px-2 py-0.5 rounded-full'>
+              {Math.ceil((props.currentDate.getDate() + firstDayOfWeek.getDay()) / 7)}. hét
             </div>
           </div>
 
           <button
             onClick={handleNextWeek}
-            className='p-2 rounded-full hover:bg-white/30 dark:hover:bg-slate-600/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-colors duration-200 text-slate-700 dark:text-slate-200'
+            disabled={!isNextWeekOpen()}
+            className={`p-2 rounded-full hover:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-colors duration-200 text-muted-foreground hover:text-foreground ${!isNextWeekOpen() ? 'opacity-50 cursor-not-allowed' : 'hover:bg-white/30 dark:hover:bg-slate-600/50'}`}
           >
             <ChevronRightIcon className='w-5 h-5' />
           </button>
         </div>
 
         <div
-          className='grid grid-cols-8 w-full h-[calc(100%-60px)]'
-          style={{ gridTemplateColumns: '80px repeat(7, 1fr)' }}
+          className='grid grid-cols-8 w-full flex-grow'
+          style={{ gridTemplateColumns: '80px repeat(7, 1fr)', gridTemplateRows: 'max-content 1fr' }}
         >
           {/* Empty cell above time column */}
-          <div className='flex items-center justify-center h-16 font-medium text-muted-foreground border-b border-slate-300/30 bg-slate-50 dark:bg-slate-800/40' />
+          <div className='flex items-center justify-center h-[72px] border-b border-r border-border bg-muted/10' />
 
           {/* Day headers */}
           {weekDays.map((day, i) => {
@@ -127,21 +145,20 @@ export default function DWView(props: DWViewProps) {
               <div
                 key={`day-header-${day.getTime()}`}
                 className={`
-              flex flex-col items-center justify-center h-16 
-              border-b border-l border-slate-300/30
-              ${isWeekend ? 'bg-slate-100 dark:bg-slate-800/30' : 'bg-slate-50 dark:bg-slate-800/20'}
-              ${isToday ? 'ring-2 ring-inset ring-primary/40 dark:ring-primary/30' : ''}
+              flex flex-col items-center justify-center h-[72px]
+              border-b border-border border-r last:border-r-0
+              ${isWeekend ? 'bg-muted/20' : 'bg-transparent'}
             `}
               >
                 <span
-                  className={`text-xs font-medium mb-1 ${isWeekend ? 'text-slate-500' : 'text-slate-400'} dark:text-slate-500`}
+                  className={`text-xs font-semibold mb-1 uppercase tracking-wider ${isToday ? 'text-primary' : ''} ${!isToday && isWeekend ? 'text-muted-foreground' : ''} ${!isToday && !isWeekend ? 'text-foreground/70' : ''}`}
                 >
-                  {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i]}
+                  {['H', 'K', 'Sze', 'Cs', 'P', 'Szo', 'V'][i]}
                 </span>
                 <span
                   className={`
-              flex items-center justify-center 
-              ${isToday ? 'bg-primary text-white w-7 h-7 rounded-full font-semibold' : 'font-medium text-slate-700 dark:text-slate-300'}
+              flex items-center justify-center
+              ${isToday ? 'bg-primary text-primary-foreground w-8 h-8 rounded-full font-bold shadow-md' : 'text-lg font-medium text-foreground'}
             `}
                 >
                   {day.getDate()}
@@ -151,21 +168,10 @@ export default function DWView(props: DWViewProps) {
           })}
 
           {/* Time column */}
-          <div className='border-r border-slate-300/30'>
+          <div className='border-r border-border bg-muted/5'>
             {Array.from({ length: 48 }, (_, i) => (
-              <div
-                key={`time-${i}`}
-                className={`cursor-pointer focus:outline-none focus-visible:ring-2 h-10 focus-visible:ring-primary text-slate-800 dark:text-white border-b border-slate-300/30 ${
-                  i % 2 === 0 ? '' : 'bg-slate-800/5'
-                }`}
-              >
-                {i % 2 === 0 ? (
-                  <div className='flex flex-col pl-2'>
-                    <span className='self-start text-sm'>{i / 2}:00</span>
-                  </div>
-                ) : (
-                  ''
-                )}
+              <div key={`time-${i}`} className='flex justify-center items-start h-10 border-b border-border/40'>
+                {i % 2 === 0 ? <span className='text-xs font-medium text-muted-foreground mt-1'>{i / 2}:00</span> : ''}
               </div>
             ))}
           </div>
@@ -174,7 +180,7 @@ export default function DWView(props: DWViewProps) {
           {weekDays.map((day, index) => (
             <div
               key={`day-column-${day.getTime()}`}
-              className={`border-r border-slate-300/30 ${index === 5 || index === 6 ? 'bg-slate-800/10' : ''}`}
+              className={`border-r last:border-r-0 border-border/40 ${index === 5 || index === 6 ? 'bg-muted/10' : ''}`}
             >
               <DailyViewWO
                 currentDate={day}

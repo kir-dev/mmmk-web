@@ -8,6 +8,11 @@ export enum ReservationStatus {
   ADMINMADE = 'ADMINMADE',
 }
 
+export enum GateKeeperPriority {
+  PRIMARY = 'PRIMARY',
+  SECONDARY = 'SECONDARY',
+}
+
 export type Reservation = {
   id: number;
   userId: number;
@@ -15,8 +20,10 @@ export type Reservation = {
   startTime: Date;
   endTime: Date;
   gateKeeperId: number;
+  gateKeeperPriority?: GateKeeperPriority;
   status: ReservationStatus;
   band: Band;
   gateKeeper: ClubMembership;
   user: User;
+  needToBeLetIn: boolean;
 };

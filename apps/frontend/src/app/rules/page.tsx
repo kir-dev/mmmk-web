@@ -18,7 +18,7 @@ export default function Rules() {
             </p>
             <p>
               Ha olyan problémád van, melyet a lent leírtak nem fednek, úgy a{' '}
-              <a href='/mmmk' className='text-orange-500 underline' target='_blank' rel='noopener noreferrer'>
+              <a href='/mmmk' className='text-primary underline' target='_blank' rel='noopener noreferrer'>
                 főispánt / teremispánt
               </a>{' '}
               kell keresni.
@@ -32,11 +32,11 @@ export default function Rules() {
           <CardContent>
             <ol className='list-decimal list-inside space-y-2'>
               <li>
-                <a href='/register' className='text-orange-500 underline' target='_blank' rel='noopener noreferrer'>
+                <a href='/register' className='text-primary underline' target='_blank' rel='noopener noreferrer'>
                   Regisztrálj
                 </a>{' '}
                 vagy{' '}
-                <a href='/login' className='text-orange-500 underline' target='_blank' rel='noopener noreferrer'>
+                <a href='/login' className='text-primary underline' target='_blank' rel='noopener noreferrer'>
                   jelentkezz be.
                 </a>
               </li>
@@ -44,7 +44,7 @@ export default function Rules() {
                 Iratkozz fel a{' '}
                 <a
                   href='https://lists.sch.bme.hu/wws/subscribe/probaterem'
-                  className='text-orange-500 underline'
+                  className='text-primary underline'
                   target='_blank'
                   rel='noopener noreferrer'
                 >
@@ -69,7 +69,7 @@ export default function Rules() {
 
             <p className='mt-4'>
               A fentiekkel kapcsolatban bármilyen probléma esetén írjatok a levlistára (
-              <a href='mailto:probaterem@sch.bme.hu' className='text-orange-500 underline'>
+              <a href='mailto:probaterem@sch.bme.hu' className='text-primary underline'>
                 probaterem@sch.bme.hu
               </a>
               ).
@@ -104,7 +104,7 @@ export default function Rules() {
               <li>
                 Időpontot a weblapon tudsz foglalni. Ezt minél hamarabb elintézed, annál esélyesebb, hogy lesz
                 beengedőd. Amennyiben nincs, írj a listánkra! (
-                <a href='mailto:probaterem@sch.bme.hu' className='text-orange-500 underline'>
+                <a href='mailto:probaterem@sch.bme.hu' className='text-primary underline'>
                   probaterem@sch.bme.hu
                 </a>
                 )
@@ -114,7 +114,7 @@ export default function Rules() {
                 az már feltételes foglalás lesz, ami azt jelenti, hogy bárki ráfoglalhat erre az időpontra (akár Te is
                 másokéra). Figyeljetek rá, hogy az egyéni tagok foglalásai nem ekvivalensek a bandák foglalásaival
                 (lásd:{' '}
-                <a href='#sanctions' className='text-orange-500 underline'>
+                <a href='#sanctions' className='text-primary underline'>
                   Szankciók
                 </a>
                 ).
