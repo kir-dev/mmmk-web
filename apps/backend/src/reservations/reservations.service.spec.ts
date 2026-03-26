@@ -1,10 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ReservationsService } from './reservations.service';
 import { PrismaService } from 'nestjs-prisma';
+
+import { ReservationsService } from './reservations.service';
 
 describe('ReservationsService', () => {
   let service: ReservationsService;
-  let prisma: PrismaService;
+  //let prisma: PrismaService;
 
   const mockPrismaService = {
     reservation: {
@@ -41,7 +42,7 @@ describe('ReservationsService', () => {
     }).compile();
 
     service = module.get<ReservationsService>(ReservationsService);
-    prisma = module.get<PrismaService>(PrismaService);
+    //prisma = module.get<PrismaService>(PrismaService);
   });
 
   it('should be defined', () => {

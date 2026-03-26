@@ -44,8 +44,7 @@ function MyGatekeepsPage() {
 
       // Filter for reservations where current user is the gatekeeper
       const gateKeeperReservations = allReservations.filter((reservation) => {
-        const matches = reservation.gateKeeperId === myGatekeeper?.id;
-        return matches;
+        return reservation.gateKeeperId === myGatekeeper?.id;
       });
 
       setReservations(gateKeeperReservations);

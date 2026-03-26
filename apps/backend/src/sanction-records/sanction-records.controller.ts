@@ -3,9 +3,9 @@ import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UseGua
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { Role, User } from '@prisma/client';
-
 import { Roles } from 'src/auth/decorators/Roles.decorator';
 import { RolesGuard } from 'src/auth/roles.guard';
+
 import { CreateSanctionRecordDto } from './dto/create-sanction-record.dto';
 import { UpdateSanctionRecordDto } from './dto/update-sanction-record.dto';
 import { SanctionRecordsService } from './sanction-records.service';

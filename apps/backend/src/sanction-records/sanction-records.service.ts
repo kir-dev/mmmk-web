@@ -1,6 +1,6 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from 'nestjs-prisma';
 import { Role, User } from '@prisma/client';
+import { PrismaService } from 'nestjs-prisma';
 
 import { CreateSanctionRecordDto } from './dto/create-sanction-record.dto';
 import { UpdateSanctionRecordDto } from './dto/update-sanction-record.dto';

@@ -2,9 +2,9 @@ import { Body, Controller, Get, Put, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { Role } from '@prisma/client';
-
 import { Roles } from 'src/auth/decorators/Roles.decorator';
 import { RolesGuard } from 'src/auth/roles.guard';
+
 import { UpdateOpenedWeekDto } from './dto/update-opened-week.dto';
 import { OpenedWeeksService } from './opened-weeks.service';
 
