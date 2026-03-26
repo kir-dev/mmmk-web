@@ -1,13 +1,15 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'nestjs-prisma';
+import { Role, User } from '@prisma/client';
 
 import { CreateSanctionRecordDto } from './dto/create-sanction-record.dto';
+import { UpdateSanctionRecordDto } from './dto/update-sanction-record.dto';
 
 @Injectable()
 export class SanctionRecordsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(dto: CreateSanctionRecordDto) {
+  async create(dto: CreateSanctionRecordDto, user: User) {
     // Validate that either userId or bandId is provided, but not both
     if (!dto.userId && !dto.bandId) {
       throw new BadRequestException('Either userId or bandId must be provided');
@@ -16,7 +18,7 @@ export class SanctionRecordsService {
       throw new BadRequestException('Cannot sanction both user and band at the same time');
     }
 
-    // Verify the gatekeeper exists
+    // Verify the gatekeeper exists and is owned by the user or user is ADMIN
     const gateKeeper = await this.prisma.clubMembership.findUnique({
       where: { id: dto.awardedBy },
     });
@@ -24,11 +26,16 @@ export class SanctionRecordsService {
       throw new NotFoundException('GateKeeper not found');
     }
 
+    if (gateKeeper.userId !== user.id && user.role !== Role.ADMIN) {
+      throw new ForbiddenException('Only the gatekeeper who created this record can create it');
+    }
+
     // Create the sanction record
     return this.prisma.sanctionRecord.create({
       data: {
         userId: dto.userId,
         bandId: dto.bandId,
+        reservationId: dto.reservationId,
         points: dto.points,
         reason: dto.reason,
         awardedBy: dto.awardedBy,
@@ -70,6 +77,18 @@ export class SanctionRecordsService {
         },
       },
       orderBy: { awardedAt: 'desc' },
+    });
+  }
+
+  async findAll() {
+    return this.prisma.sanctionRecord.findMany({
+      include: {
+        gateKeeper: {
+          include: {
+            user: true,
+          },
+        },
+      },
     });
   }
 
@@ -142,13 +161,40 @@ export class SanctionRecordsService {
     };
   }
 
-  async delete(id: number) {
+  async update(id: number, dto: UpdateSanctionRecordDto, userId: number) {
     const record = await this.prisma.sanctionRecord.findUnique({
       where: { id },
+      include: { gateKeeper: true },
+    });
+    if (!record) {
+      throw new NotFoundException(`Sanction record with id ${id} not found`);
+    }
+
+    if (record.gateKeeper.userId !== userId) {
+      throw new ForbiddenException('Only the gatekeeper who created this record can update it');
+    }
+
+    return this.prisma.sanctionRecord.update({
+      where: { id },
+      data: {
+        points: dto.points,
+        reason: dto.reason,
+      },
+    });
+  }
+
+  async delete(id: number, user: User) {
+    const record = await this.prisma.sanctionRecord.findUnique({
+      where: { id },
+      include: { gateKeeper: true },
     });
 
     if (!record) {
       throw new NotFoundException(`Sanction record with id ${id} not found`);
+    }
+
+    if (record.gateKeeper.userId !== user.id && user.role !== Role.ADMIN) {
+      throw new ForbiddenException('Only the gatekeeper who created this record or an ADMIN can delete it');
     }
 
     return this.prisma.sanctionRecord.delete({

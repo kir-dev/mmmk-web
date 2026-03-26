@@ -10,6 +10,10 @@ export class CreateSanctionRecordDto {
   bandId?: number;
 
   @IsNumber()
+  @IsOptional()
+  reservationId?: number;
+
+  @IsNumber()
   @IsPositive()
   points: number;
 

@@ -9,16 +9,19 @@ import { useUser } from '@/hooks/useUser';
 import axiosApi from '@/lib/apiSetup';
 import { ClubMembership } from '@/types/member';
 import { Reservation } from '@/types/reservation';
+import { SanctionRecord } from '@/types/sanction-record';
 import { withGatekeeperAuth } from '@/utils/withAuth';
 
 function MyGatekeepsPage() {
   const { user, loading: userLoading } = useUser();
   const [reservations, setReservations] = useState<Reservation[]>([]);
+  const [sanctions, setSanctions] = useState<SanctionRecord[]>([]); // Added
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [sanctionInputs, setSanctionInputs] = useState<{ [key: number]: string }>({});
   const [sanctionReasons, setSanctionReasons] = useState<{ [key: number]: string }>({});
   const [updatingReservation, setUpdatingReservation] = useState<number | null>(null);
+  const [editingSanctionId, setEditingSanctionId] = useState<number | null>(null); // Added
   const [myGatekeeperId, setMyGatekeeperId] = useState<number | null>(null);
 
   const fetchReservations = async () => {
@@ -29,6 +32,9 @@ function MyGatekeepsPage() {
       setError(null);
       const res = await axiosApi.get('/reservations', { params: { page: -1, page_size: -1 } });
       const allReservations = res.data.data as Reservation[];
+
+      const sanctionsRes = await axiosApi.get('/sanction-records');
+      setSanctions(sanctionsRes.data as SanctionRecord[]);
 
       const gateKeeperQuery = await axiosApi.get('/memberships');
       // Memberships endpoint returns a plain array directly
@@ -65,7 +71,7 @@ function MyGatekeepsPage() {
     setSanctionReasons((prev) => ({ ...prev, [reservationId]: value }));
   };
 
-  const handleAwardSanctionPoints = async (reservation: Reservation) => {
+  const handleSaveSanctionPoints = async (reservation: Reservation, sanctionId?: number) => {
     const inputValue = sanctionInputs[reservation.id] || '';
     const pointsToAdd = parseInt(inputValue, 10);
     const reason = sanctionReasons[reservation.id] || '';
@@ -80,7 +86,7 @@ function MyGatekeepsPage() {
       return;
     }
 
-    if (!myGatekeeperId) {
+    if (!myGatekeeperId && !sanctionId) {
       toast.error('Nem található a beengedő azonosító');
       return;
     }
@@ -89,33 +95,37 @@ function MyGatekeepsPage() {
     const isUserReservation = Boolean(reservation.user?.id);
     const isBandReservation = Boolean(reservation.band?.id);
 
-    if (!isUserReservation && !isBandReservation) {
-      toast.error('Nem található felhasználó vagy banda a foglaláshoz');
-      return;
-    }
-
     try {
       setUpdatingReservation(reservation.id);
 
-      // Use the new sanction-records API
-      await axiosApi.post('/sanction-records', {
-        userId: isUserReservation ? reservation.user?.id : undefined,
-        bandId: isBandReservation ? reservation.band?.id : undefined,
-        points: pointsToAdd,
-        reason: reason,
-        awardedBy: myGatekeeperId,
-      });
+      if (sanctionId) {
+        // Update existing
+        await axiosApi.patch(`/sanction-records/${sanctionId}`, {
+          points: pointsToAdd,
+          reason: reason,
+        });
+        toast.success(`Sikeresen frissítetted a szankciós pontokat!`);
+        setEditingSanctionId(null);
+      } else {
+        // Create new
+        await axiosApi.post('/sanction-records', {
+          userId: isUserReservation ? reservation.user?.id : undefined,
+          bandId: isBandReservation ? reservation.band?.id : undefined,
+          reservationId: reservation.id,
+          points: pointsToAdd,
+          reason: reason,
+          awardedBy: myGatekeeperId,
+        });
+        toast.success(`Sikeresen hozzáadtad a szankciós pontokat!`);
+      }
 
       // Clear inputs and refresh reservations
       setSanctionInputs((prev) => ({ ...prev, [reservation.id]: '' }));
       setSanctionReasons((prev) => ({ ...prev, [reservation.id]: '' }));
       await fetchReservations();
-
-      const targetName = isUserReservation ? reservation.user?.fullName : reservation.band?.name;
-      toast.success(`Sikeresen ${pointsToAdd} szankciós pontot adtál ${targetName} számára!`);
     } catch (err) {
-      console.error('Error awarding sanction points:', err);
-      toast.error('Hiba történt a szankciós pontok hozzáadása során');
+      console.error('Error saving sanction points:', err);
+      toast.error('Hiba történt a szankciós pontok mentése során');
     } finally {
       setUpdatingReservation(null);
     }
@@ -195,36 +205,74 @@ function MyGatekeepsPage() {
                   </CardContent>
 
                   <CardFooter className='flex-col gap-3'>
-                    <div className='flex w-full gap-2'>
-                      <input
-                        type='number'
-                        min='1'
-                        placeholder='Pontok száma'
-                        value={sanctionInputs[reservation.id] || ''}
-                        onChange={(e) => handleSanctionInputChange(reservation.id, e.target.value)}
-                        className='w-32 px-3 py-2 text-sm border border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-primary dark:bg-zinc-800'
-                        disabled={updatingReservation === reservation.id}
-                      />
-                      <input
-                        type='text'
-                        placeholder='Indoklás'
-                        value={sanctionReasons[reservation.id] || ''}
-                        onChange={(e) => handleReasonChange(reservation.id, e.target.value)}
-                        className='flex-1 px-3 py-2 text-sm border border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-primary dark:bg-zinc-800'
-                        disabled={updatingReservation === reservation.id}
-                      />
-                      <Button
-                        onClick={() => handleAwardSanctionPoints(reservation)}
-                        disabled={
-                          updatingReservation === reservation.id ||
-                          !sanctionInputs[reservation.id] ||
-                          !sanctionReasons[reservation.id]?.trim()
-                        }
-                        size='sm'
-                      >
-                        {updatingReservation === reservation.id ? 'Folyamatban...' : 'Pont adása'}
-                      </Button>
-                    </div>
+                    {(() => {
+                      const sanction = sanctions.find((s) => s.reservationId === reservation.id);
+                      const isEditing = editingSanctionId === sanction?.id;
+
+                      if (sanction && !isEditing) {
+                        return (
+                          <div className='w-full p-3 bg-muted rounded-md'>
+                            <p className='text-sm font-medium'>
+                              {sanction.points} pont - {sanction.reason}
+                            </p>
+                            {sanction.awardedBy === myGatekeeperId && (
+                              <Button
+                                onClick={() => {
+                                  setEditingSanctionId(sanction.id!);
+                                  setSanctionInputs((prev) => ({
+                                    ...prev,
+                                    [reservation.id]: sanction.points.toString(),
+                                  }));
+                                  setSanctionReasons((prev) => ({ ...prev, [reservation.id]: sanction.reason }));
+                                }}
+                                size='sm'
+                                className='mt-2'
+                              >
+                                Szerkesztés
+                              </Button>
+                            )}
+                          </div>
+                        );
+                      }
+
+                      return (
+                        <div className='flex w-full gap-2'>
+                          <input
+                            type='number'
+                            min='1'
+                            placeholder='Pontok száma'
+                            value={sanctionInputs[reservation.id] || ''}
+                            onChange={(e) => handleSanctionInputChange(reservation.id, e.target.value)}
+                            className='w-32 px-3 py-2 text-sm border border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-primary dark:bg-zinc-800'
+                            disabled={updatingReservation === reservation.id}
+                          />
+                          <input
+                            type='text'
+                            placeholder='Indoklás'
+                            value={sanctionReasons[reservation.id] || ''}
+                            onChange={(e) => handleReasonChange(reservation.id, e.target.value)}
+                            className='flex-1 px-3 py-2 text-sm border border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-primary dark:bg-zinc-800'
+                            disabled={updatingReservation === reservation.id}
+                          />
+                          <Button
+                            onClick={() => handleSaveSanctionPoints(reservation, isEditing ? sanction?.id : undefined)}
+                            disabled={
+                              updatingReservation === reservation.id ||
+                              !sanctionInputs[reservation.id] ||
+                              !sanctionReasons[reservation.id]?.trim()
+                            }
+                            size='sm'
+                          >
+                            {isEditing ? 'Mentés' : 'Pont adása'}
+                          </Button>
+                          {isEditing && (
+                            <Button onClick={() => setEditingSanctionId(null)} size='sm' variant='secondary'>
+                              Mégsem
+                            </Button>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </CardFooter>
                 </Card>
               );

@@ -115,6 +115,7 @@ model Reservation {
   band         Band?              @relation(fields: [bandId], references: [id])
   gateKeeper   ClubMembership?    @relation("GateKeeping", fields: [gateKeeperId], references: [id])
   user         User?              @relation("Reservations", fields: [userId], references: [id])
+  sanctionRecords SanctionRecord[]
 }
 
 model Comment {
@@ -164,6 +165,7 @@ model SanctionRecord {
   id           Int              @id @default(autoincrement())
   userId       Int?
   bandId       Int?
+  reservationId Int?
   points       Int
   reason       String
   awardedBy    Int
@@ -171,5 +173,6 @@ model SanctionRecord {
 
   user         User?            @relation("UserSanctions", fields: [userId], references: [id])
   band         Band?            @relation("BandSanctions", fields: [bandId], references: [id])
+  reservation  Reservation?     @relation(fields: [reservationId], references: [id])
   gateKeeper   ClubMembership   @relation("GateKeeperSanctions", fields: [awardedBy], references: [id])
 }

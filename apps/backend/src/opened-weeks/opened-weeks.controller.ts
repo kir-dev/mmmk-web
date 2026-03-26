@@ -1,7 +1,10 @@
 import { Body, Controller, Get, Put, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import { Role } from '@prisma/client';
 
+import { Roles } from 'src/auth/decorators/Roles.decorator';
+import { RolesGuard } from 'src/auth/roles.guard';
 import { UpdateOpenedWeekDto } from './dto/update-opened-week.dto';
 import { OpenedWeeksService } from './opened-weeks.service';
 
@@ -16,11 +19,9 @@ export class OpenedWeeksController {
 
   @Put()
   @ApiBearerAuth()
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.ADMIN)
   upsert(@Body() dto: UpdateOpenedWeekDto) {
-    // Should be admin guarded, assuming AuthGuard handles basic auth, admin logic is checked elsewhere or via decorators,
-    // but typically we should have RolesGuard. I'll stick to AuthGuard as that seems standard here,
-    // maybe need to add more admin checks if standard practice.
     return this.openedWeeksService.upsert(dto);
   }
 }

@@ -1,10 +1,13 @@
 import { CurrentUser } from '@kir-dev/passport-authsch';
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { User } from '@prisma/client';
+import { Role, User } from '@prisma/client';
 
+import { Roles } from 'src/auth/decorators/Roles.decorator';
+import { RolesGuard } from 'src/auth/roles.guard';
 import { CreateSanctionRecordDto } from './dto/create-sanction-record.dto';
+import { UpdateSanctionRecordDto } from './dto/update-sanction-record.dto';
 import { SanctionRecordsService } from './sanction-records.service';
 
 @Controller('sanction-records')
@@ -14,8 +17,15 @@ export class SanctionRecordsController {
   @Post()
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
-  async create(@Body() dto: CreateSanctionRecordDto) {
-    return this.sanctionRecordsService.create(dto);
+  async create(@Body() dto: CreateSanctionRecordDto, @CurrentUser() user: User) {
+    return this.sanctionRecordsService.create(dto, user);
+  }
+
+  @Patch(':id')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
+  async update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateSanctionRecordDto, @CurrentUser() user: User) {
+    return this.sanctionRecordsService.update(id, dto, user.id);
   }
 
   @Get('me')
@@ -35,10 +45,18 @@ export class SanctionRecordsController {
     return this.sanctionRecordsService.findByBandId(bandId);
   }
 
-  @Delete(':id')
+  @Get()
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
-  async delete(@Param('id', ParseIntPipe) id: number) {
-    return this.sanctionRecordsService.delete(id);
+  async findAll() {
+    return this.sanctionRecordsService.findAll();
+  }
+
+  @Delete(':id')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.ADMIN)
+  async delete(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: User) {
+    return this.sanctionRecordsService.delete(id, user);
   }
 }

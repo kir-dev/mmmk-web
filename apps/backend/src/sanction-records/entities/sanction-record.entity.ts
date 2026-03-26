@@ -14,6 +14,10 @@ export class SanctionRecord {
   bandId?: number;
 
   @IsNumber()
+  @IsOptional()
+  reservationId?: number;
+
+  @IsNumber()
   @IsPositive()
   points: number;
 
