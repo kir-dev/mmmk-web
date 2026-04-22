@@ -74,9 +74,9 @@ export class BandsController {
     @Req() req: any
   ) {
     if (req.user.role !== Role.ADMIN) {
-      // Requesting user must be a member of the band
-      const members = await this.bandsService.findMembers(bandId);
-      if (!members.some((m) => m.id === req.user.id)) {
+      // Requesting user must be an accepted member of the band
+      const isMember = await this.bandsService.isAcceptedMember(bandId, req.user.id);
+      if (!isMember) {
         throw new ForbiddenException('Csak a zenekar tagjai hívhatnak meg másokat.');
       }
     }

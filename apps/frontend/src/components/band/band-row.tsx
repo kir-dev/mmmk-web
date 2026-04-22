@@ -118,14 +118,15 @@ export default function BandRow({ band, knownGenres }: { band: Band; knownGenres
                       <Badge key={m.id ?? i} variant='secondary' className='flex items-center gap-1'>
                         {m.name}
                         {user?.role === 'ADMIN' && m.id && (
-                          <span
-                            className='cursor-pointer text-destructive hover:text-red-700 ml-1 font-bold'
+                          <button
+                            type='button'
+                            className='text-destructive hover:text-red-700 ml-1 font-bold'
                             onClick={() =>
                               axiosApi.delete(`/bands/${band.id}/members/${m.id}`).then(() => window.location.reload())
                             }
                           >
                             ×
-                          </span>
+                          </button>
                         )}
                       </Badge>
                     ))}

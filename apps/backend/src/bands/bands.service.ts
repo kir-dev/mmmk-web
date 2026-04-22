@@ -90,6 +90,17 @@ export class BandsService {
     }
   }
 
+  async isAcceptedMember(bandId: number, userId: number): Promise<boolean> {
+    const count = await this.prisma.bandMembership.count({
+      where: {
+        bandId,
+        userId,
+        status: BandMembershipStatus.ACCEPTED,
+      },
+    });
+    return count > 0;
+  }
+
   async findMembers(id: number): Promise<User[]> {
     try {
       const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
@@ -111,6 +122,18 @@ export class BandsService {
 
   async addMember(bandId: number, userId: number): Promise<BandMembership> {
     try {
+      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+      // Clean up expired pending invites before checking for existing
+      await this.prisma.bandMembership.deleteMany({
+        where: {
+          bandId,
+          userId,
+          status: BandMembershipStatus.PENDING,
+          createdAt: { lt: sevenDaysAgo },
+        },
+      });
+
       const existing = await this.prisma.bandMembership.findFirst({ where: { bandId, userId } });
       if (existing) {
         throw new ConflictException('User is already a member of this band');
@@ -140,10 +163,22 @@ export class BandsService {
 
   async approveMember(bandId: number, userId: number) {
     try {
-      return await this.prisma.bandMembership.updateMany({
-        where: { bandId, userId },
+      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+      const res = await this.prisma.bandMembership.updateMany({
+        where: {
+          bandId,
+          userId,
+          status: BandMembershipStatus.PENDING,
+          createdAt: { gte: sevenDaysAgo },
+        },
         data: { status: BandMembershipStatus.ACCEPTED },
       });
+
+      if (res.count === 0) {
+        throw new NotFoundException('No valid invitation found');
+      }
+
+      return res;
     } catch (error) {
       throw new NotFoundException('No member found');
     }
