@@ -1,7 +1,8 @@
 import { AddPanel } from '@components/calendar/add-panel';
 import { View } from '@components/calendar/calendar';
-import IntervalSwitcher from '@components/calendar/interval-swithcer';
 import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
+
+import IntervalSwitcher from '@/components/calendar/interval-switcher';
 
 interface DateSwitcherProps {
   handlePrevious: () => void;
