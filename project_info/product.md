@@ -2,7 +2,7 @@
 
 ## Project Purpose
 
-**mmmk-web** is the official web platform of **MMMK** (Mérnöki Muzsikusok Művelődési Köre — the music club of a Hungarian university). It serves as the club's central digital hub, combining a public-facing homepage with an internal management system for club operations.
+**mmmk-web** is the official web platform of **MMMK** (Muzsika Mívelő Mérnökök Klubja — the music club of a Hungarian university). It serves as the club's central digital hub, combining a public-facing homepage with an internal management system for club operations.
 
 The platform replaces manual coordination (e.g. scheduling rehearsal room usage by message/email) with a structured, self-service system accessible to all club members via university SSO login.
 
