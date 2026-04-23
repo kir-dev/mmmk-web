@@ -11,13 +11,59 @@ import { Band } from './entities/band.entity';
 export class BandsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createBandDto: CreateBandDto): Promise<Band> {
+  async create(createBandDto: CreateBandDto, userId?: number): Promise<Band> {
+    if (userId) {
+      return await this.prisma.band.create({
+        data: {
+          ...createBandDto,
+          members: {
+            create: {
+              userId,
+              status: BandMembershipStatus.ACCEPTED,
+            },
+          },
+        },
+      });
+    }
     return await this.prisma.band.create({ data: createBandDto });
   }
 
-  async findAll(): Promise<Band[]> {
+  async findAll(user?: User): Promise<Band[]> {
+    let where: any = { isApproved: true };
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+    if (user?.role === 'ADMIN') {
+      where = {}; // Admins see all bands, approved or not
+    } else if (user?.id) {
+      // Normal users see approved bands OR bands where they are a member
+      where = {
+        OR: [
+          { isApproved: true },
+          {
+            members: {
+              some: {
+                userId: user.id,
+                OR: [
+                  { status: BandMembershipStatus.ACCEPTED },
+                  { status: BandMembershipStatus.PENDING, createdAt: { gte: sevenDaysAgo } },
+                ],
+              },
+            },
+          },
+        ],
+      };
+    }
+
     const res = await this.prisma.band.findMany({
-      include: { members: { include: { user: { select: { fullName: true } } } } },
+      where,
+      include: {
+        members: {
+          where: {
+            OR: [{ status: 'ACCEPTED' }, { status: 'PENDING', createdAt: { gte: sevenDaysAgo } }],
+          },
+          include: { user: { select: { fullName: true } } },
+        },
+      },
     });
     return res;
   }
@@ -44,10 +90,28 @@ export class BandsService {
     }
   }
 
+  async isAcceptedMember(bandId: number, userId: number): Promise<boolean> {
+    const count = await this.prisma.bandMembership.count({
+      where: {
+        bandId,
+        userId,
+        status: BandMembershipStatus.ACCEPTED,
+      },
+    });
+    return count > 0;
+  }
+
   async findMembers(id: number): Promise<User[]> {
     try {
+      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
       const bandmemberships = await this.prisma.bandMembership.findMany({
-        where: { bandId: id },
+        where: {
+          bandId: id,
+          OR: [
+            { status: BandMembershipStatus.ACCEPTED },
+            { status: BandMembershipStatus.PENDING, createdAt: { gte: sevenDaysAgo } },
+          ],
+        },
         include: { user: true },
       });
       return bandmemberships.map((membership) => membership.user);
@@ -58,6 +122,18 @@ export class BandsService {
 
   async addMember(bandId: number, userId: number): Promise<BandMembership> {
     try {
+      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+      // Clean up expired pending invites before checking for existing
+      await this.prisma.bandMembership.deleteMany({
+        where: {
+          bandId,
+          userId,
+          status: BandMembershipStatus.PENDING,
+          createdAt: { lt: sevenDaysAgo },
+        },
+      });
+
       const existing = await this.prisma.bandMembership.findFirst({ where: { bandId, userId } });
       if (existing) {
         throw new ConflictException('User is already a member of this band');
@@ -87,10 +163,22 @@ export class BandsService {
 
   async approveMember(bandId: number, userId: number) {
     try {
-      return await this.prisma.bandMembership.updateMany({
-        where: { bandId, userId },
+      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+      const res = await this.prisma.bandMembership.updateMany({
+        where: {
+          bandId,
+          userId,
+          status: BandMembershipStatus.PENDING,
+          createdAt: { gte: sevenDaysAgo },
+        },
         data: { status: BandMembershipStatus.ACCEPTED },
       });
+
+      if (res.count === 0) {
+        throw new NotFoundException('No valid invitation found');
+      }
+
+      return res;
     } catch (error) {
       throw new NotFoundException('No member found');
     }

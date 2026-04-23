@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode, useEffect, useMemo, useState } from 'react';
+import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
@@ -22,6 +22,7 @@ type BandFormDialogProps = {
   onOpenChange: (open: boolean) => void;
   onSuccess?: (band: Band) => void;
   trigger?: ReactNode;
+  knownGenres?: string[];
 };
 
 const MAX_NAME_LENGTH = 100;
@@ -30,7 +31,15 @@ const MAX_WEBPAGE_LENGTH = 200;
 const MAX_DESCRIPTION_LENGTH = 1000;
 const MAX_GENRES_LENGTH = 200;
 
-export default function BandFormDialog({ mode, band, open, onOpenChange, onSuccess, trigger }: BandFormDialogProps) {
+export default function BandFormDialog({
+  mode,
+  band,
+  open,
+  onOpenChange,
+  onSuccess,
+  trigger,
+  knownGenres,
+}: BandFormDialogProps) {
   const { user } = useUser();
   const isEdit = useMemo(() => mode === 'edit', [mode]);
 
@@ -41,6 +50,8 @@ export default function BandFormDialog({ mode, band, open, onOpenChange, onSucce
   const [webPage, setWebPage] = useState(band?.webPage || '');
   const [description, setDescription] = useState(band?.description || '');
   const [genresInput, setGenresInput] = useState((band?.genres || []).join(', '));
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const genresWrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!open) {
@@ -51,6 +62,7 @@ export default function BandFormDialog({ mode, band, open, onOpenChange, onSucce
       setDescription(band?.description || '');
       setGenresInput((band?.genres || []).join(', '));
       setSubmitting(false);
+      setShowSuggestions(false);
     } else if (isEdit) {
       // when opening edit, ensure fields reflect latest band
       setName(band?.name || '');
@@ -66,6 +78,39 @@ export default function BandFormDialog({ mode, band, open, onOpenChange, onSucce
       setGenresInput('');
     }
   }, [open, isEdit, mode, band?.name, band?.email, band?.webPage, band?.description, band?.genres]);
+
+  // Derive suggestions: filter knownGenres by the current token (text after last comma)
+  // and exclude genres already present in the input.
+  const genreSuggestions = useMemo(() => {
+    if (!knownGenres?.length || !showSuggestions) return [];
+
+    const parts = genresInput.split(',');
+    const currentToken = parts[parts.length - 1].trim().toLowerCase();
+    const already = new Set(
+      parts
+        .slice(0, -1)
+        .map((g) => g.trim().toLowerCase())
+        .filter(Boolean)
+    );
+
+    return knownGenres.filter((g) => {
+      const lower = g.toLowerCase();
+      return !already.has(lower) && (currentToken === '' || lower.includes(currentToken));
+    });
+  }, [knownGenres, genresInput, showSuggestions]);
+
+  const handleSelectSuggestion = (genre: string) => {
+    const parts = genresInput.split(',');
+    // Replace the last token (currently being typed) with the selected suggestion
+    parts[parts.length - 1] = genre.trim();
+    // Rejoin with comma-space and append a trailing comma-space
+    const newVal = `${parts
+      .map((p) => p.trim())
+      .filter(Boolean)
+      .join(', ')}, `;
+    setGenresInput(newVal);
+    // Keep suggestions open so they can rapidly click multiple genres
+  };
 
   const handleSubmit = async () => {
     if (!name.trim()) return;
@@ -152,12 +197,33 @@ export default function BandFormDialog({ mode, band, open, onOpenChange, onSucce
             onChange={(e) => setDescription(sanitizeUtfInput(e.target.value))}
             maxLength={MAX_DESCRIPTION_LENGTH}
           />
-          <Input
-            placeholder='Műfajok (vesszővel elválasztva)'
-            value={genresInput}
-            onChange={(e) => setGenresInput(sanitizeUtfInput(e.target.value))}
-            maxLength={MAX_GENRES_LENGTH}
-          />
+          <div ref={genresWrapperRef} className='relative'>
+            <Input
+              placeholder='Műfajok (vesszővel elválasztva)'
+              value={genresInput}
+              onChange={(e) => setGenresInput(sanitizeUtfInput(e.target.value))}
+              maxLength={MAX_GENRES_LENGTH}
+              onFocus={() => setShowSuggestions(true)}
+              onBlur={() => {
+                // Delay so a click on a suggestion registers first
+                setTimeout(() => setShowSuggestions(false), 150);
+              }}
+            />
+            {genreSuggestions.length > 0 && (
+              <ul className='absolute z-50 mt-1 w-full rounded-md border border-input bg-background shadow-md max-h-48 overflow-y-auto'>
+                {genreSuggestions.map((genre) => (
+                  <li
+                    key={genre}
+                    onMouseDown={(e) => e.preventDefault()} // prevent blur before click
+                    onClick={() => handleSelectSuggestion(genre)}
+                    className='cursor-pointer px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground transition-colors'
+                  >
+                    {genre}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
           <div className='flex justify-end gap-2 mt-2'>
             <Button variant='ghost' onClick={() => onOpenChange(false)} disabled={submitting}>
               Mégse

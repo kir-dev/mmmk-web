@@ -9,9 +9,10 @@ import { Band } from '@/types/band';
 
 type CreateBandDialogProps = {
   onCreated?: (band: Band) => void;
+  knownGenres?: string[];
 };
 
-export default function CreateBandDialog({ onCreated }: CreateBandDialogProps) {
+export default function CreateBandDialog({ onCreated, knownGenres }: CreateBandDialogProps) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -20,6 +21,7 @@ export default function CreateBandDialog({ onCreated }: CreateBandDialogProps) {
       open={open}
       onOpenChange={setOpen}
       onSuccess={(b) => onCreated?.(b)}
+      knownGenres={knownGenres}
       trigger={
         <Button>
           <Plus />
