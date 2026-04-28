@@ -71,20 +71,20 @@ export default function Calendar() {
 
   return (
     <div className='w-full container mx-auto'>
-      <div className='flex flex-row gap-2'>
+      <div className='flex flex-row gap-2 mb-1'>
         <button
-          className={`m - 1 border-2 border-orange-500 dark:hover:bg-orange-500 dark:text-slate-50 font-bold py-1 px-2 rounded-lg hidden md:block ${view === View.Week ? 'bg-orange-500 text-slate-50 dark:bg-orange-600' : ''}`}
+          className={`m-1 border-2 border-primary dark:hover:bg-primary/10 dark:text-slate-50 font-bold py-1 px-2 rounded-lg hidden md:block ${view === View.Week ? 'bg-white text-primary dark:bg-white dark:text-black dark:hover:bg-white' : ''}`}
           onClick={() => setView(View.Week)}
         >
           Heti nézet
         </button>
         <button
-          className={`m - 1 border-2 border-orange-500 dark:hover:bg-orange-500 dark:text-slate-50 font-bold py-1 px-2 rounded-lg ${view === View.Day ? 'bg-orange-500 text-slate-50 dark:bg-orange-600' : ''}`}
+          className={`m-1 border-2 border-primary dark:hover:bg-primary/10 dark:text-slate-50 font-bold py-1 px-2 rounded-lg hidden md:block ${view === View.Day ? 'bg-white text-primary dark:bg-white dark:text-black dark:hover:bg-white' : ''}`}
           onClick={() => setView(View.Day)}
         >
           Napi nézet
         </button>
-        <div className='ml-auto'>
+        <div className='w-full md:w-auto md:ml-auto flex'>
           <AddPanel onGetData={onGetData} currentDate={currentDate} reservations={reservations} />
         </div>
       </div>

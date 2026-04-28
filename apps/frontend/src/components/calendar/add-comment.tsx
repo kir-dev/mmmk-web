@@ -56,7 +56,7 @@ export default function AddComment(props: AddCommentProps) {
           id='comment'
           type='text'
           placeholder='Írja be a kommentet...'
-          className='bg-white hover:bg-slate-200 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-black dark:text-zinc-200 border border-zinc-600 w-full px-3 py-2 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent'
+          className='bg-white hover:bg-slate-200 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-black dark:text-zinc-200 border border-zinc-600 w-full px-3 py-2 rounded-md focus:ring-2 focus:ring-ring focus:border-transparent'
           onChange={(e) => setComment(e.target.value)}
           value={comment}
         />
@@ -69,7 +69,7 @@ export default function AddComment(props: AddCommentProps) {
           </label>
           <input
             id='begin'
-            className='bg-white hover:bg-slate-200 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-black dark:text-zinc-200 rounded-md border border-zinc-600 px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-transparent'
+            className='bg-white hover:bg-slate-200 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-black dark:text-zinc-200 rounded-md border border-zinc-600 px-3 py-2 focus:ring-2 focus:ring-ring focus:border-transparent'
             type='datetime-local'
             onChange={(e) => setStartTime(new Date(e.target.value))}
           />
@@ -81,7 +81,7 @@ export default function AddComment(props: AddCommentProps) {
           </label>
           <input
             id='end'
-            className='bg-white hover:bg-slate-200 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-black dark:text-zinc-200 rounded-md border border-zinc-600 px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-transparent'
+            className='bg-white hover:bg-slate-200 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-black dark:text-zinc-200 rounded-md border border-zinc-600 px-3 py-2 focus:ring-2 focus:ring-ring focus:border-transparent'
             type='datetime-local'
             onChange={(e) => setEndTime(new Date(e.target.value))}
           />
@@ -91,7 +91,7 @@ export default function AddComment(props: AddCommentProps) {
       <div className='flex items-center'>
         <input
           id='reservable'
-          className='h-5 w-5 text-orange-500 border-zinc-600 rounded focus:ring-orange-500 bg-zinc-700'
+          className='h-5 w-5 text-primary border-zinc-600 rounded focus:ring-ring bg-zinc-700'
           type='checkbox'
           onChange={(e) => setIsReservable(e.target.checked)}
           checked={isReservable}
@@ -102,7 +102,7 @@ export default function AddComment(props: AddCommentProps) {
       </div>
 
       <button
-        className='w-full rounded-md bg-orange-500 hover:bg-orange-600 text-zinc-900 font-semibold py-3 mt-4 transition-colors shadow-lg'
+        className='w-full rounded-md bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 mt-4 transition-colors shadow-lg'
         onClick={addComment}
       >
         Komment hozzáadása
