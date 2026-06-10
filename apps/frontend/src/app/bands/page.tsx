@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import BandRow from '@/components/band/band-row';
 import CreateBandDialog from '@/components/band/create-band-dialog';
@@ -15,6 +15,12 @@ export default function Bands() {
   const [filteredData, setFilteredData] = useState<Band[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const { user } = useUser();
+
+  const knownGenres = useMemo(() => {
+    const genreSet = new Set<string>();
+    bands.forEach((b) => b.genres?.forEach((g) => genreSet.add(g)));
+    return Array.from(genreSet).sort();
+  }, [bands]);
 
   const fetchBands = () => {
     axiosApi.get('/bands').then((res) => {
@@ -37,7 +43,7 @@ export default function Bands() {
       <div className='flex items-center justify-between flex-col sm:flex-row gap-3 p-4 bg-background sticky top-0 z-10'>
         <h1 className='text-2xl font-semibold text-primary w-full sm:w-auto text-center sm:text-left'>Zenekarok</h1>
         <div className='flex gap-2 w-full sm:w-auto flex-col sm:flex-row'>
-          {user && <CreateBandDialog onCreated={() => fetchBands()} />}
+          {user && <CreateBandDialog onCreated={() => fetchBands()} knownGenres={knownGenres} />}
           <Input
             placeholder='Keresés...'
             value={searchTerm}
@@ -47,17 +53,17 @@ export default function Bands() {
         </div>
       </div>
       <Table>
-        <TableBody>
-          {filteredData.length ? (
-            filteredData.map((band) => <BandRow band={band} key={band.id} />)
-          ) : (
+        {filteredData.length ? (
+          filteredData.map((band) => <BandRow band={band} key={band.id} knownGenres={knownGenres} />)
+        ) : (
+          <TableBody>
             <TableRow>
               <TableCell colSpan={4} className='h-24 text-center'>
-                No results.
+                Nincs találat.
               </TableCell>
             </TableRow>
-          )}
-        </TableBody>
+          </TableBody>
+        )}
       </Table>
     </div>
   );

@@ -5,12 +5,14 @@ export type Band = {
   webPage: string;
   description: string;
   genres?: string[];
+  isApproved: boolean;
   members?: BandMembership[];
 };
 
 export type BandMembership = {
   id: number;
-  bandId: number;
   userId: number;
-  status: string;
+  bandId: number;
+  status: 'PENDING' | 'ACCEPTED';
+  createdAt: string;
 };

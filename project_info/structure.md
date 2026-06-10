@@ -146,8 +146,8 @@ AppModule
 │   ├── UsersService        ← findAll, findMe, findOne, update
 │   └── UsersController     ← GET /users, /users/me, /users/:id, PATCH /users/:id
 ├── BandsModule
-│   ├── BandsService
-│   └── BandsController     ← CRUD /bands
+│   ├── BandsService        ← Filters bands based on isApproved and user role
+│   └── BandsController     ← CRUD /bands (Uses OptionalJwtAuthGuard for public access)
 ├── MembershipsModule
 │   ├── MembershipsService
 │   └── MembershipsController ← CRUD /memberships
@@ -286,6 +286,8 @@ The Prisma schema (`prisma/schema.prisma`) is the authoritative definition for a
 **New models added in this merge:**
 | Model | Purpose |
 |---|---|
+| `Band` (updated) | Added `isApproved` flag to gate visibility on the public bands page. |
+| `BandMembership` (updated) | Added `createdAt` timestamp to enable 7-day automatic expiration for `PENDING` invitations. |
 | `ReservationConfig` | Singleton config record (id=1): default daily/weekly hour caps for users and bands |
 | `SanctionTier` | Linked to `ReservationConfig`; defines tighter caps for users with ≥ N sanction points |
 | `Period` | Date range record (start/end dates); used for scheduling periods |

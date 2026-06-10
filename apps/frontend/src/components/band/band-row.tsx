@@ -2,22 +2,29 @@ import { LogOut, Pencil, Play } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 import BandFormDialog from '@/components/band/band-form-dialog';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { TableCell, TableRow } from '@/components/ui/table';
+import { TableBody, TableCell, TableRow } from '@/components/ui/table';
 import getUser from '@/hooks/getUser';
 import { useUser } from '@/hooks/useUser';
 import axiosApi from '@/lib/apiSetup';
 import { Band, BandMembership } from '@/types/band';
 
-export default function BandRow({ band }: { band: Band }) {
+export default function BandRow({ band, knownGenres }: { band: Band; knownGenres?: string[] }) {
   const { user } = useUser();
-  const [memberNames, setMemberNames] = useState<string[]>([]);
+  const [memberInfos, setMemberInfos] = useState<{ id?: number; name: string }[]>([]);
   const isMember = useMemo(() => {
     if (!user) return false;
     const m = (band.members || []) as BandMembership[];
-    return m.some((bm) => bm.userId === user.id);
+    return m.some((bm) => bm.userId === user.id && bm.status === 'ACCEPTED');
+  }, [user, band.members]);
+
+  const isPending = useMemo(() => {
+    if (!user) return false;
+    const m = (band.members || []) as BandMembership[];
+    return m.some((bm) => bm.userId === user.id && bm.status === 'PENDING');
   }, [user, band.members]);
 
   const [editOpen, setEditOpen] = useState(false);
@@ -37,28 +44,31 @@ export default function BandRow({ band }: { band: Band }) {
   useEffect(() => {
     const members = band.members;
     if (!members || members.length === 0) {
-      setMemberNames([]);
+      setMemberInfos([]);
       return;
     }
 
     if (typeof (members as any)[0] === 'string') {
-      setMemberNames(members as unknown as string[]);
+      setMemberInfos((members as unknown as string[]).map((name) => ({ name })));
       return;
     }
 
     let cancelled = false;
     const memberships = members as BandMembership[];
-    const userIds = memberships.map((m) => m.userId).filter((id): id is number => typeof id === 'number');
+    const userIds = memberships
+      .filter((m) => m.status === 'ACCEPTED')
+      .map((m) => m.userId)
+      .filter((id): id is number => typeof id === 'number');
     Promise.all(
       userIds.map((id) =>
         getUser(id)
-          .then((u) => u.fullName)
+          .then((u) => ({ id, name: u.fullName }))
           .catch(() => undefined)
       )
     )
-      .then((names) => names.filter((n): n is string => Boolean(n)))
-      .then((names) => {
-        if (!cancelled) setMemberNames(names);
+      .then((infos) => infos.filter((info): info is { id: number; name: string } => Boolean(info)))
+      .then((infos) => {
+        if (!cancelled) setMemberInfos(infos);
       });
 
     return () => {
@@ -68,19 +78,26 @@ export default function BandRow({ band }: { band: Band }) {
 
   return (
     <Collapsible key={band.id} asChild>
-      <>
+      <TableBody className='border-b'>
         <TableRow className='border-0'>
           <TableCell colSpan={4}>
-            <div>
+            <div className='flex items-center gap-2'>
               <strong className='text-xl'>{band.name}</strong>
-              <h1>{band.genres?.join(' ')}</h1>
+              {!band.isApproved && (
+                <Badge variant='outline' className='ml-2 text-destructive border-destructive'>
+                  Jóváhagyásra vár
+                </Badge>
+              )}
             </div>
+            <h1>{band.genres?.join(' ')}</h1>
           </TableCell>
           <TableCell>{band.webPage}</TableCell>
           <TableCell>
             <a href={`mailto:${band.email}`}>{band.email}</a>
           </TableCell>
-          <TableCell>{band.members?.length || 0} tag</TableCell>
+          <TableCell>
+            {band.members?.filter((m: any) => typeof m === 'string' || m.status === 'ACCEPTED').length || 0} tag
+          </TableCell>
           <TableCell>
             <CollapsibleTrigger asChild className='data-[state=open]:rotate-90 transition-all duration-300'>
               <Button size='icon' variant='ghost'>
@@ -96,11 +113,67 @@ export default function BandRow({ band }: { band: Band }) {
                 <div className='order-1 flex-1 md:pr-4 break-words w-full'>{band.description}</div>
                 <div className='order-2 flex-1 md:pr-4 w-full'>
                   <strong>Tagok: </strong>
-                  {memberNames.join(', ')}
+                  <div className='mt-1 flex flex-wrap gap-2'>
+                    {memberInfos.map((m, i) => (
+                      <Badge key={m.id ?? i} variant='secondary' className='flex items-center gap-1'>
+                        {m.name}
+                        {user?.role === 'ADMIN' && m.id && (
+                          <button
+                            type='button'
+                            className='text-destructive hover:text-red-700 ml-1 font-bold'
+                            onClick={() =>
+                              axiosApi.delete(`/bands/${band.id}/members/${m.id}`).then(() => window.location.reload())
+                            }
+                          >
+                            ×
+                          </button>
+                        )}
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
                 <div className='order-3 md:ml-auto flex flex-row items-center gap-2 shrink-0 flex-wrap w-full md:w-auto'>
+                  {isPending && (
+                    <div className='flex gap-2 mb-4 w-full bg-accent p-3 rounded-md items-center justify-between'>
+                      <span className='text-sm font-semibold'>Meghívásod van ebbe a zenekarba!</span>
+                      <div className='flex gap-2'>
+                        <Button
+                          size='sm'
+                          className='bg-green-600 hover:bg-green-700'
+                          onClick={() =>
+                            axiosApi.patch(`/bands/${band.id}/members/${user?.id}`).then(() => window.location.reload())
+                          }
+                        >
+                          Elfogadás
+                        </Button>
+                        <Button
+                          size='sm'
+                          variant='destructive'
+                          onClick={() =>
+                            axiosApi
+                              .delete(`/bands/${band.id}/members/${user?.id}`)
+                              .then(() => window.location.reload())
+                          }
+                        >
+                          Elutasítás
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                  {/* Approve button for admins */}
+                  {user?.role === 'ADMIN' && !band.isApproved && (
+                    <Button
+                      size='sm'
+                      className='bg-green-600 hover:bg-green-700'
+                      onClick={() => {
+                        axiosApi.patch(`/bands/${band.id}`, { isApproved: true }).then(() => window.location.reload());
+                      }}
+                    >
+                      Elfogadás
+                    </Button>
+                  )}
                   {/* Join button removed intentionally */}
-                  {isMember && user && (
+                  {(isMember || user?.role === 'ADMIN') && user && (
                     <>
                       <div>
                         <BandFormDialog
@@ -109,6 +182,7 @@ export default function BandRow({ band }: { band: Band }) {
                           open={editOpen}
                           onOpenChange={setEditOpen}
                           onSuccess={() => window.location.reload()}
+                          knownGenres={knownGenres}
                           trigger={
                             <Button size='sm' variant='secondary'>
                               <Pencil />
@@ -117,15 +191,19 @@ export default function BandRow({ band }: { band: Band }) {
                         />
                       </div>
                       <div>
-                        <Button
-                          size='sm'
-                          variant='destructive'
-                          onClick={() =>
-                            axiosApi.delete(`/bands/${band.id}/members/${user.id}`).then(() => window.location.reload())
-                          }
-                        >
-                          <LogOut />
-                        </Button>
+                        {isMember && (
+                          <Button
+                            size='sm'
+                            variant='destructive'
+                            onClick={() =>
+                              axiosApi
+                                .delete(`/bands/${band.id}/members/${user.id}`)
+                                .then(() => window.location.reload())
+                            }
+                          >
+                            <LogOut />
+                          </Button>
+                        )}
                       </div>
                       <div>
                         <Dialog
@@ -136,11 +214,11 @@ export default function BandRow({ band }: { band: Band }) {
                           }}
                         >
                           <DialogTrigger asChild>
-                            <Button size='sm'>Tag hozzáadása</Button>
+                            <Button size='sm'>Tag meghívása</Button>
                           </DialogTrigger>
                           <DialogContent>
                             <DialogHeader>
-                              <DialogTitle>Tag hozzáadása</DialogTitle>
+                              <DialogTitle>Tag meghívása</DialogTitle>
                             </DialogHeader>
                             <div className='flex flex-col gap-3'>
                               <select
@@ -178,7 +256,7 @@ export default function BandRow({ band }: { band: Band }) {
                                   }}
                                   disabled={selectedUserId === ''}
                                 >
-                                  Hozzáadás
+                                  Meghívás
                                 </Button>
                               </div>
                             </div>
@@ -192,7 +270,7 @@ export default function BandRow({ band }: { band: Band }) {
             </TableCell>
           </CollapsibleContent>
         </TableRow>
-      </>
+      </TableBody>
     </Collapsible>
   );
 }
