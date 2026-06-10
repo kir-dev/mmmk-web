@@ -19,9 +19,9 @@ export default function NewsCard({
   handleTogglePin: (id: string) => Promise<void>;
 }) {
   return (
-    <Card key={post.id} className={`relative border-0 border-l-4 ${post.isPinned ? 'border-l-orange-500' : ''}`}>
+    <Card key={post.id} className={`relative border-0 border-l-4 ${post.isPinned ? 'border-l-primary' : ''}`}>
       <CardTitle className='p-4'>
-        {post.isPinned && <Pin className='inline w-4 h-4 mr-2 text-orange-500' />}
+        {post.isPinned && <Pin className='inline w-4 h-4 mr-2 text-primary' />}
         {post.title}
       </CardTitle>
       {isAdmin && (

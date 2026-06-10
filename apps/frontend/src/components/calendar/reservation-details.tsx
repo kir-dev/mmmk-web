@@ -1,5 +1,5 @@
 // components/calendar/reservation-details.tsx
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 
 import { useReservationDetails } from '@/hooks/useReservationDetails';
 import { Reservation } from '@/types/reservation';
@@ -172,7 +172,7 @@ export default function ReservationDetails(props: EventDetailsProps) {
                 {CurrentUserIsGK() && (
                   <button
                     className={`px-4 py-2 text-sm font-medium text-white rounded-md transition-colors
-                      ${gateKeeper === null ? 'bg-orange-500 hover:bg-orange-600' : 'bg-amber-600 hover:bg-amber-700'}`}
+                      ${gateKeeper === null ? 'bg-primary hover:bg-primary/90 text-primary-foreground' : 'bg-secondary hover:bg-secondary/80 text-secondary-foreground'}`}
                     onClick={onSetGK}
                   >
                     {gateKeeper === null ? 'Jelentkezés beengedőnek' : 'Lejelentkezés beengedőként'}

@@ -24,9 +24,8 @@ export default function DailyViewWO(props: DailyViewPropsWO) {
         <div
           key={`time-slot-${i}`}
           className={`
-            relative cursor-pointer focus:outline-none focus-visible:ring-2 h-10 
-            focus-visible:ring-primary border-b border-slate-300/30
-            ${i % 2 === 0 ? 'bg-transparent' : 'bg-slate-800/5'}
+            relative cursor-pointer focus:outline-none focus-visible:ring-2 h-10
+            focus-visible:ring-primary border-b border-border/40
           `}
         >
           {props.reservations.map((reservation) => {

@@ -7,7 +7,7 @@ import { useUser } from '@/hooks/useUser';
 import axiosApi from '@/lib/apiSetup';
 import { ClubMembership } from '@/types/member';
 import { Reservation } from '@/types/reservation';
-import { User } from '@/types/user';
+import { Role, User } from '@/types/user';
 
 function getCurrentPeriodStart() {
   const now = new Date();
@@ -75,8 +75,10 @@ export default function Stats() {
 
   const isAuthorized = useMemo(() => {
     if (!me) return false;
-    if ((me as any)?.clubMembership) return true;
-    return (memberships || []).some((m) => m.userId === me.id);
+    if (me.role === Role.ADMIN) return true;
+    if ((me as any)?.clubMembership?.isGateKeeper) return true;
+    const myMembership = (memberships || []).find((m) => m.userId === me.id);
+    return Boolean(myMembership?.isGateKeeper);
   }, [me, memberships]);
 
   const gatekeepingCounts = useMemo(() => {

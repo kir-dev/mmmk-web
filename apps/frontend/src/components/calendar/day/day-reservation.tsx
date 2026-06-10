@@ -56,7 +56,7 @@ export default function DayReservation(props: DayEventProps) {
             props.reservation.status === 'OVERTIME'
               ? 'bg-gradient-to-r from-blue-500 to-blue-400'
               : props.reservation.status === 'ADMINMADE'
-                ? 'bg-gradient-to-r from-orange-600 to-orange-400'
+                ? 'bg-gradient-to-r from-primary to-primary/80 text-primary-foreground'
                 : 'bg-gradient-to-r from-emerald-600 to-emerald-400'
           }
           justify-start
@@ -69,7 +69,7 @@ export default function DayReservation(props: DayEventProps) {
             props.reservation.status === 'OVERTIME'
               ? 'border-blue-600'
               : props.reservation.status === 'ADMINMADE'
-                ? 'border-orange-700'
+                ? 'border-primary'
                 : 'border-emerald-700'
           }
           transition-all

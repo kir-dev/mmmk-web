@@ -158,7 +158,7 @@ export default function AddReservation(props: AddPanelProps) {
                 value={userName}
                 onChange={handleUserNameChange}
                 required
-                className='bg-zinc-700 border-zinc-600 text-zinc-100 w-full px-3 py-2 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent'
+                className='bg-zinc-700 border-zinc-600 text-zinc-100 w-full px-3 py-2 rounded-md focus:ring-2 focus:ring-ring focus:border-transparent'
                 placeholder='Válasszon felhasználót...'
               />
               {showUserSuggestions && userSuggestions.length > 0 && (
@@ -186,7 +186,7 @@ export default function AddReservation(props: AddPanelProps) {
               type='checkbox'
               checked={adminOverride}
               onChange={(e) => setAdminOverride(e.target.checked)}
-              className='h-4 w-4 accent-orange-500'
+              className='h-4 w-4 accent-primary'
             />
           </div>
         </>
@@ -202,7 +202,7 @@ export default function AddReservation(props: AddPanelProps) {
             value={bandName}
             onChange={handleBandNameChange}
             required
-            className='bg-white hover:bg-slate-200 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-black dark:text-zinc-200 border-zinc-600 w-full px-3 py-2 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent'
+            className='bg-white hover:bg-slate-200 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-black dark:text-zinc-200 border-zinc-600 w-full px-3 py-2 rounded-md focus:ring-2 focus:ring-ring focus:border-transparent'
             placeholder='Válasszon bandát...'
           />
           {showBandSuggestions && bandSuggestions.length > 0 && (
@@ -231,7 +231,7 @@ export default function AddReservation(props: AddPanelProps) {
           </label>
           <input
             id='begin'
-            className='bg-white hover:bg-slate-200 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-black dark:text-zinc-200 rounded-md border border-zinc-600 px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-transparent'
+            className='bg-white hover:bg-slate-200 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-black dark:text-zinc-200 rounded-md border border-zinc-600 px-3 py-2 focus:ring-2 focus:ring-ring focus:border-transparent'
             type='datetime-local'
             onChange={(e) => shiftStart(new Date(e.target.value))}
           />
@@ -243,7 +243,7 @@ export default function AddReservation(props: AddPanelProps) {
           </label>
           <input
             id='end'
-            className='bg-white hover:bg-slate-200 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-black dark:text-zinc-200 rounded-md border border-zinc-600 px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-transparent'
+            className='bg-white hover:bg-slate-200 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-black dark:text-zinc-200 rounded-md border border-zinc-600 px-3 py-2 focus:ring-2 focus:ring-ring focus:border-transparent'
             type='datetime-local'
             onChange={(e) => shiftEnd(new Date(e.target.value))}
           />
@@ -267,7 +267,7 @@ export default function AddReservation(props: AddPanelProps) {
 
       <button
         onClick={handleSubmit}
-        className='w-full rounded-md bg-orange-500 hover:bg-orange-600 text-zinc-900 font-semibold py-3 mt-4 transition-colors shadow-lg'
+        className='w-full rounded-md bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 mt-4 transition-colors shadow-lg'
       >
         Foglalás hozzáadása
       </button>
