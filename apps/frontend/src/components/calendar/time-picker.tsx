@@ -83,7 +83,7 @@ export function TimePicker({ label, value, onChange, className = '' }: TimePicke
         <select
           value={selectedHour}
           onChange={handleHourChange}
-          className='w-20 bg-white hover:bg-slate-200 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-black dark:text-zinc-200 rounded-md border border-zinc-600 px-2 py-2 focus:ring-2 focus:ring-orange-500 focus:border-transparent'
+          className='w-20 bg-white hover:bg-slate-200 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-black dark:text-zinc-200 rounded-md border border-zinc-600 px-2 py-2 focus:ring-2 focus:ring-ring focus:border-transparent'
         >
           {hours.map((hour) => (
             <option key={hour} value={hour}>

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'nestjs-prisma';
 
 import { CreatePeriodDto } from './dto/create-period.dto';
@@ -9,6 +9,9 @@ export class PeriodsService {
   constructor(private prisma: PrismaService) {}
 
   async create(createPeriodDto: CreatePeriodDto) {
+    if (new Date(createPeriodDto.startDate) >= new Date(createPeriodDto.endDate)) {
+      throw new BadRequestException('A kezdő dátumnak meg kell előznie a befejező dátumot.');
+    }
     return this.prisma.period.create({
       data: createPeriodDto,
     });

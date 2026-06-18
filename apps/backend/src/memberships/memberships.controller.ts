@@ -13,11 +13,15 @@ export class MembershipsController {
   constructor(private readonly membershipsService: MembershipsService) {}
 
   @Get()
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
   async findAll() {
     return this.membershipsService.findAll();
   }
 
   @Get(':id')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
   async findOne(@Param('id', ParseIntPipe) id: number) {
     return this.membershipsService.findOne(id);
   }

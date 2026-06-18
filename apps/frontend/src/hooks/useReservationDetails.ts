@@ -185,6 +185,8 @@ export function useReservationDetails(props: ReservationDetailsProps) {
 
   function currentUserCanBeGateKeeper(): boolean {
     if (!me || !props.clickedEvent) return false;
+    // Only actual gatekeepers can sign up; otherwise onSetGK would silently no-op
+    if (!CurrentUserIsGK()) return false;
     // User cannot be gatekeeper for their own reservation
     if (props.clickedEvent.userId === me.id) return false;
     // User cannot be gatekeeper for a band they're a member of
@@ -220,6 +222,9 @@ export function useReservationDetails(props: ReservationDetailsProps) {
     if (!props.clickedEvent) return;
     const myMembership = CurrentUserIsGK();
     if (!myMembership) return;
+
+    // If a different gatekeeper is currently assigned, this assignment overrides them.
+    const overriddenGatekeeper = gateKeeper && gateKeeper.id !== myMembership.userId ? gateKeeper : null;
 
     // Collect email recipients
     let emailRecipients: string[] = [];
@@ -276,6 +281,15 @@ export function useReservationDetails(props: ReservationDetailsProps) {
               emailRecipients.forEach((email) => {
                 handleSubmitMail(message, email, resp.data.email);
               });
+            }
+
+            // Notify the gatekeeper who was overridden, if any.
+            if (overriddenGatekeeper?.email) {
+              handleSubmitMail(
+                'Egy elsődleges beengedő átvette tőled a foglalás beengedését.',
+                overriddenGatekeeper.email,
+                resp.data.email
+              );
             }
           });
           props.onGetData();

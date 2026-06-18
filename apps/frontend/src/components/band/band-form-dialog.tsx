@@ -109,7 +109,7 @@ export default function BandFormDialog({ mode, band, open, onOpenChange, onSucce
       }
     } catch (e: any) {
       if (e?.response?.status === 401) {
-        window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/login`;
+        window.location.href = '/login';
         return;
       }
       showErrorToast(e);

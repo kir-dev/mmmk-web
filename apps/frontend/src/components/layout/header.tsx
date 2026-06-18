@@ -20,7 +20,7 @@ export function Header() {
   const router = useRouter();
 
   const handleLogin = () => {
-    router.push(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`);
+    router.push('/login');
   };
 
   const userData = useProfile();

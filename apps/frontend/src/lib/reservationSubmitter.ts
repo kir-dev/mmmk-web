@@ -114,58 +114,81 @@ export async function submitReservation(params: {
   }
 
   if (validDate(start, end, undefined, reservations)) {
-    const reservationTimes = IsOvertime(start, end, reservationsOfWeek, reservationsOfDay);
+    // Load the configured daily/weekly limits so the normal/overtime split matches the
+    // backend's quota math (falls back to IsOvertime's spec defaults if unavailable).
+    let dailyLimitMinutes: number | undefined;
+    let weeklyLimitMinutes: number | undefined;
+    try {
+      const settingsRes = await axiosApi.get('/settings');
+      if (settingsRes.data) {
+        dailyLimitMinutes = settingsRes.data.maxHoursPerDay * 60;
+        weeklyLimitMinutes = settingsRes.data.maxHoursPerWeek * 60;
+      }
+    } catch {
+      // Use defaults baked into IsOvertime.
+    }
 
-    // Create normal reservation if it's long enough
-    const minimumReservationTime = 0.5 * 60 * 1000; // 30 minutes in milliseconds
-    if (reservationTimes[1].getTime() - reservationTimes[0].getTime() > minimumReservationTime) {
-      try {
+    const reservationTimes = IsOvertime(
+      start,
+      end,
+      reservationsOfWeek,
+      reservationsOfDay,
+      dailyLimitMinutes,
+      weeklyLimitMinutes
+    );
+
+    const minReservationMs = 30 * 60 * 1000; // 30-minute minimum reservation length
+    const normalMs = reservationTimes[1].getTime() - reservationTimes[0].getTime();
+    const hasOvertime = Boolean(reservationTimes[2] && reservationTimes[3]);
+    const overtimeMs = hasOvertime ? reservationTimes[3].getTime() - reservationTimes[2].getTime() : 0;
+    const ownerField = band?.id ? { bandId: band.id } : { userId: submissionUserId };
+
+    try {
+      if (hasOvertime && normalMs >= minReservationMs && overtimeMs >= minReservationMs) {
+        // Split: both the normal and overtime parts are long enough to be valid reservations.
         await axiosApi.post('/reservations', {
-          ...(band?.id ? { bandId: band.id } : { userId: submissionUserId }),
+          ...ownerField,
           startTime: reservationTimes[0].toISOString(),
           endTime: reservationTimes[1].toISOString(),
           status: 'NORMAL',
-          needToBeLetIn: needToBeLetIn,
+          needToBeLetIn,
         });
-
-        // Handle overtime reservation if needed
-        if (reservationTimes[2] && reservationTimes[3]) {
-          await axiosApi.post('http://localhost:3030/reservations', {
-            ...(band?.id ? { bandId: band.id } : { userId: submissionUserId }),
-            startTime: reservationTimes[2].toISOString(),
-            endTime: reservationTimes[3].toISOString(),
-            status: 'OVERTIME',
-            needToBeLetIn: needToBeLetIn,
-          });
-
-          onSuccess();
-        }
-
-        onSuccess();
-      } catch (error: unknown) {
-        showErrorToast(error);
-        setValid(false);
-        return { success: false, message: 'Nem sikerült a foglalás létrehozása' };
-      }
-    } else if (reservationTimes[2] && reservationTimes[3]) {
-      try {
         await axiosApi.post('/reservations', {
-          ...(band?.id ? { bandId: band.id } : { userId: submissionUserId }),
+          ...ownerField,
+          startTime: reservationTimes[2].toISOString(),
+          endTime: reservationTimes[3].toISOString(),
+          status: 'OVERTIME',
+          needToBeLetIn,
+        });
+      } else if (hasOvertime) {
+        // One side would be below the 30-minute minimum, so don't split: the booking exceeds
+        // quota, so post the whole thing as a single (freely overwritable) OVERTIME reservation.
+        await axiosApi.post('/reservations', {
+          ...ownerField,
           startTime: reservationTimes[0].toISOString(),
           endTime: reservationTimes[3].toISOString(),
           status: 'OVERTIME',
-          needToBeLetIn: needToBeLetIn,
+          needToBeLetIn,
         });
-
-        onSuccess();
-      } catch (error: unknown) {
-        showErrorToast(error);
-        console.error('Nem sikerült a foglalás létrehozása', error);
+      } else {
+        // Entirely within quota.
+        await axiosApi.post('/reservations', {
+          ...ownerField,
+          startTime: reservationTimes[0].toISOString(),
+          endTime: reservationTimes[1].toISOString(),
+          status: 'NORMAL',
+          needToBeLetIn,
+        });
       }
-    }
 
-    setValid(true);
-    return { success: true, message: 'Sikerült a foglalás létrehozása' };
+      onSuccess();
+      setValid(true);
+      return { success: true, message: 'Sikerült a foglalás létrehozása' };
+    } catch (error: unknown) {
+      showErrorToast(error);
+      setValid(false);
+      return { success: false, message: 'Nem sikerült a foglalás létrehozása' };
+    }
   } else {
     setValid(false);
     return { success: false, message: 'Érvénytelen idősáv' };

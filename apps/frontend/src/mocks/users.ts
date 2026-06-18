@@ -19,7 +19,7 @@ export const mockUsers: User[] = [
     fullName: 'Alice Walker',
     email: 'alice@email.com',
     isDormResident: true,
-    roomNumber: '201',
+    roomNumber: 201,
     role: Role.USER,
   },
   {
@@ -39,7 +39,7 @@ export const mockUsers: User[] = [
     fullName: 'Bob Smith',
     email: 'bob@email.com',
     isDormResident: true,
-    roomNumber: '201',
+    roomNumber: 201,
     role: Role.ADMIN,
   },
   {
@@ -59,7 +59,7 @@ export const mockUsers: User[] = [
     fullName: 'Charlie Brown',
     email: 'charlie@email.com',
     isDormResident: true,
-    roomNumber: '202',
+    roomNumber: 202,
     role: Role.USER,
   },
   {
@@ -80,7 +80,7 @@ export const mockUsers: User[] = [
     email: 'david@email.com',
     phone: '1239874748',
     isDormResident: true,
-    roomNumber: '203',
+    roomNumber: 203,
     role: Role.USER,
   },
   {

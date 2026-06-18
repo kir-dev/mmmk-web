@@ -3,13 +3,12 @@
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
+import OpenedWeeksPanel from '@/components/admin/OpenedWeeksPanel';
+import PeriodsPanel from '@/components/admin/PeriodsPanel';
+import SettingsPanel from '@/components/admin/SettingsPanel';
 import { UserRoleTable } from '@/components/admin/user-role-table';
 import { useProfile } from '@/hooks/useProfile';
 import { Role } from '@/types/user';
-
-import OpenedWeeksPanel from '../../components/admin/OpenedWeeksPanel';
-import PeriodsPanel from '../../components/admin/PeriodsPanel';
-import SettingsPanel from '../../components/admin/SettingsPanel';
 
 export default function AdminPage() {
   const router = useRouter();

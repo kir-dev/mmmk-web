@@ -71,9 +71,11 @@ export default function MemberTile({
             <span className='break-words'>{user.email}</span>
             {user.phone && <span>{user.phone}</span>}
           </div>
-          {user.roomNumber && (
+          {/* Dorm status + room number are only present for gatekeepers/admins (backend-gated). */}
+          {user.isDormResident !== undefined && (
             <div className='flex flex-col items-end'>
-              <span>{user.roomNumber}</span>
+              <span>{user.isDormResident ? 'Kolis' : 'Nem kolis'}</span>
+              {user.roomNumber && <span>{user.roomNumber}</span>}
             </div>
           )}
         </div>

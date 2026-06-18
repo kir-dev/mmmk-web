@@ -5,7 +5,7 @@ module.exports = {
   env: {
     node: true,
   },
-  ignorePatterns: ['.eslintrc.js', '.prettierrc.js'],
+  ignorePatterns: ['.eslintrc.js', '.prettierrc.js', 'apps/frontend/next-env.d.ts'],
   rules: {
     'prettier/prettier': 'error',
     'simple-import-sort/imports': 'error',

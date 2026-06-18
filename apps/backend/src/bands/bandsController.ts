@@ -21,11 +21,15 @@ export class BandsController {
   }
 
   @Get()
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
   findAll() {
     return this.bandsService.findAll();
   }
 
   @Get(':id')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.bandsService.findOne(id);
   }
@@ -47,6 +51,8 @@ export class BandsController {
   }
 
   @Get(':id/members')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
   findMembers(@Param('id', ParseIntPipe) id: number) {
     return this.bandsService.findMembers(id);
   }

@@ -10,11 +10,6 @@ import { Reservation } from '@/types/reservation';
 import { User } from '@/types/user';
 import { withGatekeeperAuth } from '@/utils/withAuth';
 
-function getCurrentPeriodStart() {
-  const now = new Date();
-  return new Date(now.getFullYear(), now.getMonth(), 1);
-}
-
 function Stats() {
   const { user: me } = useUser();
 
@@ -72,8 +67,6 @@ function Stats() {
     };
   }, []);
 
-  const periodStart = useMemo(() => getCurrentPeriodStart(), []);
-
   const isAuthorized = useMemo(() => {
     if (!me) return false;
     if ((me as any)?.clubMembership) return true;
@@ -81,20 +74,17 @@ function Stats() {
   }, [me, memberships]);
 
   const gatekeepingCounts = useMemo(() => {
-    const membershipToUser = new Map<number, User>();
-    users.forEach((u) => {
-      const mid = (u as any)?.clubMembership?.id as number | undefined;
-      if (mid) membershipToUser.set(mid, u);
-    });
-
     const eligibleUsers = users.filter((u) => (u as any)?.clubMembership?.isGateKeeper);
 
+    // One admission == one hour-long block, so a 3-hour reservation counts as 3 admissions.
+    // Counts are cumulative (all-time), per the spec's "eddigi beengedés".
     const counts = new Map<number, number>();
     reservations.forEach((r) => {
-      const start = new Date((r as any).startTime);
       const mid = (r as any).gateKeeperId as number | undefined;
       if (!mid) return;
-      if (start >= periodStart) counts.set(mid, (counts.get(mid) || 0) + 1);
+      const durationMs = new Date((r as any).endTime).getTime() - new Date((r as any).startTime).getTime();
+      const blocks = Math.round(durationMs / (1000 * 60 * 60));
+      counts.set(mid, (counts.get(mid) || 0) + blocks);
     });
 
     return eligibleUsers.map((u) => {
@@ -102,7 +92,7 @@ function Stats() {
       const count = mid ? counts.get(mid) || 0 : 0;
       return { id: u.id, fullName: u.fullName, count };
     });
-  }, [users, reservations, periodStart]);
+  }, [users, reservations]);
 
   if (loading) {
     return (

@@ -36,11 +36,17 @@ export class SanctionRecordsController {
   }
 
   @Get('user/:userId')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.ADMIN)
   async findByUserId(@Param('userId', ParseIntPipe) userId: number) {
     return this.sanctionRecordsService.findByUserId(userId);
   }
 
   @Get('band/:bandId')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.ADMIN)
   async findByBandId(@Param('bandId', ParseIntPipe) bandId: number) {
     return this.sanctionRecordsService.findByBandId(bandId);
   }

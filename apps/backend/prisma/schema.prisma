@@ -145,8 +145,8 @@ model Post {
 
 model Settings {
   id                               Int   @id @default(autoincrement())
-  maxHoursPerWeek                  Float @default(8.0)
-  maxHoursPerDay                   Float @default(4.0)
+  maxHoursPerWeek                  Float @default(6.0)
+  maxHoursPerDay                   Float @default(3.0)
   minReservationMinutes            Int   @default(30)
   maxReservationMinutes            Int   @default(180)
   sanctionHourPenaltyPerPoint      Float @default(1.0)

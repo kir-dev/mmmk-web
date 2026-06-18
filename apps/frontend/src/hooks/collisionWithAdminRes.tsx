@@ -1,20 +1,13 @@
 import deleteReservation from '@/hooks/deleteReservation';
-import getUser from '@/hooks/getUser';
-import { Reservation } from '@/types/reservation';
+import { Reservation, ReservationStatus } from '@/types/reservation';
 
 export default function collisionWithAdminRes(
   startTime: Date,
   endTime: Date,
   reservationsOfDay: Reservation[]
 ): boolean {
-  const adminReservations = reservationsOfDay.filter((res) => {
-    // Skip band reservations (userId is null)
-    if (!res.userId) return false;
-
-    getUser(res.userId).then((user) => {
-      return user.role === 'ADMIN';
-    });
-  });
+  // Admin reservations are identified by their status, so the check stays synchronous.
+  const adminReservations = reservationsOfDay.filter((res) => res.status === ReservationStatus.ADMINMADE);
 
   for (const res of adminReservations) {
     const startTimeRes = new Date(res.startTime).getTime();
@@ -31,7 +24,11 @@ export default function collisionWithAdminRes(
     }
   }
 
+  // Only OVERTIME (over-quota) reservations are freely overwritable per the rules; NORMAL
+  // reservations are protected and must not be deleted when booking over them.
   for (const res of reservationsOfDay) {
+    if (res.status !== ReservationStatus.OVERTIME) continue;
+
     const startTimeRes = new Date(res.startTime).getTime();
     const endTimeRes = new Date(res.endTime).getTime();
     const startTimeNew = startTime.getTime();

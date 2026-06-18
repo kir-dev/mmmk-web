@@ -12,21 +12,26 @@ export class CommentsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(createCommentDto: CreateCommentDto) {
-    const comment = await this.prisma.comment.create({
-      data: {
-        ...createCommentDto,
-      },
+    // Create the comment and purge overlapping reservations atomically, so a failure
+    // in the deletion step doesn't leave a committed comment behind.
+    return this.prisma.$transaction(async (tx) => {
+      const comment = await tx.comment.create({
+        data: {
+          ...createCommentDto,
+        },
+      });
+
+      // If the new comment blocks reservations, delete any that overlap its window
+      if (!createCommentDto.isReservable) {
+        await this.deleteOverlappingReservations(
+          new Date(createCommentDto.startTime),
+          new Date(createCommentDto.endTime),
+          tx
+        );
+      }
+
+      return comment;
     });
-
-    // If the new comment blocks reservations, delete any that overlap its window
-    if (!createCommentDto.isReservable) {
-      await this.deleteOverlappingReservations(
-        new Date(createCommentDto.startTime),
-        new Date(createCommentDto.endTime)
-      );
-    }
-
-    return comment;
   }
 
   findAll(page?: number, pageSize?: number): Promise<PaginationDto<Comment>> {
@@ -75,21 +80,24 @@ export class CommentsService {
 
   async update(id: number, updateCommentDto: UpdateCommentDto) {
     try {
-      const updated = await this.prisma.comment.update({
-        where: {
-          id,
-        },
-        data: {
-          ...updateCommentDto,
-        },
+      // Update the comment and purge overlapping reservations atomically.
+      return await this.prisma.$transaction(async (tx) => {
+        const updated = await tx.comment.update({
+          where: {
+            id,
+          },
+          data: {
+            ...updateCommentDto,
+          },
+        });
+
+        // If the updated comment now blocks reservations, purge any overlapping ones
+        if (updated.isReservable === false) {
+          await this.deleteOverlappingReservations(new Date(updated.startTime), new Date(updated.endTime), tx);
+        }
+
+        return updated;
       });
-
-      // If the updated comment now blocks reservations, purge any overlapping ones
-      if (updated.isReservable === false) {
-        await this.deleteOverlappingReservations(new Date(updated.startTime), new Date(updated.endTime));
-      }
-
-      return updated;
     } catch (e) {
       if (e instanceof Prisma.PrismaClientKnownRequestError) {
         if (e.code === 'P2025') {
@@ -124,8 +132,12 @@ export class CommentsService {
    *
    * @returns the number of reservations deleted
    */
-  async deleteOverlappingReservations(startTime: Date, endTime: Date): Promise<number> {
-    const { count } = await this.prisma.reservation.deleteMany({
+  async deleteOverlappingReservations(
+    startTime: Date,
+    endTime: Date,
+    client: Prisma.TransactionClient = this.prisma
+  ): Promise<number> {
+    const { count } = await client.reservation.deleteMany({
       where: {
         AND: [
           { startTime: { lt: endTime } }, // reservation starts before comment ends

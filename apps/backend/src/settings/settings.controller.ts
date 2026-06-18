@@ -1,6 +1,9 @@
 import { Body, Controller, Get, Param, ParseIntPipe, Patch, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import { Role } from '@prisma/client';
+import { Roles } from 'src/auth/decorators/Roles.decorator';
+import { RolesGuard } from 'src/auth/roles.guard';
 
 import { UpdateSettingsDto } from './dto/update-settings.dto';
 import { SettingsService } from './settings.service';
@@ -25,7 +28,8 @@ export class SettingsController {
 
   @Patch(':id')
   @ApiBearerAuth()
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.ADMIN)
   update(@Param('id', ParseIntPipe) id: number, @Body() updateSettingsDto: UpdateSettingsDto) {
     return this.settingsService.update(id, updateSettingsDto);
   }

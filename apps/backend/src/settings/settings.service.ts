@@ -21,8 +21,8 @@ export class SettingsService {
     if (!settings) {
       settings = await this.prisma.settings.create({
         data: {
-          maxHoursPerWeek: 8.0,
-          maxHoursPerDay: 4.0,
+          maxHoursPerWeek: 6.0,
+          maxHoursPerDay: 3.0,
           minReservationMinutes: 30,
           maxReservationMinutes: 180,
           sanctionHourPenaltyPerPoint: 1.0,

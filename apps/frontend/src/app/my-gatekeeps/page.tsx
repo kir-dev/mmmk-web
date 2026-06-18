@@ -30,8 +30,6 @@ function MyGatekeepsPage() {
     try {
       setLoading(true);
       setError(null);
-      const res = await axiosApi.get('/reservations', { params: { page: -1, page_size: -1 } });
-      const allReservations = res.data.data as Reservation[];
 
       const sanctionsRes = await axiosApi.get('/sanction-records');
       setSanctions(sanctionsRes.data as SanctionRecord[]);
@@ -42,12 +40,16 @@ function MyGatekeepsPage() {
       const myGatekeeper = memberships.find((membership: ClubMembership) => membership.userId === user?.id);
       setMyGatekeeperId(myGatekeeper?.id || null);
 
-      // Filter for reservations where current user is the gatekeeper
-      const gateKeeperReservations = allReservations.filter((reservation) => {
-        return reservation.gateKeeperId === myGatekeeper?.id;
-      });
+      // Only the current user's gatekept reservations, filtered server-side.
+      if (!myGatekeeper?.id) {
+        setReservations([]);
+        return;
+      }
 
-      setReservations(gateKeeperReservations);
+      const res = await axiosApi.get('/reservations', {
+        params: { page: -1, page_size: -1, gateKeeperId: myGatekeeper.id },
+      });
+      setReservations(res.data.data as Reservation[]);
     } catch (err) {
       setError('Nem sikerült betölteni a beengedéseket');
       console.error('Error fetching reservations:', err);

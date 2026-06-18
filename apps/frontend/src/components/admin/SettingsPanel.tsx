@@ -71,6 +71,22 @@ export default function SettingsPanel() {
           />
         </div>
         <div>
+          <label className='block text-sm font-medium mb-1'>Min. foglalási hossz (perc)</label>
+          <Input
+            type='number'
+            value={settings.minReservationMinutes}
+            onChange={(e) => setSettings({ ...settings, minReservationMinutes: Number(e.target.value) })}
+          />
+        </div>
+        <div>
+          <label className='block text-sm font-medium mb-1'>Max. foglalási hossz (perc)</label>
+          <Input
+            type='number'
+            value={settings.maxReservationMinutes}
+            onChange={(e) => setSettings({ ...settings, maxReservationMinutes: Number(e.target.value) })}
+          />
+        </div>
+        <div>
           <label className='block text-sm font-medium mb-1'>Normál büntetés pontonként (óra)</label>
           <Input
             type='number'

@@ -1,8 +1,8 @@
 import { CurrentUser } from '@kir-dev/passport-authsch';
-import { Body, Controller, Get, Param, ParseIntPipe, Patch, UseGuards } from '@nestjs/common';
+import { Body, Controller, ForbiddenException, Get, Param, ParseIntPipe, Patch, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { User } from '@prisma/client';
+import { Role, User } from '@prisma/client';
 
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
@@ -12,8 +12,10 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  async findAll() {
-    return this.usersService.findAll();
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
+  async findAll(@CurrentUser() user: User) {
+    return this.usersService.findAll(user);
   }
 
   @Get('me')
@@ -24,12 +26,20 @@ export class UsersController {
   }
 
   @Get(':id')
-  async findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.usersService.findOne(id);
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
+  async findOne(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: User) {
+    return this.usersService.findOne(id, user);
   }
 
   @Patch(':id')
-  update(@Param('id', ParseIntPipe) id: number, @Body() updateUserDto: UpdateUserDto) {
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
+  update(@Param('id', ParseIntPipe) id: number, @Body() updateUserDto: UpdateUserDto, @CurrentUser() user: User) {
+    // Users may only edit their own profile; admins may edit anyone.
+    if (user.role !== Role.ADMIN && user.id !== id) {
+      throw new ForbiddenException('Csak a saját profilodat módosíthatod.');
+    }
     return this.usersService.update(id, updateUserDto);
   }
 }

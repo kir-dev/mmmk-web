@@ -20,8 +20,9 @@ export type User = {
   fullName: string;
   email: string;
   phone?: string;
-  isDormResident: boolean;
-  roomNumber?: string;
+  // Only returned to gatekeepers/admins (and the user themselves); undefined otherwise.
+  isDormResident?: boolean;
+  roomNumber?: number;
   role: Role;
   clubMembership: ClubMembership;
   clubMembershipUpdatedAt: Date;

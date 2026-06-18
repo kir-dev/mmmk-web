@@ -65,11 +65,24 @@ export function getReservationsOfDay(
   });
 }
 
+// Floors a date down to the nearest 15-minute boundary (seconds/ms cleared), so that a
+// normal/overtime split never produces a time the backend rejects for not being on a
+// :00/:15/:30/:45 grid.
+function floorTo15Minutes(date: Date): Date {
+  const floored = new Date(date);
+  floored.setMinutes(Math.floor(floored.getMinutes() / 15) * 15, 0, 0);
+  return floored;
+}
+
 export default function IsOvertime(
   startTime: Date,
   endTime: Date,
   reservationsOfWeek: Reservation[],
-  reservationsOfDay: Reservation[]
+  reservationsOfDay: Reservation[],
+  // Daily/weekly NORMAL limits in minutes. Defaults match the spec (3h/day, 6h/week) but
+  // callers should pass the values from the backend Settings so both sides agree.
+  dailyLimitMinutes = 180,
+  weeklyLimitMinutes = 360
 ): Date[] {
   const paddingMinutes = 10; // Minimum regular slot to avoid splitting
 
@@ -89,7 +102,7 @@ export default function IsOvertime(
       minutesReserved += (endTime.getTime() - startTime.getTime()) / (1000 * 60);
     }
   }
-  const remainingMinutes = 480 - minutesReserved; // 8 hours default limit
+  const remainingMinutes = weeklyLimitMinutes - minutesReserved;
 
   let minutesReservedThatDay = 0;
   for (const reservation of reservationsOfDay) {
@@ -102,8 +115,9 @@ export default function IsOvertime(
   // If the remaining regular time is less than padding, treat the whole as overtime
   if (
     (reservationMinutes > remainingMinutes && remainingMinutes < paddingMinutes) ||
-    (reservationMinutes > 240 && 240 - minutesReservedThatDay < paddingMinutes) || // 4 hours default limit
-    (reservationMinutes + minutesReservedThatDay > 240 && 240 - minutesReservedThatDay < paddingMinutes)
+    (reservationMinutes > dailyLimitMinutes && dailyLimitMinutes - minutesReservedThatDay < paddingMinutes) ||
+    (reservationMinutes + minutesReservedThatDay > dailyLimitMinutes &&
+      dailyLimitMinutes - minutesReservedThatDay < paddingMinutes)
   ) {
     normalStart = startTime;
     normalEnd = startTime; // No regular part
@@ -111,18 +125,20 @@ export default function IsOvertime(
     overtimeEnd = endTime;
   } else if (reservationMinutes > remainingMinutes) {
     normalStart = startTime;
-    normalEnd = new Date(startTime.getTime() + remainingMinutes * 60 * 1000);
-    overtimeStart = new Date(normalEnd.getTime() + 60 * 1000);
+    normalEnd = floorTo15Minutes(new Date(startTime.getTime() + remainingMinutes * 60 * 1000));
+    overtimeStart = new Date(normalEnd.getTime());
     overtimeEnd = endTime;
-  } else if (reservationMinutes > 240) {
+  } else if (reservationMinutes > dailyLimitMinutes) {
     normalStart = startTime;
-    normalEnd = new Date(startTime.getTime() + 240 * 60 * 1000);
-    overtimeStart = new Date(normalEnd.getTime() + 60 * 1000);
+    normalEnd = floorTo15Minutes(new Date(startTime.getTime() + dailyLimitMinutes * 60 * 1000));
+    overtimeStart = new Date(normalEnd.getTime());
     overtimeEnd = endTime;
-  } else if (reservationMinutes + minutesReservedThatDay > 240) {
+  } else if (reservationMinutes + minutesReservedThatDay > dailyLimitMinutes) {
     normalStart = startTime;
-    normalEnd = new Date(startTime.getTime() + (240 - minutesReservedThatDay) * 60 * 1000);
-    overtimeStart = new Date(normalEnd.getTime() + 60 * 1000);
+    normalEnd = floorTo15Minutes(
+      new Date(startTime.getTime() + (dailyLimitMinutes - minutesReservedThatDay) * 60 * 1000)
+    );
+    overtimeStart = new Date(normalEnd.getTime());
     overtimeEnd = endTime;
   } else {
     normalStart = startTime;

@@ -13,6 +13,8 @@ export class OpenedWeeksController {
   constructor(private readonly openedWeeksService: OpenedWeeksService) {}
 
   @Get()
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
   findAll() {
     return this.openedWeeksService.findAll();
   }

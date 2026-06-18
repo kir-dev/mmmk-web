@@ -55,6 +55,13 @@ export default function DWView(props: DWViewProps) {
     nextWeekMonday.setDate(nextWeekMonday.getDate() + 7);
     nextWeekMonday.setHours(0, 0, 0, 0);
 
+    // The current or any past week is always viewable; only future weeks require an open entry.
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const currentWeekMonday = new Date(today);
+    currentWeekMonday.setDate(today.getDate() - (today.getDay() === 0 ? 6 : today.getDay() - 1));
+    if (nextWeekMonday.getTime() <= currentWeekMonday.getTime()) return true;
+
     return props.openedWeeks.some((w) => {
       const wDate = new Date(w.monday);
       return wDate.getTime() === nextWeekMonday.getTime() && w.isOpen;

@@ -36,13 +36,13 @@ export function useQuotaCheck(user?: User, reservations?: Reservation[]) {
       try {
         // Fetch settings from backend (if available)
         let settings = {
-          maxHoursPerWeek: 8,
-          maxHoursPerDay: 4,
+          maxHoursPerWeek: 6,
+          maxHoursPerDay: 3,
           sanctionHourPenaltyPerPoint: 1,
         };
 
         try {
-          const settingsRes = await axiosApi.get('/settings/1');
+          const settingsRes = await axiosApi.get('/settings');
           if (settingsRes.data) {
             settings = settingsRes.data;
           }

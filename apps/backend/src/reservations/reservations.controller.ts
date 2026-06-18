@@ -1,6 +1,8 @@
+import { CurrentUser } from '@kir-dev/passport-authsch';
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import { User } from '@prisma/client';
 
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { UpdateReservationDto } from './dto/update-reservation.dto';
@@ -13,8 +15,8 @@ export class ReservationsController {
   @Post()
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
-  create(@Body() createReservationDto: CreateReservationDto) {
-    return this.reservationsService.create(createReservationDto);
+  create(@Body() createReservationDto: CreateReservationDto, @CurrentUser() user: User) {
+    return this.reservationsService.create(createReservationDto, user);
   }
 
   @Get()
@@ -26,7 +28,7 @@ export class ReservationsController {
     @Query('gateKeeperId') gateKeeperId?: string
   ) {
     const parsedGateKeeperId = gateKeeperId ? parseInt(gateKeeperId, 10) : undefined;
-    return this.reservationsService.findAll(page, pageSize);
+    return this.reservationsService.findAll(page, pageSize, parsedGateKeeperId);
   }
 
   @Get(':id')
@@ -39,14 +41,18 @@ export class ReservationsController {
   @Patch(':id')
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
-  update(@Param('id', ParseIntPipe) id: number, @Body() updateReservationDto: UpdateReservationDto) {
-    return this.reservationsService.update(id, updateReservationDto);
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateReservationDto: UpdateReservationDto,
+    @CurrentUser() user: User
+  ) {
+    return this.reservationsService.update(id, updateReservationDto, user);
   }
 
   @Delete(':id')
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.reservationsService.remove(id);
+  remove(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: User) {
+    return this.reservationsService.remove(id, user);
   }
 }
