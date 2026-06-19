@@ -12,7 +12,7 @@ function getErrorMessage(error: unknown): { message: string; isServerError: bool
     const serverMsg: string = Array.isArray(raw) ? raw[0] : raw;
 
     if (serverMsg) {
-      return { message: serverMsg, isServerError: false };
+      return { message: serverMsg, isServerError: status !== undefined && status >= 500 };
     }
 
     if (status === 401) {

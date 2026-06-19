@@ -50,6 +50,10 @@ export default function PeriodsPanel() {
 
   const handleCreate = async () => {
     if (!newStart || !newEnd) return;
+    if (new Date(newStart) > new Date(newEnd)) {
+      alert('A kezdő dátum nem lehet később, mint a befejező dátum.');
+      return;
+    }
     try {
       await axiosApi.post('/periods', {
         startDate: new Date(newStart).toISOString(),

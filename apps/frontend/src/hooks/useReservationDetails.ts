@@ -246,19 +246,25 @@ export function useReservationDetails(props: ReservationDetailsProps) {
 
     // Unset if current user already assigned (membership id matches) and priority is null
     if (priority === null && gateKeeperMembershipId && gateKeeperMembershipId === myMembership.id) {
-      axiosApi.patch(`/reservations/${props.clickedEvent.id}`, { gateKeeperId: null }).then(() => {
-        setGateKeeper(null);
-        setGateKeeperMembershipId(null);
-        setGateKeeperPriority(null);
-        props.onGetData();
+      axiosApi
+        .patch(`/reservations/${props.clickedEvent.id}`, { gateKeeperId: null })
+        .then(() => {
+          setGateKeeper(null);
+          setGateKeeperMembershipId(null);
+          setGateKeeperPriority(null);
+          props.onGetData();
 
-        // Send email to all recipients
-        if (emailRecipients.length > 0) {
-          emailRecipients.forEach((email) => {
-            handleSubmitMail('A beengedő visszamondta a foglalásod.', email, me!.email);
-          });
-        }
-      });
+          // Send email to all recipients
+          if (emailRecipients.length > 0) {
+            emailRecipients.forEach((email) => {
+              handleSubmitMail('A beengedő visszamondta a foglalásod.', email, me!.email);
+            });
+          }
+        })
+        .catch((err: unknown) => {
+          showErrorToast(err);
+          setValid(false);
+        });
       return;
     }
 

@@ -34,7 +34,7 @@ export class UsersService {
   async findMe(id: string): Promise<User> {
     const user = await this.prisma.user.findUnique({
       where: { authSchId: id },
-      include: { DormResidency: true },
+      include: { DormResidency: true, clubMembership: true },
     });
 
     if (user === null) {

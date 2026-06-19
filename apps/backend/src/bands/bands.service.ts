@@ -26,7 +26,7 @@ export class BandsService {
     try {
       const res = await this.prisma.band.findUniqueOrThrow({
         where: { id },
-        include: { members: true },
+        include: { members: { include: { user: { select: { fullName: true } } } } },
       });
       return res;
     } catch (error) {

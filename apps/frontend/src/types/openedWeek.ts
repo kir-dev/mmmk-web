@@ -1,5 +1,5 @@
 export type OpenedWeek = {
   id: number;
-  monday: Date | string;
+  monday: string;
   isOpen: boolean;
 };

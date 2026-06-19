@@ -1,15 +1,18 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString } from 'class-validator';
+import { IsInt, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString } from 'class-validator';
 
 export class CreateSanctionRecordDto {
-  @IsNumber()
+  @IsInt()
+  @IsPositive()
   @IsOptional()
   userId?: number;
 
-  @IsNumber()
+  @IsInt()
+  @IsPositive()
   @IsOptional()
   bandId?: number;
 
-  @IsNumber()
+  @IsInt()
+  @IsPositive()
   @IsOptional()
   reservationId?: number;
 

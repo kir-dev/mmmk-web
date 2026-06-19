@@ -16,11 +16,11 @@ export function getLastDayOfWeek(date: Date = new Date()): Date {
   return lastDay;
 }
 
-const now = new Date();
-const startOfWeek = getFirstDayOfWeek(now);
-const endOfWeek = getLastDayOfWeek(now);
-
 export function getReservationsOfWeek(reservations: Reservation[], bandId?: number, userId?: number): Reservation[] {
+  // Computed per call so the week window doesn't go stale if a session spans a week boundary.
+  const now = new Date();
+  const startOfWeek = getFirstDayOfWeek(now);
+  const endOfWeek = getLastDayOfWeek(now);
   return reservations.filter((reservation) => {
     const reservationStart = new Date(reservation.startTime);
 

@@ -44,7 +44,7 @@ export class CommentsService {
       },
     });
 
-    const count = this.prisma.reservation.count();
+    const count = this.prisma.comment.count();
 
     return Promise.all([comments, count])
       .then(([comments, count]) => {

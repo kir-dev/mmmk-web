@@ -1,6 +1,6 @@
 export type Period = {
   id: number;
-  startDate: Date | string;
-  endDate: Date | string;
+  startDate: string;
+  endDate: string;
   isOpen: boolean;
 };

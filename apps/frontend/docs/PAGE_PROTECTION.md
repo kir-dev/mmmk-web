@@ -141,17 +141,18 @@ export default withAuth(Page, { allowedRoles: ['MODERATOR'] });
 
 ## File Structure
 
-```
+```text
 src/
 ├── middleware.ts           # Server-side route protection
 ├── utils/
-│   └── withAuth.tsx       # Client-side HOC for role-based access
-├── pages/
+│   └── withAuth.tsx        # Client-side HOC for role-based access
+├── app/
 │   ├── admin/
-│   │   └── index.tsx      # Example admin page
-│   └── login.tsx          # Login page (public)
+│   │   └── page.tsx        # Example admin page
+│   └── login/
+│       └── route.ts        # Login route handler (public)
 └── hooks/
-    └── useUser.ts         # Hook for current user data
+    └── useUser.tsx         # Hook for current user data
 ```
 
 ## Testing

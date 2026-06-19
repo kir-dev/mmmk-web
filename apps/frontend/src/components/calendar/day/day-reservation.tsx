@@ -1,9 +1,4 @@
-import { useEffect, useState } from 'react';
-
-import axiosApi from '@/lib/apiSetup';
-import { Band } from '@/types/band';
 import { Reservation } from '@/types/reservation';
-import { User } from '@/types/user';
 
 interface DayEventProps {
   reservation: Reservation;
@@ -13,31 +8,12 @@ interface DayEventProps {
 export default function DayReservation(props: DayEventProps) {
   const startDate = new Date(props.reservation.startTime);
   const endDate = new Date(props.reservation.endTime);
-  const [band, setBand] = useState<Band>();
-  const [user, setUser] = useState<User>();
+  // user and band are already included in the /reservations payload (findAll), so read them
+  // directly from the reservation instead of issuing a per-card request (avoids N+1 in the grid).
+  const band = props.reservation.band;
+  const user = props.reservation.user;
 
   const offset = (startDate.getMinutes() / 60) * 80;
-
-  const getUser = (id: number) => {
-    axiosApi.get(`/users/${id}`).then((res) => {
-      setUser(res.data);
-    });
-  };
-
-  const getBand = (id: number) => {
-    axiosApi.get(`/bands/${id}`).then((res) => {
-      setBand(res.data);
-    });
-  };
-
-  useEffect(() => {
-    if (props.reservation.userId) {
-      getUser(props.reservation.userId);
-    }
-    if (props.reservation.bandId) {
-      getBand(props.reservation.bandId);
-    }
-  }, []);
 
   const formatTime = (date: Date) => {
     return `${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;

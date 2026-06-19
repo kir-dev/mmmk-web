@@ -74,10 +74,10 @@ function MyGatekeepsPage() {
 
   const handleSaveSanctionPoints = async (reservation: Reservation, sanctionId?: number) => {
     const inputValue = sanctionInputs[reservation.id] || '';
-    const pointsToAdd = parseInt(inputValue, 10);
+    const pointsToAdd = Number(inputValue);
     const reason = sanctionReasons[reservation.id] || '';
 
-    if (isNaN(pointsToAdd) || pointsToAdd <= 0) {
+    if (!Number.isInteger(pointsToAdd) || pointsToAdd <= 0) {
       toast.error('Kérlek adj meg egy pozitív egész számot!');
       return;
     }

@@ -27,7 +27,8 @@ export class ReservationsController {
     @Query('page_size', ParseIntPipe) pageSize: number,
     @Query('gateKeeperId') gateKeeperId?: string
   ) {
-    const parsedGateKeeperId = gateKeeperId ? parseInt(gateKeeperId, 10) : undefined;
+    const parsedGateKeeperId =
+      gateKeeperId && !Number.isNaN(Number(gateKeeperId)) ? parseInt(gateKeeperId, 10) : undefined;
     return this.reservationsService.findAll(page, pageSize, parsedGateKeeperId);
   }
 

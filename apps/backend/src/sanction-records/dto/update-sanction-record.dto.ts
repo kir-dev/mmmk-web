@@ -1,4 +1,4 @@
-import { IsNumber, IsOptional, IsPositive, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString } from 'class-validator';
 
 export class UpdateSanctionRecordDto {
   @IsNumber()
@@ -7,6 +7,7 @@ export class UpdateSanctionRecordDto {
   points?: number;
 
   @IsString()
+  @IsNotEmpty()
   @IsOptional()
   reason?: string;
 }
