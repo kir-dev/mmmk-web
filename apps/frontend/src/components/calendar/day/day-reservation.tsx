@@ -1,4 +1,4 @@
-import { Reservation } from '@/types/reservation';
+import { Reservation, ReservationStatus } from '@/types/reservation';
 
 interface DayEventProps {
   reservation: Reservation;
@@ -22,7 +22,7 @@ export default function DayReservation(props: DayEventProps) {
   // Get color based on reservation type
   const getReservationColor = (): { bg: string; border: string } => {
     // 1. Admin-made reservations (purple)
-    if (props.reservation.status === 'ADMINMADE') {
+    if (props.reservation.status === ReservationStatus.ADMINMADE) {
       return {
         bg: 'bg-gradient-to-r from-violet-600 to-violet-500',
         border: 'border-violet-700',
@@ -30,7 +30,7 @@ export default function DayReservation(props: DayEventProps) {
     }
 
     // 2. Overtime reservations (blue)
-    if (props.reservation.status === 'OVERTIME') {
+    if (props.reservation.status === ReservationStatus.OVERTIME) {
       return {
         bg: 'bg-gradient-to-r from-blue-600 to-blue-500',
         border: 'border-blue-700',

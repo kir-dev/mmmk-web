@@ -1,5 +1,5 @@
 import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma, ReservationStatus } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 
 import { PaginationDto } from '../dto/pagination.dto';
@@ -142,7 +142,7 @@ export class CommentsService {
         AND: [
           { startTime: { lt: endTime } }, // reservation starts before comment ends
           { endTime: { gt: startTime } }, // reservation ends after comment starts
-          { status: { not: 'ADMINMADE' } }, // admin reservations are never auto-deleted
+          { status: { not: ReservationStatus.ADMINMADE } }, // admin reservations are never auto-deleted
         ],
       },
     });
