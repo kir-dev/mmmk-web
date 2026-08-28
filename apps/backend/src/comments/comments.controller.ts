@@ -4,6 +4,7 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 import { Role } from '@prisma/client';
 import { Roles } from 'src/auth/decorators/Roles.decorator';
 import { RolesGuard } from 'src/auth/roles.guard';
+import { parseDateQuery } from 'src/utils/date-query';
 
 import { CommentsService } from './comments.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
@@ -24,8 +25,13 @@ export class CommentsController {
   @Get()
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
-  findAll(@Query('page', ParseIntPipe) page: number, @Query('page_size', ParseIntPipe) pageSize: number) {
-    return this.commentsService.findAll(page, pageSize);
+  findAll(
+    @Query('page', ParseIntPipe) page: number,
+    @Query('page_size', ParseIntPipe) pageSize: number,
+    @Query('from') from?: string,
+    @Query('to') to?: string
+  ) {
+    return this.commentsService.findAll(page, pageSize, parseDateQuery(from), parseDateQuery(to));
   }
 
   @Get(':id')

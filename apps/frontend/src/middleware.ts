@@ -19,6 +19,7 @@ export function middleware(request: NextRequest) {
   const protectedPaths = [
     '/admin',
     '/admin_panel',
+    '/admission',
     '/profile',
     '/settings',
     '/bands',
@@ -26,6 +27,7 @@ export function middleware(request: NextRequest) {
     '/members',
     '/reservation',
     '/my-reservations',
+    '/my-gatekeeps',
   ];
 
   // Check if current path is protected

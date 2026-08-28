@@ -34,9 +34,15 @@ export class CommentsService {
     });
   }
 
-  findAll(page?: number, pageSize?: number): Promise<PaginationDto<Comment>> {
+  findAll(page?: number, pageSize?: number, from?: Date, to?: Date): Promise<PaginationDto<Comment>> {
     const hasPagination = page !== -1 && pageSize !== -1;
+    // A [from, to) intervallumot átfedő felhívások kellenek, nem csak a benne kezdődők.
+    const where: Prisma.CommentWhereInput = {
+      endTime: from ? { gt: from } : undefined,
+      startTime: to ? { lt: to } : undefined,
+    };
     const comments = this.prisma.comment.findMany({
+      where,
       skip: hasPagination ? (page - 1) * pageSize : undefined,
       take: hasPagination ? pageSize : undefined,
       orderBy: {
@@ -44,7 +50,7 @@ export class CommentsService {
       },
     });
 
-    const count = this.prisma.comment.count();
+    const count = this.prisma.comment.count({ where });
 
     return Promise.all([comments, count])
       .then(([comments, count]) => {

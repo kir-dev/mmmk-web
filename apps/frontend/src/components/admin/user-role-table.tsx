@@ -34,7 +34,7 @@ export function UserRoleTable({ currentUserId }: Props) {
     const newRole = user.role === Role.ADMIN ? Role.USER : Role.ADMIN;
     setPendingIds((prev) => new Set(prev).add(user.id));
     try {
-      await axiosApi.patch(`/admin/users/${user.id}/role`, { role: newRole });
+      await axiosApi.patch(`/users/${user.id}/role`, { role: newRole });
       setUsers((prev) => prev.map((u) => (u.id === user.id ? { ...u, role: newRole } : u)));
       toast.success(`${user.fullName} szerepköre megváltozott.`);
     } catch (error) {

@@ -52,7 +52,7 @@ export async function submitReservation(params: {
   const start = new Date(startTime);
   const end = new Date(endTime);
 
-  const reservationsOfWeek = getReservationsOfWeek(reservations, band?.id, user?.id);
+  const reservationsOfWeek = getReservationsOfWeek(reservations, band?.id, user?.id, start);
 
   const reservationsOfDay = getReservationsOfDay(reservations, band?.id, user?.id, start);
 
@@ -78,19 +78,23 @@ export async function submitReservation(params: {
       setValid(true);
       return { success: true, message: 'Sikerült a foglalás létrehozása' };
     } catch (error: unknown) {
+      // Backend errors are surfaced via the toast (which carries the useful message); don't
+      // also push a generic inline form error — that's redundant.
       showErrorToast(error);
       setValid(false);
-      return { success: false, message: 'Nem sikerült a foglalás létrehozása' };
+      return { success: false };
     }
   }
 
   let comments: Comment[] = [];
   try {
-    // Fetch ALL comments (page: -1) so no non-reservable comment is silently missed
+    // A foglalás idősávját érintő összes felhívás (page: -1), hogy egy tiltó felhívás se maradjon ki
     const res = await axiosApi.get('/comments', {
       params: {
         page: -1,
         page_size: -1,
+        from: start.toISOString(),
+        to: end.toISOString(),
       },
     });
     comments = res.data.data ?? [];
@@ -113,21 +117,30 @@ export async function submitReservation(params: {
     return { success: false, message: 'A terem nem foglalható a kiválasztott időpontban.' };
   }
 
-  if (validDate(start, end, undefined, reservations)) {
-    // Load the configured daily/weekly limits so the normal/overtime split matches the
-    // backend's quota math (falls back to IsOvertime's spec defaults if unavailable).
-    let dailyLimitMinutes: number | undefined;
-    let weeklyLimitMinutes: number | undefined;
-    try {
-      const settingsRes = await axiosApi.get('/settings');
-      if (settingsRes.data) {
-        dailyLimitMinutes = settingsRes.data.maxHoursPerDay * 60;
-        weeklyLimitMinutes = settingsRes.data.maxHoursPerWeek * 60;
+  // Load the configured limits up front so the time-slot validation, the normal/overtime
+  // split, and the minimum-length check all use the same numbers the backend enforces
+  // (falls back to the spec defaults if settings are unavailable).
+  let dailyLimitMinutes: number | undefined;
+  let weeklyLimitMinutes: number | undefined;
+  let minReservationMinutes = 30;
+  let maxReservationMinutes = 180;
+  try {
+    const settingsRes = await axiosApi.get('/settings');
+    if (settingsRes.data) {
+      dailyLimitMinutes = settingsRes.data.maxHoursPerDay * 60;
+      weeklyLimitMinutes = settingsRes.data.maxHoursPerWeek * 60;
+      if (typeof settingsRes.data.minReservationMinutes === 'number') {
+        minReservationMinutes = settingsRes.data.minReservationMinutes;
       }
-    } catch {
-      // Use defaults baked into IsOvertime.
+      if (typeof settingsRes.data.maxReservationMinutes === 'number') {
+        maxReservationMinutes = settingsRes.data.maxReservationMinutes;
+      }
     }
+  } catch {
+    // Use the spec defaults baked in above / into IsOvertime.
+  }
 
+  if (validDate(start, end, undefined, reservations, minReservationMinutes, maxReservationMinutes)) {
     const reservationTimes = IsOvertime(
       start,
       end,
@@ -137,7 +150,7 @@ export async function submitReservation(params: {
       weeklyLimitMinutes
     );
 
-    const minReservationMs = 30 * 60 * 1000; // 30-minute minimum reservation length
+    const minReservationMs = minReservationMinutes * 60 * 1000; // configured minimum reservation length
     const normalMs = reservationTimes[1].getTime() - reservationTimes[0].getTime();
     const hasOvertime = Boolean(reservationTimes[2] && reservationTimes[3]);
     const overtimeMs = hasOvertime ? reservationTimes[3].getTime() - reservationTimes[2].getTime() : 0;
@@ -161,7 +174,7 @@ export async function submitReservation(params: {
           needToBeLetIn,
         });
       } else if (hasOvertime) {
-        // One side would be below the 30-minute minimum, so don't split: the booking exceeds
+        // One side would be below the configured minimum, so don't split: the booking exceeds
         // quota, so post the whole thing as a single (freely overwritable) OVERTIME reservation.
         await axiosApi.post('/reservations', {
           ...ownerField,
@@ -185,9 +198,10 @@ export async function submitReservation(params: {
       setValid(true);
       return { success: true, message: 'Sikerült a foglalás létrehozása' };
     } catch (error: unknown) {
+      // Backend errors carry the useful message in the toast; skip the redundant inline error.
       showErrorToast(error);
       setValid(false);
-      return { success: false, message: 'Nem sikerült a foglalás létrehozása' };
+      return { success: false };
     }
   } else {
     setValid(false);

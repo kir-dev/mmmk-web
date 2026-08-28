@@ -7,7 +7,7 @@ import { useUser } from '@/hooks/useUser';
 import axiosApi from '@/lib/apiSetup';
 import { ClubMembership } from '@/types/member';
 import { Reservation } from '@/types/reservation';
-import { User } from '@/types/user';
+import { Role, User } from '@/types/user';
 import { withGatekeeperAuth } from '@/utils/withAuth';
 
 function Stats() {
@@ -69,6 +69,8 @@ function Stats() {
 
   const isAuthorized = useMemo(() => {
     if (!me) return false;
+    // Az adminnak minden beengedői joga megvan, akkor is, ha nincs köri tagsága.
+    if (me.role === Role.ADMIN) return true;
     if ((me as any)?.clubMembership) return true;
     return (memberships || []).some((m) => m.userId === me.id);
   }, [me, memberships]);

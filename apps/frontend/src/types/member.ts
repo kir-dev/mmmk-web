@@ -1,4 +1,5 @@
 import { Reservation } from '@/types/reservation';
+import { User } from '@/types/user';
 
 export enum ClubMembershipStatus {
   NEWBIE = 'NEWBIE',
@@ -15,4 +16,6 @@ export type ClubMembership = {
   isLeadershipMember: boolean;
   isGateKeeper: boolean;
   gateKeepingRecords: Reservation[];
+  // A foglalás-lekérdezés a beengedő felhasználóját is visszaadja.
+  user?: User;
 };

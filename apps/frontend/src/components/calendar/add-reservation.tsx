@@ -69,6 +69,29 @@ export default function AddReservation(props: AddPanelProps) {
     }
   }, [myUser, bands]);
 
+  // Sorted list of accepted member ids — the backend's eligibility "fingerprint".
+  const acceptedMemberIds = (b: Band): number[] =>
+    (b.members ?? [])
+      .filter((m) => m.status === 'ACCEPTED' && typeof m.userId === 'number')
+      .map((m) => m.userId)
+      .sort((a, z) => a - z);
+
+  // Mirror the backend's band-eligibility rules so ineligible bands aren't offered as
+  // selectable (and silently rejected on submit): a band needs >= 2 accepted members and
+  // must not share its exact accepted-member set with another band.
+  const bandEligibility = (b: Band): { eligible: boolean; reason?: string } => {
+    const ids = acceptedMemberIds(b);
+    if (ids.length < 2) {
+      return { eligible: false, reason: 'egytagú zenekar' };
+    }
+    const fingerprint = ids.join(',');
+    const hasTwin = bands.some((other) => other.id !== b.id && acceptedMemberIds(other).join(',') === fingerprint);
+    if (hasTwin) {
+      return { eligible: false, reason: 'azonos tagú másik zenekar létezik' };
+    }
+    return { eligible: true };
+  };
+
   const handleSelectionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
     setSelectedValue(value);
@@ -108,9 +131,9 @@ export default function AddReservation(props: AddPanelProps) {
       adminOverride,
       needToBeLetIn,
     });
-    if (message) {
-      setErrorMessage(message);
-    }
+    // Backend failures are reported via the toast and return no inline message; only
+    // client-side validation errors set an inline message. Clear any stale one otherwise.
+    setErrorMessage(message ?? '');
   };
 
   return (
@@ -143,11 +166,18 @@ export default function AddReservation(props: AddPanelProps) {
             </option>
           )}
           <optgroup label='Bandák'>
-            {(myUser?.role === 'ADMIN' ? bands : userBands).map((b) => (
-              <option key={`band-${b.id}`} value={`band-${b.id}`}>
-                {b.name}
-              </option>
-            ))}
+            {(myUser?.role === 'ADMIN' ? bands : userBands).map((b) => {
+              const { eligible, reason } = bandEligibility(b);
+              // Admins can still book ineligible bands via "Admin foglalás" (override), so only
+              // disable the option for non-admins; both see the reason as a hint.
+              const isAdmin = myUser?.role === 'ADMIN';
+              return (
+                <option key={`band-${b.id}`} value={`band-${b.id}`} disabled={!eligible && !isAdmin}>
+                  {b.name}
+                  {eligible ? '' : ` — nem foglalhat (${reason})`}
+                </option>
+              );
+            })}
           </optgroup>
         </select>
       </div>
@@ -186,7 +216,7 @@ export default function AddReservation(props: AddPanelProps) {
         <TimePicker label='Vége' value={endTime} onChange={setEndTime} />
       </div>
 
-      {!valid && (
+      {!valid && errorMessage && (
         <div className='text-red-500 bg-red-900/20 p-3 rounded-md text-sm flex items-center'>
           <svg className='w-5 h-5 mr-2' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
             <path

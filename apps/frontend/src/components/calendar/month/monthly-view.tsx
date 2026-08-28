@@ -32,7 +32,7 @@ export default function MonthlyView(props: MonthlyViewProps) {
         <div className='flex items-center justify-between text-primary-foreground p-4 rounded-t-lg'>
           <button
             onClick={handlePreviousMonth}
-            className='p-2 rounded-full text-slate-800 dark:text-white hover:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-foreground'
+            className='p-2 rounded-full text-slate-800 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-foreground'
           >
             <ChevronLeftIcon className='w-5 h-5' />
           </button>
@@ -41,7 +41,7 @@ export default function MonthlyView(props: MonthlyViewProps) {
           </div>
           <button
             onClick={handleNextMonth}
-            className='p-2 rounded-full text-slate-800 dark:text-white hover:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-foreground'
+            className='p-2 rounded-full text-slate-800 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-foreground'
           >
             <ChevronRightIcon className='w-5 h-5' />
           </button>

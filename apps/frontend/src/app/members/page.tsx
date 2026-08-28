@@ -14,7 +14,6 @@ export default function Members() {
   const { user: me } = useUser();
   const [users, setUsers] = useState<User[]>([]);
   const [filteredData, setFilteredData] = useState<User[]>([]);
-  const [memberships, setMemberships] = useState<ClubMembership[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -42,7 +41,6 @@ export default function Members() {
 
         setUsers(sortedUsers);
         setFilteredData(sortedUsers);
-        setMemberships(memberships);
       })
       .catch(() => {
         if (cancelled) return;
@@ -70,14 +68,6 @@ export default function Members() {
     return (
       <div className='w-full'>
         <div className='p-8 text-center'>Betöltés…</div>
-      </div>
-    );
-  }
-
-  if (!(me as any)?.clubMembership && !(memberships || []).some((m) => m.userId === me.id)) {
-    return (
-      <div className='w-full'>
-        <div className='p-8 text-center text-red-500 font-bold'>Nincs jogosultságod megtekinteni ezt az oldalt.</div>
       </div>
     );
   }

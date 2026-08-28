@@ -1,5 +1,16 @@
 'use client';
-import { BarChart3, BookAudio, CalendarPlus, Heart, ListMusic, MicVocal, ShieldCheck, Users2 } from 'lucide-react';
+import {
+  BarChart3,
+  BookAudio,
+  CalendarCheck,
+  CalendarPlus,
+  DoorOpen,
+  Heart,
+  ListMusic,
+  MicVocal,
+  ShieldCheck,
+  Users2,
+} from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -90,8 +101,28 @@ export function Sidebar() {
 
         {(isAdmin || isGateKeeper) && (
           <div className='pt-4'>
-            <h2 className='text-xs uppercase text-zinc-400 font-bold mb-2'>Adminisztráció</h2>
+            <h2 className='text-xs uppercase text-zinc-400 font-bold mb-2'>Beengedőknek</h2>
             <div className='space-y-2'>
+              <Button
+                variant={pathname?.startsWith('/admission') ? 'blastActive' : 'blast'}
+                className='w-full justify-start'
+                asChild
+              >
+                <Link href='/admission'>
+                  <DoorOpen className='mr-2 h-4 w-4' />
+                  Beengedés
+                </Link>
+              </Button>
+              <Button
+                variant={pathname?.startsWith('/my-gatekeeps') ? 'blastActive' : 'blast'}
+                className='w-full justify-start'
+                asChild
+              >
+                <Link href='/my-gatekeeps'>
+                  <CalendarCheck className='mr-2 h-4 w-4' />
+                  Beengedéseim
+                </Link>
+              </Button>
               <Button
                 variant={pathname?.startsWith('/stats') ? 'blastActive' : 'blast'}
                 className='w-full justify-start'
@@ -102,18 +133,24 @@ export function Sidebar() {
                   Statisztika
                 </Link>
               </Button>
-              {isAdmin && (
-                <Button
-                  variant={pathname?.startsWith('/admin') ? 'blastActive' : 'blast'}
-                  className='w-full justify-start'
-                  asChild
-                >
-                  <Link href='/admin'>
-                    <ShieldCheck className='mr-2 h-4 w-4' />
-                    Admin panel
-                  </Link>
-                </Button>
-              )}
+            </div>
+          </div>
+        )}
+
+        {isAdmin && (
+          <div className='pt-4'>
+            <h2 className='text-xs uppercase text-zinc-400 font-bold mb-2'>Adminisztráció</h2>
+            <div className='space-y-2'>
+              <Button
+                variant={pathname?.startsWith('/admin') ? 'blastActive' : 'blast'}
+                className='w-full justify-start'
+                asChild
+              >
+                <Link href='/admin'>
+                  <ShieldCheck className='mr-2 h-4 w-4' />
+                  Admin panel
+                </Link>
+              </Button>
             </div>
           </div>
         )}

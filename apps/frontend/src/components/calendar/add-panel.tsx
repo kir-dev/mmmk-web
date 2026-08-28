@@ -95,7 +95,7 @@ export function AddPanel(props: AddEventProps) {
           </div>
         </div>
       ) : (
-        <Button onClick={onAddEvent} className='w-full md:w-auto'>
+        <Button onClick={onAddEvent} className='w-full md:w-auto' aria-label='Új foglalás'>
           <Plus />
         </Button>
       )}

@@ -398,9 +398,20 @@ export class ReservationsService {
     return ReservationStatus.NORMAL;
   }
 
-  findAll(page?: number, pageSize?: number, gateKeeperId?: number): Promise<PaginationDto<Reservation>> {
+  findAll(
+    page?: number,
+    pageSize?: number,
+    gateKeeperId?: number,
+    from?: Date,
+    to?: Date
+  ): Promise<PaginationDto<Reservation>> {
     const hasPagination = page !== -1 && pageSize !== -1;
-    const where = gateKeeperId ? { gateKeeperId } : undefined;
+    // A [from, to) intervallumot átfedő foglalások kellenek, nem csak a benne kezdődők.
+    const where: Prisma.ReservationWhereInput = {
+      gateKeeperId,
+      endTime: from ? { gt: from } : undefined,
+      startTime: to ? { lt: to } : undefined,
+    };
     const reservations = this.prisma.reservation.findMany({
       where,
       skip: hasPagination ? (page - 1) * pageSize : undefined,

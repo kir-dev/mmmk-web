@@ -1,5 +1,9 @@
-import { PartialType } from '@nestjs/mapped-types';
+import { PartialType, PickType } from '@nestjs/swagger';
 
-import { CreateUserDto } from './create-user.dto';
+import { User } from '../entities/user.entity';
 
-export class UpdateUserDto extends PartialType(CreateUserDto) {}
+/**
+ * Saját profil adatai. A szerepkör szándékosan nincs benne: azt csak az admin
+ * módosíthatja a PATCH /users/:id/role végponton keresztül.
+ */
+export class UpdateUserDto extends PartialType(PickType(User, ['fullName', 'email', 'phone'] as const)) {}

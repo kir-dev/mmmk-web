@@ -34,6 +34,8 @@ export class Reservation {
   @IsEnum(ReservationStatus)
   status: ReservationStatus;
 
+  // Optional: the DB column defaults to false (see schema.prisma), so clients may omit it.
+  @IsOptional()
   @IsBoolean()
   needToBeLetIn: boolean;
 }

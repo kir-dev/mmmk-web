@@ -3,7 +3,7 @@
 import { AddPanel } from '@components/calendar/add-panel';
 import CommentDetails from '@components/calendar/comment-details';
 import ReservationDetails from '@components/calendar/reservation-details';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import axiosApi from '@/lib/apiSetup';
 import { Comment } from '@/types/comment';
@@ -11,6 +11,7 @@ import { OpenedWeek } from '@/types/openedWeek';
 import { Reservation } from '@/types/reservation';
 
 import DailyView from './day/daily-view';
+import { getFirstDayOfWeek } from './isReservationOvertime';
 //import MonthlyView from './month/monthly-view';
 import DWView from './week/daily-weekly-view';
 
@@ -31,30 +32,27 @@ export default function Calendar() {
   const [clickedComment, setClickedComment] = useState<Comment>();
   const [view, setView] = useState<View>(View.Day);
 
-  const onGetData = () => {
-    axiosApi
-      .get('/reservations', {
-        params: {
-          page: 1,
-          page_size: 168,
-          limit: 168,
-        },
-      })
-      .then((res) => {
-        setReservations(res.data.data);
-      });
+  // A hetek közti gyors lépkedésnél a korábbi kérés végezhet később: csak a legutolsó válaszát vesszük.
+  const latestRequest = useRef(0);
 
-    axiosApi
-      .get('/comments', {
-        params: {
-          page: 1,
-          page_size: 168,
-          limit: 168,
-        },
-      })
-      .then((res) => {
-        setComments(res.data.data);
-      });
+  const onGetData = () => {
+    const requestId = ++latestRequest.current;
+    // Csak a megjelenített hetet töltjük be, plusz egy-egy hetet mindkét irányba, hogy a heti
+    // kvótaszámítás a hét szélein se essen ki az adathalmazból.
+    const monday = getFirstDayOfWeek(currentDate);
+    const from = new Date(monday);
+    from.setDate(monday.getDate() - 7);
+    const to = new Date(monday);
+    to.setDate(monday.getDate() + 14);
+    const params = { page: -1, page_size: -1, from: from.toISOString(), to: to.toISOString() };
+
+    axiosApi.get('/reservations', { params }).then((res) => {
+      if (requestId === latestRequest.current) setReservations(res.data.data);
+    });
+
+    axiosApi.get('/comments', { params }).then((res) => {
+      if (requestId === latestRequest.current) setComments(res.data.data);
+    });
 
     axiosApi
       .get('/opened-weeks')
@@ -76,7 +74,7 @@ export default function Calendar() {
 
   useEffect(() => {
     onGetData();
-  }, []);
+  }, [currentDate]);
 
   return (
     <div className='w-full container mx-auto'>

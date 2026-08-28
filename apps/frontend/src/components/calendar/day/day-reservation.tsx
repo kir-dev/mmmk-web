@@ -12,6 +12,7 @@ export default function DayReservation(props: DayEventProps) {
   // directly from the reservation instead of issuing a per-card request (avoids N+1 in the grid).
   const band = props.reservation.band;
   const user = props.reservation.user;
+  const gateKeeperName = props.reservation.gateKeeper?.user?.fullName;
 
   const offset = (startDate.getMinutes() / 60) * 80;
 
@@ -85,6 +86,10 @@ export default function DayReservation(props: DayEventProps) {
             <div className='text-left font-bold text-white text-sm truncate mt-0.5'>
               {band?.name || user?.fullName || 'Loading...'}
             </div>
+            {/* A fogadó neve csak akkor fér ki, ha a blokk legalább háromnegyed órás. */}
+            {gateKeeperName && height >= 60 && (
+              <div className='text-left text-white/80 text-xs truncate'>Beengedő: {gateKeeperName}</div>
+            )}
           </div>
         </button>
       </div>

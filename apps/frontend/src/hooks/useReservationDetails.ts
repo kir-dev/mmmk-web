@@ -136,10 +136,36 @@ export function useReservationDetails(props: ReservationDetailsProps) {
     }
   };
 
-  const onEdit = () => {
+  const onEdit = async () => {
     if (!props.clickedEvent) return;
     if (isEditing) {
-      if (validDate(editStartTimeValue, editEndTimeValue, props.clickedEvent, props.reservations)) {
+      // Use the configured reservation-length limits (not hard-coded 30 min / 3 h) so the edit
+      // validation agrees with the backend; fall back to the spec defaults if unavailable.
+      let minReservationMinutes = 30;
+      let maxReservationMinutes = 180;
+      try {
+        const settingsRes = await axiosApi.get('/settings');
+        if (settingsRes.data) {
+          if (typeof settingsRes.data.minReservationMinutes === 'number') {
+            minReservationMinutes = settingsRes.data.minReservationMinutes;
+          }
+          if (typeof settingsRes.data.maxReservationMinutes === 'number') {
+            maxReservationMinutes = settingsRes.data.maxReservationMinutes;
+          }
+        }
+      } catch {
+        // Use the defaults above.
+      }
+      if (
+        validDate(
+          editStartTimeValue,
+          editEndTimeValue,
+          props.clickedEvent,
+          props.reservations,
+          minReservationMinutes,
+          maxReservationMinutes
+        )
+      ) {
         axiosApi
           .patch(`/reservations/${props.clickedEvent.id}`, {
             startTime: editStartTimeValue.toISOString(),

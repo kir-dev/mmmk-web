@@ -2,8 +2,6 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { DormResidency, Prisma, Role, User } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 
-import { UpdateUserDto } from './dto/update-user.dto';
-
 type UserWithDorm = User & { DormResidency: DormResidency | null };
 
 @Injectable()
@@ -45,13 +43,13 @@ export class UsersService {
     return this.serialize(user, true);
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto) {
+  async update(id: number, data: Prisma.UserUpdateInput) {
     try {
       return await this.prisma.user.update({
         where: {
           id,
         },
-        data: updateUserDto,
+        data,
       });
     } catch (e) {
       if (e instanceof Prisma.PrismaClientKnownRequestError) {

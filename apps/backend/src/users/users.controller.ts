@@ -3,8 +3,11 @@ import { Body, Controller, ForbiddenException, Get, Param, ParseIntPipe, Patch, 
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { Role, User } from '@prisma/client';
+import { Roles } from 'src/auth/decorators/Roles.decorator';
+import { RolesGuard } from 'src/auth/roles.guard';
 
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 import { UsersService } from './users.service';
 
 @Controller('users')
@@ -41,5 +44,21 @@ export class UsersController {
       throw new ForbiddenException('Csak a saját profilodat módosíthatod.');
     }
     return this.usersService.update(id, updateUserDto);
+  }
+
+  @Patch(':id/role')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.ADMIN)
+  updateRole(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateUserRoleDto: UpdateUserRoleDto,
+    @CurrentUser() user: User
+  ) {
+    // Elkerüljük, hogy egy admin véletlenül elvegye a saját jogosultságát.
+    if (user.id === id) {
+      throw new ForbiddenException('A saját szerepkörödet nem módosíthatod.');
+    }
+    return this.usersService.update(id, updateUserRoleDto);
   }
 }

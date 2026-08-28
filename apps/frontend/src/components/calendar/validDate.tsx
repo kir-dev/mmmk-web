@@ -5,11 +5,16 @@ export default function validDate(
   start: Date,
   end: Date,
   reservation: Reservation | undefined,
-  reservations: Reservation[]
+  reservations: Reservation[],
+  // Configurable reservation length limits (minutes). Defaults mirror the spec/backend
+  // fallbacks (30 min / 3 h); callers should pass the values from the backend Settings so
+  // the frontend doesn't reject a duration the backend would accept.
+  minReservationMinutes = 30,
+  maxReservationMinutes = 180
 ): boolean {
   const durationMs = end.valueOf() - start.valueOf();
-  const minDurationMs = 30 * 60 * 1000; // 30 minutes
-  const maxDurationMs = 3 * 60 * 60 * 1000; // 3 hours
+  const minDurationMs = minReservationMinutes * 60 * 1000;
+  const maxDurationMs = maxReservationMinutes * 60 * 1000;
 
   // Validate time constraints
   if (start > end) return false;

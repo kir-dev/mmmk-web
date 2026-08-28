@@ -1,6 +1,7 @@
 import { AuthSchProfile } from '@kir-dev/passport-authsch';
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { Role } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 import { User } from 'src/users/entities/user.entity';
 
@@ -57,6 +58,7 @@ export class AuthService {
     // Active member at MMMK
     for (const membership of userProfile.pek.activeMemberAt) {
       if (membership.groupName === process.env.PEK_GROUP_NAME) {
+        const isLeader = this.hasLeadershipTitle(membership.titles);
         const clubMembership = await this.prisma.clubMembership.upsert({
           where: { userId: user.id },
           update: {
@@ -65,6 +67,7 @@ export class AuthService {
               (title) => title !== process.env.PEK_NEWBIE_TITLE && title !== process.env.PEK_MEMBER_TITLE
             ),
             isGateKeeper: membership.titles.includes(process.env.PEK_GATEKEEPER_TITLE),
+            isLeadershipMember: isLeader,
           },
           create: {
             user: { connect: { id: user.id } },
@@ -76,7 +79,7 @@ export class AuthService {
               process.env.PEK_GATEKEEPER_TITLE || process.env.PEK_ROOM_MANAGER_TITLE
             ),
             hasRoomAccess: false,
-            isLeadershipMember: false,
+            isLeadershipMember: isLeader,
           },
         });
 
@@ -85,6 +88,9 @@ export class AuthService {
           data: {
             clubMembership: { connect: { id: clubMembership.id } },
             clubMembershipUpdatedAt: new Date(),
+            // A körvezetőség automatikusan admin jogot kap. Visszavenni nem vesszük, mert a kézzel
+            // kiosztott adminokat nem tudnánk megkülönböztetni: a leváltás az admin panelen történik.
+            ...(isLeader ? { role: Role.ADMIN } : {}),
           },
         });
       }
@@ -117,5 +123,13 @@ export class AuthService {
         });
       }
     }
+  }
+
+  /** A körvezetőségi (admin jogú) PEK titulusok, a PEK_LEADERSHIP_TITLES változóval felülírhatóan. */
+  private hasLeadershipTitle(titles: string[]): boolean {
+    const leadershipTitles = (process.env.PEK_LEADERSHIP_TITLES ?? 'körvezető,teremmester,ac')
+      .split(',')
+      .map((title) => title.trim().toLowerCase());
+    return titles.some((title) => leadershipTitles.includes(title.trim().toLowerCase()));
   }
 }

@@ -41,7 +41,13 @@ export function useWeekStatus(date: Date = new Date()) {
           return p.isOpen && pStart <= weekStart && pEnd >= weekEnd;
         });
 
-        const weekOpen = weeks.some((w: any) => w.isOpen && new Date(w.monday).getTime() === weekStart.getTime());
+        // Compare canonical local date keys (Y-M-D) rather than raw timestamps. The backend
+        // stores each opened week's Monday at club-local midnight (e.g. 2026-06-21T22:00:00Z for
+        // the week of June 22 in Budapest summer time); an exact getTime() match is brittle across
+        // local/UTC midnight assumptions, whereas the local date key resolves to the same day.
+        const toDateKey = (d: Date) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+        const weekStartKey = toDateKey(weekStart);
+        const weekOpen = weeks.some((w: any) => w.isOpen && toDateKey(new Date(w.monday)) === weekStartKey);
 
         setWeekStatus({
           isOpen: periodOpen && weekOpen,

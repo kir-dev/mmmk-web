@@ -3,6 +3,7 @@ import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query,
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { User } from '@prisma/client';
+import { parseDateQuery } from 'src/utils/date-query';
 
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { UpdateReservationDto } from './dto/update-reservation.dto';
@@ -25,11 +26,19 @@ export class ReservationsController {
   async findAll(
     @Query('page', ParseIntPipe) page: number,
     @Query('page_size', ParseIntPipe) pageSize: number,
-    @Query('gateKeeperId') gateKeeperId?: string
+    @Query('gateKeeperId') gateKeeperId?: string,
+    @Query('from') from?: string,
+    @Query('to') to?: string
   ) {
     const parsedGateKeeperId =
       gateKeeperId && !Number.isNaN(Number(gateKeeperId)) ? parseInt(gateKeeperId, 10) : undefined;
-    return this.reservationsService.findAll(page, pageSize, parsedGateKeeperId);
+    return this.reservationsService.findAll(
+      page,
+      pageSize,
+      parsedGateKeeperId,
+      parseDateQuery(from),
+      parseDateQuery(to)
+    );
   }
 
   @Get(':id')
